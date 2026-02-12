@@ -7,14 +7,14 @@ interface TableProps {
 
 export function Table({ children, className }: TableProps) {
   return (
-    <div className="w-full overflow-auto">
+    <div className="w-full overflow-auto rounded-2xl border border-border bg-card shadow-[0_1px_3px_0_rgba(0,0,0,0.06),0_0_1px_0_rgba(255,255,255,0.5)_inset]">
       <table className={cn("w-full caption-bottom text-sm", className)}>{children}</table>
     </div>
   );
 }
 
 export function TableHeader({ children, className }: TableProps) {
-  return <thead className={cn("border-b border-border", className)}>{children}</thead>;
+  return <thead className={cn("border-b border-border/60 bg-muted/30", className)}>{children}</thead>;
 }
 
 export function TableBody({ children, className }: TableProps) {
@@ -23,7 +23,7 @@ export function TableBody({ children, className }: TableProps) {
 
 export function TableRow({ children, className }: TableProps) {
   return (
-    <tr className={cn("border-b border-border transition-colors hover:bg-muted/50", className)}>
+    <tr className={cn("border-b border-border/40 transition-colors hover:bg-accent/50", className)}>
       {children}
     </tr>
   );
@@ -31,12 +31,12 @@ export function TableRow({ children, className }: TableProps) {
 
 export function TableHead({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <th className={cn("h-10 px-3 text-left align-middle font-medium text-muted-foreground", className)}>
+    <th className={cn("h-10 px-4 text-left align-middle text-xs font-medium uppercase tracking-wide text-muted-foreground", className)}>
       {children}
     </th>
   );
 }
 
 export function TableCell({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <td className={cn("px-3 py-2.5 align-middle", className)}>{children}</td>;
+  return <td className={cn("px-4 py-3 align-middle", className)}>{children}</td>;
 }

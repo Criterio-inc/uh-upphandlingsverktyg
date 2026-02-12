@@ -188,12 +188,12 @@ function RiskTemplateContent({ risk }: { risk: any }) {
 
       {/* Escalation criteria */}
       {risk.escalationCriteria && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50/50 dark:border-amber-800 dark:bg-amber-950/20 p-3">
-          <div className="flex items-start gap-2">
-            <span className="text-amber-600 shrink-0 mt-0.5">🔺</span>
+        <div className="rounded-2xl border border-warning/20 bg-warning/5 p-4">
+          <div className="flex items-start gap-2.5">
+            <span className="shrink-0 mt-0.5">🔺</span>
             <div>
-              <p className="text-xs font-medium text-amber-800 dark:text-amber-300 uppercase tracking-wide">Eskaleringskriterier</p>
-              <p className="text-sm text-amber-900 dark:text-amber-200 mt-1">{risk.escalationCriteria}</p>
+              <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Eskaleringskriterier</p>
+              <p className="text-sm mt-1 leading-relaxed">{risk.escalationCriteria}</p>
             </div>
           </div>
         </div>
@@ -223,12 +223,12 @@ function WorkshopTemplateContent({ workshop }: { workshop: any }) {
 
       {/* Preparation */}
       {workshop.preparation && (
-        <div className="rounded-lg border border-blue-200 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/20 p-3">
-          <div className="flex items-start gap-2">
-            <span className="text-blue-600 shrink-0">📝</span>
+        <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4">
+          <div className="flex items-start gap-2.5">
+            <span className="shrink-0">📝</span>
             <div>
-              <p className="text-xs font-medium text-blue-800 dark:text-blue-300 uppercase tracking-wide">Förberedelser</p>
-              <p className="text-sm text-blue-900 dark:text-blue-200 mt-1">{workshop.preparation}</p>
+              <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Förberedelser</p>
+              <p className="text-sm mt-1 leading-relaxed">{workshop.preparation}</p>
             </div>
           </div>
         </div>
@@ -286,8 +286,8 @@ function WorkshopTemplateContent({ workshop }: { workshop: any }) {
                   </div>
                 )}
                 {item.tips && (
-                  <div className="rounded-md bg-blue-50/70 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900 p-2 mt-1">
-                    <p className="text-xs text-blue-800 dark:text-blue-300 flex items-start gap-1.5">
+                  <div className="rounded-xl bg-secondary/60 p-2.5 mt-1">
+                    <p className="text-xs text-muted-foreground flex items-start gap-1.5">
                       <span className="shrink-0">💡</span>
                       <span>{item.tips}</span>
                     </p>
@@ -554,7 +554,7 @@ export default async function LibraryItemDetailPage({
         <div className="mt-8">
           <Link
             href={`/library/${type}`}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="text-sm text-muted-foreground hover:text-primary transition-colors duration-150"
           >
             &larr; Tillbaka till {info.label.toLowerCase()}
           </Link>

@@ -11,8 +11,10 @@ export function Badge({ children, className, variant = "default" }: BadgeProps) 
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-        variant === "outline" ? "border border-border" : "bg-muted",
+        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium tracking-tight",
+        variant === "outline"
+          ? "border border-border/60 text-muted-foreground"
+          : "bg-secondary text-secondary-foreground",
         className
       )}
     >
@@ -23,7 +25,7 @@ export function Badge({ children, className, variant = "default" }: BadgeProps) 
 
 export function StatusBadge({ status }: { status: string }) {
   return (
-    <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium", `badge-${status}`)}>
+    <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium tracking-tight", `badge-${status}`)}>
       {STATUS_LABELS[status] ?? status}
     </span>
   );
@@ -35,7 +37,7 @@ export function PriorityBadge({ priority }: { priority: string }) {
 
 export function LevelBadge({ level }: { level: string }) {
   return (
-    <span className={cn("inline-flex items-center rounded px-2 py-0.5 text-xs font-medium", `level-${level}`)}>
+    <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold tracking-tight", `level-${level}`)}>
       {LEVEL_LABELS[level] ?? level}
     </span>
   );

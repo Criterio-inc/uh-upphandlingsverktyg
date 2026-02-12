@@ -7,16 +7,16 @@ export interface BreadcrumbItem {
 
 export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
   return (
-    <nav className="mb-2 flex items-center gap-1 text-sm text-muted-foreground">
+    <nav className="mb-2 flex items-center gap-1 text-xs text-muted-foreground">
       {items.map((item, i) => (
         <span key={i} className="flex items-center gap-1">
-          {i > 0 && <span className="mx-1">/</span>}
+          {i > 0 && <span className="mx-0.5 text-border">/</span>}
           {item.href ? (
-            <Link href={item.href} className="hover:text-foreground transition-colors">
+            <Link href={item.href} className="hover:text-primary transition-colors duration-150">
               {item.label}
             </Link>
           ) : (
-            <span className="text-foreground">{item.label}</span>
+            <span className="text-foreground font-medium">{item.label}</span>
           )}
         </span>
       ))}

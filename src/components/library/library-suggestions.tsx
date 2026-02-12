@@ -72,20 +72,20 @@ export function LibrarySuggestions({ entityType, itemCount, caseId }: LibrarySug
   if (!shouldShow || loading || previews.length === 0) return null;
 
   return (
-    <div className="border border-purple-200 bg-purple-50/30 rounded-lg p-4 space-y-3">
+    <div className="rounded-2xl border border-primary/15 bg-primary/5 p-5 space-y-3">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <span className="text-lg">📚</span>
           <div>
-            <div className="text-sm font-medium text-purple-900">Föreslagna mallar från biblioteket</div>
-            <div className="text-xs text-purple-700">
+            <div className="text-sm font-medium text-foreground">Föreslagna mallar från biblioteket</div>
+            <div className="text-xs text-muted-foreground">
               Spara tid genom att importera färdiga mallar istället för att börja från noll
             </div>
           </div>
         </div>
         <button
           onClick={() => setDismissed(true)}
-          className="text-purple-400 hover:text-purple-600 text-sm px-2"
+          className="text-muted-foreground/50 hover:text-muted-foreground text-sm px-2 transition-colors"
           title="Dölj förslag"
         >
           ✕
@@ -96,25 +96,25 @@ export function LibrarySuggestions({ entityType, itemCount, caseId }: LibrarySug
           const preview = previews.find((p) => p.type === mapping.libraryType);
           if (!preview) return null;
           return (
-            <div key={mapping.libraryType} className="bg-background border border-purple-100 rounded-lg p-3">
-              <div className="text-xs font-semibold text-purple-800 mb-1">{mapping.typeLabel} ({preview.count} st)</div>
+            <div key={mapping.libraryType} className="bg-card border border-border/60 rounded-xl p-3.5 shadow-sm">
+              <div className="text-xs font-semibold text-foreground mb-1">{mapping.typeLabel} ({preview.count} st)</div>
               <p className="text-xs text-muted-foreground mb-2">{mapping.description}</p>
               {preview.titles.length > 0 && (
                 <ul className="text-xs text-muted-foreground mb-2 space-y-0.5">
                   {preview.titles.map((t) => (
-                    <li key={t} className="flex items-center gap-1 truncate">
-                      <span className="text-purple-400">•</span>
+                    <li key={t} className="flex items-center gap-1.5 truncate">
+                      <span className="text-primary/60">•</span>
                       <span className="truncate">{t}</span>
                     </li>
                   ))}
                   {preview.count > 3 && (
-                    <li className="text-purple-600 text-[11px]">...och {preview.count - 3} till</li>
+                    <li className="text-primary text-[11px]">...och {preview.count - 3} till</li>
                   )}
                 </ul>
               )}
               <Link
                 href={`/library/${mapping.libraryType}?caseId=${caseId}`}
-                className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded text-xs font-medium transition-colors"
+                className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-xs font-medium transition-colors"
               >
                 Visa i biblioteket →
               </Link>

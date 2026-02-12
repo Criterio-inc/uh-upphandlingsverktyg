@@ -1,15 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 
 type GuideType = "workshop" | "risk" | "requirement" | "criterion";
 
-const GUIDES: Record<GuideType, { title: string; icon: string; color: string; steps: { label: string; description: string }[]; tips: string[] }> = {
+const GUIDES: Record<GuideType, { title: string; icon: string; steps: { label: string; description: string }[]; tips: string[] }> = {
   workshop: {
     title: "Så arbetar du med workshops",
     icon: "🏛️",
-    color: "amber",
     steps: [
       { label: "Förbered", description: "Välj mall från biblioteket, bjud in relevanta deltagare, skicka förberedelseunderlag 3-5 dagar innan." },
       { label: "Genomför", description: "Följ agendans struktur. Använd Sparkboard för digital brainstorming. Dokumentera löpande." },
@@ -25,7 +23,6 @@ const GUIDES: Record<GuideType, { title: string; icon: string; color: string; st
   risk: {
     title: "Så arbetar du med risker",
     icon: "⚠️",
-    color: "red",
     steps: [
       { label: "Identifiera", description: "Använd riskmallar från biblioteket som utgångspunkt. Komplettera med projektspecifika risker i en riskworkshop." },
       { label: "Bedöm", description: "Bedöm sannolikhet (1-5) och konsekvens (1-5) för varje risk. Riskvärde = sannolikhet × konsekvens." },
@@ -42,7 +39,6 @@ const GUIDES: Record<GuideType, { title: string; icon: string; color: string; st
   requirement: {
     title: "Så arbetar du med krav",
     icon: "📋",
-    color: "green",
     steps: [
       { label: "Behov → Krav", description: "Utgå alltid från dokumenterade behov. Varje krav ska kunna spåras till minst ett behov." },
       { label: "Formulera kravtext", description: "SKA-krav: absoluta, verifierbara, binära (uppfyllt/ej). BÖR-krav: utvärderas och poängsätts." },
@@ -59,7 +55,6 @@ const GUIDES: Record<GuideType, { title: string; icon: string; color: string; st
   criterion: {
     title: "Så arbetar du med utvärderingskriterier",
     icon: "🎯",
-    color: "blue",
     steps: [
       { label: "Definiera", description: "Skapa kriterier som utvärderar BÖR-krav och kvalitativa aspekter. SKA-krav utvärderas binärt — de ska inte vara kriterier." },
       { label: "Vikta", description: "Fördela 100% mellan kriterierna. Pris brukar vara 30-50%. Vikter ska spegla vad som verkligen är viktigt för verksamheten." },
@@ -75,88 +70,58 @@ const GUIDES: Record<GuideType, { title: string; icon: string; color: string; st
   },
 };
 
-const COLOR_MAP: Record<string, { bg: string; border: string; text: string; badge: string }> = {
-  amber: {
-    bg: "bg-amber-50/50 dark:bg-amber-950/20",
-    border: "border-amber-200 dark:border-amber-800",
-    text: "text-amber-900 dark:text-amber-200",
-    badge: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
-  },
-  red: {
-    bg: "bg-red-50/50 dark:bg-red-950/20",
-    border: "border-red-200 dark:border-red-800",
-    text: "text-red-900 dark:text-red-200",
-    badge: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
-  },
-  green: {
-    bg: "bg-green-50/50 dark:bg-green-950/20",
-    border: "border-green-200 dark:border-green-800",
-    text: "text-green-900 dark:text-green-200",
-    badge: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-  },
-  blue: {
-    bg: "bg-blue-50/50 dark:bg-blue-950/20",
-    border: "border-blue-200 dark:border-blue-800",
-    text: "text-blue-900 dark:text-blue-200",
-    badge: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-  },
-};
-
 export function MethodologyGuide({ type }: { type: GuideType }) {
   const [open, setOpen] = useState(false);
   const guide = GUIDES[type];
-  const colors = COLOR_MAP[guide.color];
 
   return (
-    <Card className={`${colors.border} ${colors.bg}`}>
-      <CardContent className="py-3 px-4">
-        <button
-          onClick={() => setOpen(!open)}
-          className="w-full flex items-center justify-between"
-        >
-          <div className="flex items-center gap-2">
-            <span>{guide.icon}</span>
-            <span className={`text-sm font-medium ${colors.text}`}>{guide.title}</span>
-          </div>
-          <span className="text-xs text-muted-foreground">
-            {open ? "▲ Dölj" : "▼ Visa metodstöd"}
-          </span>
-        </button>
+    <div className="rounded-2xl border border-border/60 bg-card overflow-hidden shadow-sm">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-5 py-3 hover:bg-accent/30 transition-colors duration-150"
+      >
+        <div className="flex items-center gap-2.5">
+          <span>{guide.icon}</span>
+          <span className="text-sm font-medium text-foreground">{guide.title}</span>
+        </div>
+        <span className="text-xs text-muted-foreground">
+          {open ? "▲ Dölj" : "▼ Visa metodstöd"}
+        </span>
+      </button>
 
-        {open && (
-          <div className="mt-4 space-y-4">
-            {/* Steps */}
-            <div className="flex flex-col sm:flex-row gap-2">
-              {guide.steps.map((step, i) => (
-                <div key={i} className="flex-1 flex items-start gap-2">
-                  <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${colors.badge}`}>
-                    {i + 1}
-                  </div>
-                  <div>
-                    <p className={`text-sm font-semibold ${colors.text}`}>{step.label}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{step.description}</p>
-                  </div>
+      {open && (
+        <div className="px-5 pb-5 pt-1 space-y-4 border-t border-border/40">
+          {/* Steps */}
+          <div className="flex flex-col sm:flex-row gap-3 pt-3">
+            {guide.steps.map((step, i) => (
+              <div key={i} className="flex-1 flex items-start gap-2.5">
+                <div className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-primary/10 text-primary">
+                  {i + 1}
                 </div>
-              ))}
-            </div>
-
-            {/* Tips */}
-            <div className="rounded-md bg-white/60 dark:bg-black/10 border border-border/40 p-3">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
-                Praktiska tips
-              </p>
-              <ul className="space-y-1">
-                {guide.tips.map((tip, i) => (
-                  <li key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
-                    <span className="shrink-0 mt-0.5">💡</span>
-                    <span>{tip}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{step.label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{step.description}</p>
+                </div>
+              </div>
+            ))}
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          {/* Tips */}
+          <div className="rounded-xl bg-secondary/50 p-3">
+            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5">
+              Praktiska tips
+            </p>
+            <ul className="space-y-1">
+              {guide.tips.map((tip, i) => (
+                <li key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                  <span className="shrink-0 mt-0.5">💡</span>
+                  <span>{tip}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

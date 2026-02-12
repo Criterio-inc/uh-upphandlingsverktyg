@@ -160,7 +160,7 @@ export function GlobalSearch({ caseId }: { caseId: string }) {
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder="S\u00f6k i upphandlingen... (\u2318K)"
-          className="w-72 rounded-md border border-border bg-background pl-8 pr-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+          className="w-72 rounded-xl border border-input bg-card pl-8 pr-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition-shadow duration-150"
         />
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -173,7 +173,7 @@ export function GlobalSearch({ caseId }: { caseId: string }) {
       </div>
 
       {showDropdown && (
-        <div className="absolute top-full left-0 z-50 mt-1 w-[28rem] rounded-lg border border-border bg-background shadow-xl">
+        <div className="absolute top-full left-0 z-50 mt-2 w-[28rem] rounded-2xl border border-border bg-card shadow-xl overflow-hidden">
           {/* Smart queries (show when empty) */}
           {query.length === 0 && !loading && (
             <div className="p-3 border-b border-border">

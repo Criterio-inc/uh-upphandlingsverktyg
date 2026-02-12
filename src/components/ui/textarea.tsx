@@ -21,10 +21,11 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           ref={ref}
           id={id}
           className={cn(
-            "flex min-h-[80px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm",
+            "flex min-h-[80px] w-full rounded-xl border border-input bg-card px-3 py-2 text-sm",
             "placeholder:text-muted-foreground",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
             "disabled:cursor-not-allowed disabled:opacity-50",
+            "transition-shadow duration-150",
             error && "border-destructive",
             className
           )}

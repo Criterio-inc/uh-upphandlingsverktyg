@@ -28,7 +28,7 @@ export function CaseSidebar({ caseId }: { caseId: string }) {
   const basePath = `/cases/${caseId}`;
 
   return (
-    <nav className="w-48 border-r border-border bg-muted/20 p-3 space-y-1">
+    <nav className="w-48 border-r border-border/40 bg-card/50 p-3 space-y-0.5">
       {CASE_NAV.map((item) => {
         const href = item.segment ? `${basePath}/${item.segment}` : basePath;
         const isActive = item.segment
@@ -39,10 +39,10 @@ export function CaseSidebar({ caseId }: { caseId: string }) {
             key={item.segment || "dashboard"}
             href={href}
             className={cn(
-              "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors",
+              "flex items-center gap-2 rounded-xl px-3 py-1.5 text-sm transition-all duration-150",
               isActive
-                ? "bg-primary/10 text-primary font-medium"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                ? "bg-primary/10 text-primary font-medium shadow-sm"
+                : "text-muted-foreground hover:bg-accent hover:text-foreground"
             )}
           >
             <span className="text-xs">{item.icon}</span>
