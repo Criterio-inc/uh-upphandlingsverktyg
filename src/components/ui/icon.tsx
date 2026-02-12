@@ -43,6 +43,11 @@ import {
   Link,
   ClipboardList,
   Trophy,
+  Crown,
+  ExternalLink,
+  Database,
+  Activity,
+  UserPlus,
   type LucideProps,
 } from "lucide-react";
 
@@ -89,6 +94,11 @@ const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
   link: Link,
   "clipboard-list": ClipboardList,
   trophy: Trophy,
+  crown: Crown,
+  "external-link": ExternalLink,
+  database: Database,
+  activity: Activity,
+  "user-plus": UserPlus,
 };
 
 interface IconProps extends Omit<LucideProps, "ref"> {

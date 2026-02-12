@@ -28,6 +28,40 @@ const isClerkEnabled =
   !!clerkKey &&
   /^pk_(test|live)_[A-Za-z0-9]{20,}/.test(clerkKey);
 
+const ADMIN_EMAIL = "par.levander@criteroconsulting.se";
+
+// Lazy-load admin check so useUser only runs inside ClerkProvider
+const AdminNavLink = dynamic(
+  () => import("@clerk/nextjs").then((mod) => {
+    function AdminLink({ pathname }: { pathname: string }) {
+      const { user } = mod.useUser();
+      const isAdmin = user?.emailAddresses?.some(
+        (e) => e.emailAddress === ADMIN_EMAIL
+      );
+      if (!isAdmin) return null;
+      return (
+        <>
+          <div className="my-2 border-t border-border/30" />
+          <Link
+            href="/admin"
+            className={cn(
+              "flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-150",
+              pathname.startsWith("/admin")
+                ? "bg-primary/10 text-primary shadow-sm"
+                : "text-muted-foreground hover:bg-accent hover:text-foreground"
+            )}
+          >
+            <Icon name="crown" size={16} />
+            <span>Admin</span>
+          </Link>
+        </>
+      );
+    }
+    return AdminLink;
+  }),
+  { ssr: false }
+);
+
 const NAV_ITEMS = [
   { href: "/cases", label: "Upphandlingar", icon: "clipboard-list" },
   { href: "/library", label: "Bibliotek", icon: "library" },
@@ -72,6 +106,9 @@ export function AppSidebar() {
             </Link>
           );
         })}
+
+        {/* Admin link — only visible to admin */}
+        {isClerkEnabled && <AdminNavLink pathname={pathname} />}
       </nav>
 
       {/* User section */}

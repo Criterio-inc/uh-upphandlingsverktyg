@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <!-- Critero — balance/scale favicon in #fb7232 -->
+  <g stroke="#fb7232" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Horizontal beam -->
+    <line x1="3" y1="8" x2="29" y2="8"/>
+    <!-- Central pillar -->
+    <line x1="16" y1="8" x2="16" y2="25"/>
+    <!-- Base -->
+    <line x1="10" y1="25" x2="22" y2="25"/>
+    <!-- Left chain -->
+    <line x1="6" y1="8" x2="6" y2="16"/>
+    <!-- Left pan -->
+    <path d="M2 18.5Q2 15 6 15Q10 15 10 18.5"/>
+    <!-- Right chain -->
+    <line x1="26" y1="8" x2="26" y2="16"/>
+    <!-- Right pan -->
+    <path d="M22 18.5Q22 15 26 15Q30 15 30 18.5"/>
+  </g>
+  <!-- Fulcrum circle -->
+  <circle cx="16" cy="6" r="2.5" fill="#fb7232"/>
+</svg>
