@@ -93,7 +93,7 @@ const levelField: FieldMeta = {
     { value: "BOR", label: "BÖR (önskvärt)" },
   ],
   listVisible: true,
-  helpText: "SKA = obligatoriskt, anbud som inte uppfyller SKA-krav diskvalificeras. BÖR = utvärderas men eliminerar inte.",
+  helpText: "SKA = obligatoriskt, anbud som inte uppfyller diskvalificeras. BÖR = utvärderas men eliminerar inte. Tips: om ett krav ändras från SKA till BÖR, lägg till en utvärderingsfråga där anbudsgivaren redogör för sin uppfyllnad.",
 };
 
 const ownerField: FieldMeta = {
@@ -364,12 +364,12 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
           { value: "kontraktsvillkor", label: "Kontraktsvillkor" },
         ],
         listVisible: true,
-        helpText: "Funktionellt = vad systemet gör. NFR = kvalitet (prestanda, säkerhet). Leverantörskrav = på företaget. Kontraktsvillkor = avtalsspecifika.",
+        helpText: "Funktionellt = vad systemet gör. Icke-funktionellt = kvalitetskrav (prestanda, säkerhet, tillgänglighet). Leverantörskrav = krav på företaget (LIS, bemanning). Kontraktsvillkor = avtalsspecifika (SLA, viten, exit).",
       },
       { ...clusterField },
       { ...levelField },
-      { key: "text", label: "Kravtext", type: "textarea", required: true, helpText: "Skriv verifierbart. Undvik vaga ord som 'bra', 'lämplig'. SKA-krav måste vara binärt testbara (uppfyllt/ej uppfyllt)." },
-      { key: "rationale", label: "Motivering", type: "textarea", helpText: "Varför finns kravet? Koppla till behov, risk eller LOU-krav. Stärker proportionaliteten vid eventuell överprövning." },
+      { key: "text", label: "Kravtext", type: "textarea", required: true, helpText: "Skriv verifierbart. Undvik vaga ord som 'bra', 'lämplig'. SKA-krav måste vara binärt testbara. Tips: komplettera BÖR-krav med en utvärderingsfråga i TendSign/anbudsformulär, t.ex. 'Redogör för ert stöd för...'." },
+      { key: "rationale", label: "Motivering", type: "textarea", helpText: "Varför finns kravet? Koppla till behov, risk eller lagkrav. En stark motivering stärker proportionaliteten vid överprövning. Beskriv konsekvensen om kravet inte uppfylls." },
       {
         key: "linkedNeeds",
         label: "Kopplade behov",
@@ -388,7 +388,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
         key: "verification",
         label: "Verifieringsplan",
         type: "verification",
-        helpText: "Hur verifieras kravet i tre steg? Vid anbud (vad leverantören visar), vid implementation, och löpande i drift.",
+        helpText: "Hur verifieras kravet? Anbud: t.ex. demo, intyg, referens. Implementation: testprotokoll, acceptanstest. Drift: SLA-uppföljning, revision. Tips: ställ utvärderingsfrågor i anbudsformuläret kopplat till verifieringen.",
       },
       {
         key: "conflictPriority",
