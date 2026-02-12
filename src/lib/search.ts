@@ -1,6 +1,8 @@
 import { prisma } from "./db";
 import type { SearchResult } from "@/types/api";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
  * Scored global search across all entity types for a case.
  * Supports fuzzy matching, field-specific scoring, and smart queries.
@@ -263,52 +265,52 @@ async function handleSmartQuery(caseId: string, query: string): Promise<SearchRe
 
   // "krav utan spårbarhet" — requirements not linked to any need
   if (q.includes("krav utan spårbarhet") || q.includes("krav utan koppling")) {
-    const reqs = await prisma.requirement.findMany({ where: { caseId } });
-    const links = await prisma.traceLink.findMany({ where: { caseId, toType: "requirement" } });
-    const linked = new Set(links.map((l) => l.toId));
+    const reqs: any[] = await prisma.requirement.findMany({ where: { caseId } });
+    const links: any[] = await prisma.traceLink.findMany({ where: { caseId, toType: "requirement" } });
+    const linked = new Set(links.map((l: any) => l.toId));
     return reqs
-      .filter((r) => !linked.has(r.id))
-      .map((r) => ({ id: r.id, entityType: "requirement", caseId, title: r.title, matchField: "smart", matchSnippet: "Inget spårat behov" }));
+      .filter((r: any) => !linked.has(r.id))
+      .map((r: any) => ({ id: r.id, entityType: "requirement", caseId, title: r.title, matchField: "smart", matchSnippet: "Inget spårat behov" }));
   }
 
   // "risker utan åtgärd" — risks without mitigation
   if (q.includes("risker utan åtgärd") || q.includes("risk utan åtgärd")) {
-    const risks = await prisma.risk.findMany({ where: { caseId } });
+    const risks: any[] = await prisma.risk.findMany({ where: { caseId } });
     return risks
-      .filter((r) => !r.mitigation || r.mitigation.trim().length === 0)
-      .map((r) => ({ id: r.id, entityType: "risk", caseId, title: r.title, matchField: "smart", matchSnippet: "Ingen åtgärdsplan" }));
+      .filter((r: any) => !r.mitigation || r.mitigation.trim().length === 0)
+      .map((r: any) => ({ id: r.id, entityType: "risk", caseId, title: r.title, matchField: "smart", matchSnippet: "Ingen åtgärdsplan" }));
   }
 
   // "SKA utan verifiering" — SKA requirements without verification
   if (q.includes("ska utan verifiering") || q.includes("ska-krav utan verifiering")) {
-    const reqs = await prisma.requirement.findMany({ where: { caseId, level: "SKA" } });
+    const reqs: any[] = await prisma.requirement.findMany({ where: { caseId, level: "SKA" } });
     return reqs
-      .filter((r) => {
+      .filter((r: any) => {
         try {
           const v = JSON.parse(r.verification || "{}");
           return !v.bidEvidence && !v.implementationProof && !v.opsFollowUp;
         } catch { return true; }
       })
-      .map((r) => ({ id: r.id, entityType: "requirement", caseId, title: r.title, matchField: "smart", matchSnippet: "SKA-krav utan verifieringsplan" }));
+      .map((r: any) => ({ id: r.id, entityType: "requirement", caseId, title: r.title, matchField: "smart", matchSnippet: "SKA-krav utan verifieringsplan" }));
   }
 
   // "behov utan krav" — needs not addressed by any requirement
   if (q.includes("behov utan krav") || q.includes("föräldralösa behov")) {
-    const needs = await prisma.need.findMany({ where: { caseId } });
-    const links = await prisma.traceLink.findMany({ where: { caseId, fromType: "need", toType: "requirement" } });
-    const linked = new Set(links.map((l) => l.fromId));
+    const needs: any[] = await prisma.need.findMany({ where: { caseId } });
+    const links: any[] = await prisma.traceLink.findMany({ where: { caseId, fromType: "need", toType: "requirement" } });
+    const linked = new Set(links.map((l: any) => l.fromId));
     return needs
-      .filter((n) => !linked.has(n.id))
-      .map((n) => ({ id: n.id, entityType: "need", caseId, title: n.title, matchField: "smart", matchSnippet: "Inget kopplat krav" }));
+      .filter((n: any) => !linked.has(n.id))
+      .map((n: any) => ({ id: n.id, entityType: "need", caseId, title: n.title, matchField: "smart", matchSnippet: "Inget kopplat krav" }));
   }
 
   // "höga risker" — risks with score >= 12
   if (q.includes("höga risker") || q.includes("kritiska risker")) {
-    const risks = await prisma.risk.findMany({ where: { caseId } });
+    const risks: any[] = await prisma.risk.findMany({ where: { caseId } });
     return risks
-      .filter((r) => r.score >= 12)
-      .sort((a, b) => b.score - a.score)
-      .map((r) => ({ id: r.id, entityType: "risk", caseId, title: r.title, matchField: "smart", matchSnippet: `Riskvärde: ${r.score}` }));
+      .filter((r: any) => r.score >= 12)
+      .sort((a: any, b: any) => b.score - a.score)
+      .map((r: any) => ({ id: r.id, entityType: "risk", caseId, title: r.title, matchField: "smart", matchSnippet: `Riskvärde: ${r.score}` }));
   }
 
   return null;

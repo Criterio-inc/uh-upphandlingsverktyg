@@ -1,6 +1,8 @@
 import { prisma } from "./db";
 import type { GateResult, GateRule } from "@/types/workflow";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
  * Evaluate a single gate rule against the database for a given case.
  */
@@ -64,11 +66,11 @@ async function evaluateRule(rule: string, caseId: string): Promise<{ passed: boo
 
   // risks.dataExitLinkedToRequirement
   if (rule === "risks.dataExitLinkedToRequirement") {
-    const dataExitRisks = await prisma.risk.findMany({
+    const dataExitRisks: any[] = await prisma.risk.findMany({
       where: { caseId, category: "data_exit" },
       select: { relatedRequirements: true },
     });
-    const allLinked = dataExitRisks.every((r) => {
+    const allLinked = dataExitRisks.every((r: any) => {
       const reqs = JSON.parse(r.relatedRequirements);
       return Array.isArray(reqs) && reqs.length > 0;
     });
@@ -87,8 +89,8 @@ async function evaluateRule(rule: string, caseId: string): Promise<{ passed: boo
 
   // needs.allHaveSources
   if (rule === "needs.allHaveSources") {
-    const needs = await prisma.need.findMany({ where: { caseId }, select: { sources: true } });
-    const withSources = needs.filter(n => {
+    const needs: any[] = await prisma.need.findMany({ where: { caseId }, select: { sources: true } });
+    const withSources = needs.filter((n: any) => {
       const s = JSON.parse(n.sources); return Array.isArray(s) && s.length > 0;
     });
     return { passed: needs.length === 0 || withSources.length === needs.length, actual: withSources.length };
@@ -96,11 +98,11 @@ async function evaluateRule(rule: string, caseId: string): Promise<{ passed: boo
 
   // needs.allP1HaveConsequences
   if (rule === "needs.allP1HaveConsequences") {
-    const p1Needs = await prisma.need.findMany({
+    const p1Needs: any[] = await prisma.need.findMany({
       where: { caseId, priority: "P1" },
       select: { consequenceIfNotMet: true },
     });
-    const withConseq = p1Needs.filter(n => n.consequenceIfNotMet && n.consequenceIfNotMet.trim().length > 0);
+    const withConseq = p1Needs.filter((n: any) => n.consequenceIfNotMet && n.consequenceIfNotMet.trim().length > 0);
     return { passed: p1Needs.length === 0 || withConseq.length === p1Needs.length, actual: withConseq.length };
   }
 
@@ -108,8 +110,8 @@ async function evaluateRule(rule: string, caseId: string): Promise<{ passed: boo
   const clusterMatch = rule.match(/^needs\.distinctClusters>=(\d+)$/);
   if (clusterMatch) {
     const threshold = parseInt(clusterMatch[1]);
-    const needs = await prisma.need.findMany({ where: { caseId }, select: { cluster: true } });
-    const distinct = new Set(needs.map((n) => n.cluster).filter(Boolean));
+    const needs: any[] = await prisma.need.findMany({ where: { caseId }, select: { cluster: true } });
+    const distinct = new Set(needs.map((n: any) => n.cluster).filter(Boolean));
     return { passed: distinct.size >= threshold, actual: distinct.size };
   }
 
@@ -125,8 +127,8 @@ async function evaluateRule(rule: string, caseId: string): Promise<{ passed: boo
 
   // requirements.allLinkedToNeeds
   if (rule === "requirements.allLinkedToNeeds") {
-    const reqs = await prisma.requirement.findMany({ where: { caseId }, select: { linkedNeeds: true } });
-    const allLinked = reqs.every((r) => {
+    const reqs: any[] = await prisma.requirement.findMany({ where: { caseId }, select: { linkedNeeds: true } });
+    const allLinked = reqs.every((r: any) => {
       const linked = JSON.parse(r.linkedNeeds);
       return Array.isArray(linked) && linked.length > 0;
     });
@@ -135,11 +137,11 @@ async function evaluateRule(rule: string, caseId: string): Promise<{ passed: boo
 
   // requirements.SKA.allHaveBidEvidence
   if (rule === "requirements.SKA.allHaveBidEvidence") {
-    const skaReqs = await prisma.requirement.findMany({
+    const skaReqs: any[] = await prisma.requirement.findMany({
       where: { caseId, level: "SKA" },
       select: { verification: true },
     });
-    const allHave = skaReqs.every((r) => {
+    const allHave = skaReqs.every((r: any) => {
       const v = JSON.parse(r.verification);
       return v && v.bidEvidence;
     });
@@ -158,15 +160,15 @@ async function evaluateRule(rule: string, caseId: string): Promise<{ passed: boo
 
   // criteria.sumWeight=100
   if (rule === "criteria.sumWeight=100") {
-    const criteria = await prisma.criterion.findMany({ where: { caseId }, select: { weight: true } });
-    const sum = criteria.reduce((acc, c) => acc + c.weight, 0);
+    const criteria: any[] = await prisma.criterion.findMany({ where: { caseId }, select: { weight: true } });
+    const sum = criteria.reduce((acc: number, c: any) => acc + c.weight, 0);
     return { passed: Math.abs(sum - 100) < 0.01, actual: sum };
   }
 
   // criteria.allHaveAnchors
   if (rule === "criteria.allHaveAnchors") {
-    const criteria = await prisma.criterion.findMany({ where: { caseId }, select: { anchors: true } });
-    const withAnchors = criteria.filter(c => {
+    const criteria: any[] = await prisma.criterion.findMany({ where: { caseId }, select: { anchors: true } });
+    const withAnchors = criteria.filter((c: any) => {
       try {
         const a = JSON.parse(c.anchors);
         if (Array.isArray(a)) return a.length > 0;
@@ -179,8 +181,8 @@ async function evaluateRule(rule: string, caseId: string): Promise<{ passed: boo
 
   // criteria.allLinkedToRequirements
   if (rule === "criteria.allLinkedToRequirements") {
-    const criteria = await prisma.criterion.findMany({ where: { caseId }, select: { linkedRequirements: true } });
-    const allLinked = criteria.every(c => {
+    const criteria: any[] = await prisma.criterion.findMany({ where: { caseId }, select: { linkedRequirements: true } });
+    const allLinked = criteria.every((c: any) => {
       const linked = JSON.parse(c.linkedRequirements);
       return Array.isArray(linked) && linked.length > 0;
     });
@@ -199,9 +201,9 @@ async function evaluateRule(rule: string, caseId: string): Promise<{ passed: boo
 
   // bids.allReviewed — all bids have been qualified or explicitly set to not draft
   if (rule === "bids.allReviewed") {
-    const bids = await prisma.bid.findMany({ where: { caseId }, select: { status: true, qualified: true, qualificationNotes: true } });
+    const bids: any[] = await prisma.bid.findMany({ where: { caseId }, select: { status: true, qualified: true, qualificationNotes: true } });
     // A bid is "reviewed" if it's qualified=true, OR if qualificationNotes is non-empty (actively rejected)
-    const reviewed = bids.filter(b => b.qualified || (b.qualificationNotes && b.qualificationNotes.trim().length > 0));
+    const reviewed = bids.filter((b: any) => b.qualified || (b.qualificationNotes && b.qualificationNotes.trim().length > 0));
     return { passed: bids.length === 0 || reviewed.length === bids.length, actual: reviewed.length };
   }
 
@@ -233,8 +235,8 @@ async function evaluateRule(rule: string, caseId: string): Promise<{ passed: boo
 
   // scores.allHaveJustification
   if (rule === "scores.allHaveJustification") {
-    const allScores = await prisma.score.findMany({ where: { caseId }, select: { justification: true } });
-    const withJust = allScores.filter(s => s.justification && s.justification.trim().length > 0);
+    const allScores: any[] = await prisma.score.findMany({ where: { caseId }, select: { justification: true } });
+    const withJust = allScores.filter((s: any) => s.justification && s.justification.trim().length > 0);
     return { passed: allScores.length === 0 || withJust.length === allScores.length, actual: withJust.length };
   }
 

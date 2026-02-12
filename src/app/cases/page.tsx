@@ -7,8 +7,9 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatDate } from "@/lib/utils";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export default async function CasesPage() {
-  const cases = await prisma.case.findMany({
+  const cases: any[] = await prisma.case.findMany({
     orderBy: { updatedAt: "desc" },
   });
 
