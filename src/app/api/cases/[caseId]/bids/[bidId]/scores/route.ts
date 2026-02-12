@@ -37,7 +37,9 @@ export async function POST(
     where: { caseId },
     select: { id: true, weight: true, scale: true },
   });
-  const criteriaMap = Object.fromEntries(criteria.map((c) => [c.id, c]));
+  const criteriaMap = Object.fromEntries(
+    criteria.map((c: { id: string; weight: number; scale: string }) => [c.id, c])
+  );
 
   const results = [];
 
