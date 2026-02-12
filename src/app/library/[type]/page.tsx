@@ -9,9 +9,12 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 const TYPE_INFO: Record<string, { label: string; singular: string; icon: string }> = {
-  requirement_block: { label: "Kravbibliotek", singular: "kravblock", icon: "📐" },
-  risk_template: { label: "Riskbibliotek", singular: "riskmall", icon: "⚠️" },
-  workshop_template: { label: "Workshopmallar", singular: "workshopmall", icon: "🏛️" },
+  requirement_block: { label: "Kravbibliotek", singular: "kravblock", icon: "ruler" },
+  risk_template: { label: "Riskbibliotek", singular: "riskmall", icon: "shield-alert" },
+  workshop_template: { label: "Workshopmallar", singular: "workshopmall", icon: "presentation" },
+  criteria_block: { label: "Kriteriebibliotek", singular: "kriterieblock", icon: "scale" },
+  contract_clause: { label: "Kontraktsklausuler", singular: "kontraktsklausul", icon: "file-text" },
+  phase_checklist: { label: "Faschecklistor", singular: "faschecklista", icon: "check" },
 };
 
 export default async function LibraryTypePage({

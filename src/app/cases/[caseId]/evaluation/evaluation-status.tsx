@@ -40,12 +40,12 @@ interface EvaluationStatusProps {
 }
 
 const DEFAULT_CHECKLIST: ChecklistItem[] = [
-  { id: "chk-1", label: "Formell kvalificering genomf\u00f6rd", checked: false },
-  { id: "chk-2", label: "Kravuppfyllelse bed\u00f6md (SKA-krav)", checked: false },
-  { id: "chk-3", label: "Utv\u00e4rdering av tilldelningskriterier genomf\u00f6rd", checked: false },
-  { id: "chk-4", label: "Utv\u00e4rderingsprotokoll uppr\u00e4ttat", checked: false },
+  { id: "chk-1", label: "Formell kvalificering genomförd", checked: false },
+  { id: "chk-2", label: "Kravuppfyllelse bedömd (SKA-krav)", checked: false },
+  { id: "chk-3", label: "Utvärdering av tilldelningskriterier genomförd", checked: false },
+  { id: "chk-4", label: "Utvärderingsprotokoll upprättat", checked: false },
   { id: "chk-5", label: "Tilldelningsbeslut fattat", checked: false },
-  { id: "chk-6", label: "Avtalsp\u00e4rr l\u00f6pt ut (10 dagar)", checked: false },
+  { id: "chk-6", label: "Avtalsspärr löpt ut (10 dagar)", checked: false },
 ];
 
 export function EvaluationStatus({
@@ -207,7 +207,7 @@ export function EvaluationStatus({
             </svg>
           </div>
           <div className="text-sm text-blue-800">
-            {"Detaljerad anbudsutv\u00e4rdering sker i ert upphandlingssystem (TendSign, Mercell etc.). H\u00e4r registreras \u00f6vergripande status och beslut f\u00f6r sp\u00e5rbarhet genom hela upphandlingskedjan."}
+            {"Detaljerad anbudsutvärdering sker i ert upphandlingssystem (TendSign, Mercell etc.). Här registreras övergripande status och beslut för spårbarhet genom hela upphandlingskedjan."}
           </div>
         </div>
       </div>
@@ -312,11 +312,11 @@ export function EvaluationStatus({
         </CardContent>
       </Card>
 
-      {/* Section 4: Utv\u00e4rderingschecklista */}
+      {/* Section 4: Utvärderingschecklista */}
       <Card>
         <CardContent>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold">{`Utv\u00e4rderingschecklista`}</h3>
+            <h3 className="text-sm font-semibold">Utvärderingschecklista</h3>
             <Badge variant="outline">
               {checkedCount}/{totalCount} klara
             </Badge>
@@ -370,8 +370,8 @@ export function EvaluationStatus({
             <div className="space-y-3">
               <Input
                 id="winner"
-                label={`Vinnande leverant\u00f6r`}
-                placeholder={`Leverant\u00f6rens namn`}
+                label="Vinnande leverantör"
+                placeholder="Leverantörens namn"
                 value={winner}
                 onChange={(e) => setWinner(e.target.value)}
                 onBlur={handleBlurSave}
@@ -405,7 +405,7 @@ export function EvaluationStatus({
         <CardContent>
           <h3 className="text-sm font-semibold mb-4">Export</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            {`Exportera underlag f\u00f6r anv\u00e4ndning i externt upphandlingssystem.`}
+            Exportera underlag för användning i externt upphandlingssystem.
           </p>
           <div className="flex flex-wrap gap-3">
             <a href={`/api/cases/${caseId}/export?format=xlsx&entity=requirements`}>
@@ -415,7 +415,7 @@ export function EvaluationStatus({
             </a>
             <a href={`/api/cases/${caseId}/export?format=xlsx&entity=criteria`}>
               <Button variant="outline" size="sm">
-                {`Exportera utv\u00e4rderingskriterier (XLSX)`}
+                Exportera utvärderingskriterier (XLSX)
               </Button>
             </a>
             <a href={`/api/cases/${caseId}/export?format=json`}>

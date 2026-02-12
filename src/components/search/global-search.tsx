@@ -46,11 +46,11 @@ const ENTITY_LABELS: Record<string, string> = {
 };
 
 const SMART_QUERIES = [
-  { label: "Krav utan sp\u00e5rbarhet", query: "krav utan sp\u00e5rbarhet" },
-  { label: "Risker utan \u00e5tg\u00e4rd", query: "risker utan \u00e5tg\u00e4rd" },
+  { label: "Krav utan spårbarhet", query: "krav utan spårbarhet" },
+  { label: "Risker utan åtgärd", query: "risker utan åtgärd" },
   { label: "SKA utan verifiering", query: "SKA utan verifiering" },
   { label: "Behov utan krav", query: "behov utan krav" },
-  { label: "H\u00f6ga risker", query: "h\u00f6ga risker" },
+  { label: "Höga risker", query: "höga risker" },
 ];
 
 export function GlobalSearch({ caseId }: { caseId: string }) {
@@ -161,7 +161,7 @@ export function GlobalSearch({ caseId }: { caseId: string }) {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder="S\u00f6k i upphandlingen... (\u2318K)"
+          placeholder="Sök i upphandlingen... (⌘K)"
           className="w-72 rounded-xl border border-input bg-card pl-8 pr-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition-shadow duration-150"
         />
         <Search

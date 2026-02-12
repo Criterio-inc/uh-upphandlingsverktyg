@@ -60,6 +60,7 @@ export function ImportRestore({ caseId }: { caseId: string }) {
         size="sm"
         onClick={() => fileRef.current?.click()}
         disabled={status === "loading"}
+        title="Återställ upphandlingsdata från en tidigare exporterad JSON-fil"
       >
         {status === "loading" ? "Importerar..." : "Importera JSON"}
       </Button>

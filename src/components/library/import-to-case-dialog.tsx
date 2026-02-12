@@ -64,8 +64,8 @@ export function ImportToCaseDialog({ caseId }: { caseId: string }) {
 
   if (!open) {
     return (
-      <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
-        Importera fr\u00e5n bibliotek
+      <Button variant="outline" size="sm" onClick={() => setOpen(true)} title="Öppna biblioteket och importera färdiga mallar till denna upphandling">
+        Importera från bibliotek
       </Button>
     );
   }
@@ -74,7 +74,7 @@ export function ImportToCaseDialog({ caseId }: { caseId: string }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="w-full max-w-xl rounded-2xl border border-border bg-card shadow-2xl">
         <div className="flex items-center justify-between border-b border-border/40 px-5 py-4">
-          <h2 className="font-semibold tracking-tight">Importera fr\u00e5n bibliotek</h2>
+          <h2 className="font-semibold tracking-tight">Importera från bibliotek</h2>
           <button
             onClick={() => setOpen(false)}
             className="text-muted-foreground hover:text-foreground transition-colors"
@@ -86,7 +86,7 @@ export function ImportToCaseDialog({ caseId }: { caseId: string }) {
           {loading ? (
             <p className="text-sm text-muted-foreground">Laddar bibliotek...</p>
           ) : items.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Biblioteket \u00e4r tomt. K\u00f6r seed f\u00f6r att fylla det.</p>
+            <p className="text-sm text-muted-foreground">Biblioteket är tomt. Kör seed för att fylla det.</p>
           ) : (
             <div className="space-y-2">
               {items.map((item) => {
@@ -140,7 +140,7 @@ export function ImportToCaseDialog({ caseId }: { caseId: string }) {
         </div>
         <div className="flex justify-end border-t border-border/40 px-5 py-4">
           <Button variant="outline" onClick={() => setOpen(false)}>
-            St\u00e4ng
+            Stäng
           </Button>
         </div>
       </div>

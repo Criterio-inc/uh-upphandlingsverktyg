@@ -46,7 +46,7 @@ export default async function CasesPage() {
               <p className="mt-1 text-sm text-muted-foreground">
                 {cases.length > 0
                   ? `${cases.length} upphandlingar totalt`
-                  : "Kom ig\u00e5ng med din f\u00f6rsta upphandling"}
+                  : "Kom igång med din första upphandling"}
               </p>
             </div>
             <Link href="/cases/new">
@@ -93,7 +93,7 @@ export default async function CasesPage() {
           <EmptyState
             icon="clipboard-list"
             title="Inga upphandlingar"
-            description="Skapa din f\u00f6rsta upphandling f\u00f6r att komma ig\u00e5ng med behovsanalys, kravst\u00e4llning och utv\u00e4rdering."
+            description="Skapa din första upphandling för att komma igång med behovsanalys, kravställning och utvärdering."
             action={
               <Link href="/cases/new">
                 <Button className="gap-2">

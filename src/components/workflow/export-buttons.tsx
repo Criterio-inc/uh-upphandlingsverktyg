@@ -9,13 +9,13 @@ export function ExportButtons({ caseId }: { caseId: string }) {
 
   return (
     <div className="flex gap-2">
-      <Button variant="outline" size="sm" onClick={() => download("xlsx")}>
+      <Button variant="outline" size="sm" onClick={() => download("xlsx")} title="Exportera hela upphandlingen som Excel-fil (XLSX)">
         XLSX
       </Button>
-      <Button variant="outline" size="sm" onClick={() => download("json")}>
+      <Button variant="outline" size="sm" onClick={() => download("json")} title="Exportera hela upphandlingen som JSON-fil för säkerhetskopiering eller import">
         JSON
       </Button>
-      <Button variant="outline" size="sm" onClick={() => download("csv&entity=requirement")}>
+      <Button variant="outline" size="sm" onClick={() => download("csv&entity=requirement")} title="Exportera kravlistan som CSV-fil för analys i kalkylprogram">
         Krav CSV
       </Button>
     </div>
