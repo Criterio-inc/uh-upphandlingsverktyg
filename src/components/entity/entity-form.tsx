@@ -1,14 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
+import { TagListEditor } from "@/components/ui/tag-list-editor";
+import { EntityPicker } from "@/components/ui/entity-picker";
+import { KeyValueRepeater } from "@/components/ui/key-value-repeater";
+import { VerificationEditor } from "@/components/ui/verification-editor";
+import { Tooltip } from "@/components/ui/tooltip";
 import type { EntityMeta, FieldMeta } from "@/config/entity-meta";
-import { parseJsonArray, parseJsonObject } from "@/lib/utils";
 
 interface EntityFormProps {
   meta: EntityMeta;
@@ -17,16 +21,66 @@ interface EntityFormProps {
   initialData?: Record<string, unknown>;
   isEdit?: boolean;
   clusterOptions?: string[];
+  /** caseId needed for entity-picker API URLs */
+  caseId?: string;
+}
+
+/** Parse a JSON field from DB string or keep as-is if already parsed */
+function parseJsonField(value: unknown): unknown {
+  if (typeof value === "string") {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
+  }
+  return value;
+}
+
+function ensureStringArray(value: unknown): string[] {
+  const parsed = parseJsonField(value);
+  if (Array.isArray(parsed)) return parsed.map(String);
+  return [];
+}
+
+function ensureRecord(value: unknown): Record<string, string> {
+  const parsed = parseJsonField(value);
+  if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+    return parsed as Record<string, string>;
+  }
+  return {};
+}
+
+function ensureRecordArray(value: unknown): Record<string, string>[] {
+  const parsed = parseJsonField(value);
+  if (Array.isArray(parsed)) return parsed as Record<string, string>[];
+  return [];
+}
+
+function ensureVerification(value: unknown): { bidEvidence: string; implementationProof: string; opsFollowUp: string } {
+  const parsed = parseJsonField(value);
+  const obj = (parsed && typeof parsed === "object" && !Array.isArray(parsed)) ? parsed as Record<string, string> : {};
+  return {
+    bidEvidence: obj.bidEvidence ?? "",
+    implementationProof: obj.implementationProof ?? "",
+    opsFollowUp: obj.opsFollowUp ?? "",
+  };
 }
 
 function FieldRenderer({
   field,
   defaultValue,
   clusterOptions,
+  structuredValue,
+  onStructuredChange,
+  caseId,
 }: {
   field: FieldMeta;
   defaultValue: unknown;
   clusterOptions?: string[];
+  structuredValue?: unknown;
+  onStructuredChange?: (value: unknown) => void;
+  caseId?: string;
 }) {
   const id = field.key;
 
@@ -114,6 +168,65 @@ function FieldRenderer({
           defaultValue={String(defaultValue ?? "")}
         />
       );
+
+    // ---- Structured field types (controlled state) ----
+
+    case "tag-list":
+      return (
+        <TagListEditor
+          label={field.label}
+          value={structuredValue as string[] ?? []}
+          onChange={(v) => onStructuredChange?.(v)}
+          placeholder={field.placeholder}
+        />
+      );
+
+    case "ordered-list":
+      return (
+        <TagListEditor
+          label={field.label}
+          value={structuredValue as string[] ?? []}
+          onChange={(v) => onStructuredChange?.(v)}
+          placeholder={field.placeholder}
+          ordered
+        />
+      );
+
+    case "entity-picker": {
+      const config = field.entityPickerConfig;
+      const apiUrl = caseId && config
+        ? `/api/cases/${caseId}/${config.entityType}`
+        : "";
+      return (
+        <EntityPicker
+          label={field.label}
+          value={structuredValue as string[] ?? []}
+          onChange={(v) => onStructuredChange?.(v)}
+          apiUrl={apiUrl}
+          entityLabel={config?.label ?? "entitet"}
+        />
+      );
+    }
+
+    case "key-value-repeater":
+      return (
+        <KeyValueRepeater
+          label={field.label}
+          value={structuredValue as Record<string, string> | Record<string, string>[] ?? {}}
+          onChange={(v) => onStructuredChange?.(v)}
+          columns={field.repeaterColumns}
+        />
+      );
+
+    case "verification":
+      return (
+        <VerificationEditor
+          label={field.label}
+          value={structuredValue as { bidEvidence: string; implementationProof: string; opsFollowUp: string } ?? { bidEvidence: "", implementationProof: "", opsFollowUp: "" }}
+          onChange={(v) => onStructuredChange?.(v)}
+        />
+      );
+
     case "json":
       return (
         <Textarea
@@ -149,6 +262,9 @@ function FieldRenderer({
   }
 }
 
+/** Types that are managed via controlled state instead of FormData */
+const STRUCTURED_TYPES = new Set(["tag-list", "ordered-list", "entity-picker", "key-value-repeater", "verification"]);
+
 export function EntityForm({
   meta,
   apiUrl,
@@ -156,6 +272,7 @@ export function EntityForm({
   initialData,
   isEdit,
   clusterOptions,
+  caseId,
 }: EntityFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -165,6 +282,38 @@ export function EntityForm({
     (f) => f.key !== "score" // auto-calculated
   );
 
+  // Initialize controlled state for structured fields
+  const initStructured = useCallback(() => {
+    const state: Record<string, unknown> = {};
+    for (const field of editableFields) {
+      if (!STRUCTURED_TYPES.has(field.type)) continue;
+      const raw = initialData?.[field.key];
+      switch (field.type) {
+        case "tag-list":
+        case "ordered-list":
+        case "entity-picker":
+          state[field.key] = ensureStringArray(raw);
+          break;
+        case "key-value-repeater":
+          state[field.key] = field.repeaterColumns
+            ? ensureRecordArray(raw)
+            : ensureRecord(raw);
+          break;
+        case "verification":
+          state[field.key] = ensureVerification(raw);
+          break;
+      }
+    }
+    return state;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const [structured, setStructured] = useState<Record<string, unknown>>(initStructured);
+
+  function updateStructured(key: string, value: unknown) {
+    setStructured((prev) => ({ ...prev, [key]: value }));
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
@@ -173,6 +322,12 @@ export function EntityForm({
     const body: Record<string, unknown> = {};
 
     for (const field of editableFields) {
+      // Structured fields come from state, not FormData
+      if (STRUCTURED_TYPES.has(field.type)) {
+        body[field.key] = structured[field.key];
+        continue;
+      }
+
       const value = form.get(field.key);
 
       if (field.type === "boolean") {
@@ -213,7 +368,7 @@ export function EntityForm({
         <form onSubmit={handleSubmit} className="space-y-4">
           {editableFields.map((field) => {
             let defaultValue = initialData?.[field.key];
-            // Parse JSON strings from DB
+            // Parse JSON strings from DB for legacy json type
             if (field.type === "json" && typeof defaultValue === "string") {
               try {
                 defaultValue = JSON.parse(defaultValue);
@@ -222,12 +377,21 @@ export function EntityForm({
               }
             }
             return (
-              <FieldRenderer
-                key={field.key}
-                field={field}
-                defaultValue={defaultValue}
-                clusterOptions={field.key === "cluster" ? clusterOptions : undefined}
-              />
+              <div key={field.key} className="relative">
+                {field.helpText && (
+                  <div className="absolute right-0 top-0">
+                    <Tooltip content={field.helpText} side="left" />
+                  </div>
+                )}
+                <FieldRenderer
+                  field={field}
+                  defaultValue={defaultValue}
+                  clusterOptions={field.key === "cluster" ? clusterOptions : undefined}
+                  structuredValue={STRUCTURED_TYPES.has(field.type) ? structured[field.key] : undefined}
+                  onStructuredChange={STRUCTURED_TYPES.has(field.type) ? (v) => updateStructured(field.key, v) : undefined}
+                  caseId={caseId}
+                />
+              </div>
             );
           })}
           <div className="flex gap-2 pt-2">

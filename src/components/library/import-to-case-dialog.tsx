@@ -18,6 +18,9 @@ const TYPE_LABELS: Record<string, string> = {
   requirement_block: "Kravblock",
   risk_template: "Riskmall",
   workshop_template: "Workshopmall",
+  criteria_block: "Kriterieblock",
+  contract_clause: "Kontraktsklausul",
+  phase_checklist: "Faschecklista",
 };
 
 export function ImportToCaseDialog({ caseId }: { caseId: string }) {

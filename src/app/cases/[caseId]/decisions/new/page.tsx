@@ -35,6 +35,7 @@ export default async function NewDecisionPage({
           meta={meta}
           apiUrl={`/api/cases/${caseId}/decisions`}
           returnUrl={`/cases/${caseId}/decisions`}
+          caseId={caseId}
         />
       </div>
     </div>

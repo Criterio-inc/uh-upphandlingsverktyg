@@ -39,6 +39,7 @@ export default async function NewNeedPage({
           apiUrl={`/api/cases/${caseId}/needs`}
           returnUrl={`/cases/${caseId}/needs`}
           clusterOptions={clusterOptions}
+          caseId={caseId}
         />
       </div>
     </div>

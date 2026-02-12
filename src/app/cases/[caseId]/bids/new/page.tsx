@@ -35,6 +35,7 @@ export default async function NewBidPage({
           meta={meta}
           apiUrl={`/api/cases/${caseId}/bids`}
           returnUrl={`/cases/${caseId}/bids`}
+          caseId={caseId}
         />
       </div>
     </div>

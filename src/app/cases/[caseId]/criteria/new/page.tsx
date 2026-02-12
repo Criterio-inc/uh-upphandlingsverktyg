@@ -35,6 +35,7 @@ export default async function NewCriterionPage({
           meta={meta}
           apiUrl={`/api/cases/${caseId}/criteria`}
           returnUrl={`/cases/${caseId}/criteria`}
+          caseId={caseId}
         />
       </div>
     </div>

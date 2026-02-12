@@ -18,6 +18,9 @@ const CASE_NAV: { segment: string; entityType?: EntityType; label: string; icon:
   { segment: "bids", entityType: "bid", label: ENTITY_META.bid.pluralLabel, icon: ENTITY_META.bid.icon },
   { segment: "decisions", entityType: "decision", label: ENTITY_META.decision.pluralLabel, icon: ENTITY_META.decision.icon },
   { segment: "documents", entityType: "document", label: ENTITY_META.document.pluralLabel, icon: ENTITY_META.document.icon },
+  { segment: "evaluation", label: "Utvärdering", icon: "📊" },
+  { segment: "traceability", label: "Spårbarhet", icon: "🔗" },
+  { segment: "settings", label: "Inställningar", icon: "⚙️" },
 ];
 
 export function CaseSidebar({ caseId }: { caseId: string }) {

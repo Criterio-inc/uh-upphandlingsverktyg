@@ -35,6 +35,7 @@ export default async function NewStakeholderPage({
           meta={meta}
           apiUrl={`/api/cases/${caseId}/stakeholders`}
           returnUrl={`/cases/${caseId}/stakeholders`}
+          caseId={caseId}
         />
       </div>
     </div>

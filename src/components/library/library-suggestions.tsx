@@ -1,0 +1,127 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+
+/**
+ * Maps entity types to the library item types that can help populate them.
+ */
+const ENTITY_LIBRARY_MAP: Record<string, { libraryType: string; typeLabel: string; description: string }[]> = {
+  need: [
+    { libraryType: "workshop_template", typeLabel: "Workshopmallar", description: "Genomför en behovsworkshop med färdig agenda och deltagarlista" },
+  ],
+  requirement: [
+    { libraryType: "requirement_block", typeLabel: "Kravblock", description: "Importera färdiga, branschanpassade kravpaket med SKA/BÖR-krav" },
+  ],
+  risk: [
+    { libraryType: "risk_template", typeLabel: "Riskmallar", description: "Utgå från beprövade riskmallar med sannolikhet, konsekvens och åtgärdsförslag" },
+  ],
+  criterion: [
+    { libraryType: "criteria_block", typeLabel: "Kriterieblock", description: "Importera utvärderingskriterier med vikter, skalor och poängankare" },
+  ],
+  workshop: [
+    { libraryType: "workshop_template", typeLabel: "Workshopmallar", description: "Använd färdiga workshopmallar med agenda, deltagare och förväntade resultat" },
+  ],
+};
+
+interface LibrarySuggestionsProps {
+  entityType: string;
+  itemCount: number;
+  caseId: string;
+}
+
+interface LibraryPreview {
+  type: string;
+  count: number;
+  titles: string[];
+}
+
+export function LibrarySuggestions({ entityType, itemCount, caseId }: LibrarySuggestionsProps) {
+  const mappings = ENTITY_LIBRARY_MAP[entityType];
+  const [previews, setPreviews] = useState<LibraryPreview[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [dismissed, setDismissed] = useState(false);
+
+  // Only show when there are few items (≤3) and relevant library types exist
+  const shouldShow = mappings && mappings.length > 0 && itemCount <= 3 && !dismissed;
+
+  useEffect(() => {
+    if (!shouldShow || !mappings) {
+      setLoading(false);
+      return;
+    }
+
+    // Fetch library item counts per type
+    Promise.all(
+      mappings.map(async (m) => {
+        const res = await fetch(`/api/library?type=${m.libraryType}`);
+        if (!res.ok) return { type: m.libraryType, count: 0, titles: [] };
+        const data: { title: string }[] = await res.json();
+        return {
+          type: m.libraryType,
+          count: data.length,
+          titles: data.slice(0, 3).map((item) => item.title),
+        };
+      })
+    ).then((results) => {
+      setPreviews(results.filter((r) => r.count > 0));
+      setLoading(false);
+    });
+  }, [shouldShow, mappings]);
+
+  if (!shouldShow || loading || previews.length === 0) return null;
+
+  return (
+    <div className="border border-purple-200 bg-purple-50/30 rounded-lg p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-lg">📚</span>
+          <div>
+            <div className="text-sm font-medium text-purple-900">Föreslagna mallar från biblioteket</div>
+            <div className="text-xs text-purple-700">
+              Spara tid genom att importera färdiga mallar istället för att börja från noll
+            </div>
+          </div>
+        </div>
+        <button
+          onClick={() => setDismissed(true)}
+          className="text-purple-400 hover:text-purple-600 text-sm px-2"
+          title="Dölj förslag"
+        >
+          ✕
+        </button>
+      </div>
+      <div className="grid gap-2 sm:grid-cols-2">
+        {mappings.map((mapping) => {
+          const preview = previews.find((p) => p.type === mapping.libraryType);
+          if (!preview) return null;
+          return (
+            <div key={mapping.libraryType} className="bg-background border border-purple-100 rounded-lg p-3">
+              <div className="text-xs font-semibold text-purple-800 mb-1">{mapping.typeLabel} ({preview.count} st)</div>
+              <p className="text-xs text-muted-foreground mb-2">{mapping.description}</p>
+              {preview.titles.length > 0 && (
+                <ul className="text-xs text-muted-foreground mb-2 space-y-0.5">
+                  {preview.titles.map((t) => (
+                    <li key={t} className="flex items-center gap-1 truncate">
+                      <span className="text-purple-400">•</span>
+                      <span className="truncate">{t}</span>
+                    </li>
+                  ))}
+                  {preview.count > 3 && (
+                    <li className="text-purple-600 text-[11px]">...och {preview.count - 3} till</li>
+                  )}
+                </ul>
+              )}
+              <Link
+                href={`/library/${mapping.libraryType}?caseId=${caseId}`}
+                className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded text-xs font-medium transition-colors"
+              >
+                Visa i biblioteket →
+              </Link>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

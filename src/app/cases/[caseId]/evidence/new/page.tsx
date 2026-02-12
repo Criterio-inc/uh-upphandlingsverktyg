@@ -35,6 +35,7 @@ export default async function NewEvidencePage({
           meta={meta}
           apiUrl={`/api/cases/${caseId}/evidence`}
           returnUrl={`/cases/${caseId}/evidence`}
+          caseId={caseId}
         />
       </div>
     </div>

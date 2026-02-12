@@ -80,6 +80,46 @@ export async function POST(req: NextRequest) {
     created.push(id);
   }
 
+  if (item.type === "criteria_block" && content.criteria) {
+    for (const tmpl of content.criteria) {
+      const id = await generateId("criterion");
+      await prisma.criterion.create({
+        data: {
+          id,
+          caseId,
+          title: tmpl.title,
+          weight: tmpl.weight ?? 0,
+          scale: tmpl.scale ?? "0-5",
+          scoringGuidance: tmpl.scoringGuidance ?? "",
+          anchors: JSON.stringify(tmpl.anchors ?? {}),
+          linkedRequirements: JSON.stringify([]),
+          tags: JSON.stringify([`importerat:${item.title}`]),
+        },
+      });
+      created.push(id);
+    }
+  }
+
+  if (item.type === "contract_clause" && content.clause) {
+    const tmpl = content.clause;
+    const id = await generateId("requirement");
+    await prisma.requirement.create({
+      data: {
+        id,
+        caseId,
+        title: tmpl.title,
+        reqType: "kontraktsvillkor",
+        level: tmpl.level ?? "SKA",
+        text: tmpl.text ?? "",
+        rationale: tmpl.rationale ?? "",
+        cluster: tmpl.cluster ?? "Kontraktsvillkor",
+        verification: JSON.stringify({}),
+        tags: JSON.stringify([`importerat:${item.title}`, "kontraktsvillkor"]),
+      },
+    });
+    created.push(id);
+  }
+
   // Link library item to case
   await prisma.libraryItem.update({
     where: { id: libraryItemId },

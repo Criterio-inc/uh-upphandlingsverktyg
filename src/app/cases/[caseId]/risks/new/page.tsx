@@ -35,6 +35,7 @@ export default async function NewRiskPage({
           meta={meta}
           apiUrl={`/api/cases/${caseId}/risks`}
           returnUrl={`/cases/${caseId}/risks`}
+          caseId={caseId}
         />
       </div>
     </div>

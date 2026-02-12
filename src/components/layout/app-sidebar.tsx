@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS = [
   { href: "/cases", label: "Upphandlingar", icon: "📋" },
   { href: "/library", label: "Bibliotek", icon: "📚" },
+  { href: "/help", label: "Hjälpcenter", icon: "❓" },
 ];
 
 export function AppSidebar() {

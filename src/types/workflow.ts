@@ -21,6 +21,7 @@ export interface GateRule {
   label: string;
   rule: string; // e.g. "needs.count>=5", evaluated by gate engine
   severity: "blocker" | "warning";
+  helpText?: string;
 }
 
 export interface GateResult {
@@ -30,6 +31,7 @@ export interface GateResult {
   severity: "blocker" | "warning";
   actual?: string | number;
   expected?: string | number;
+  helpText?: string;
 }
 
 export interface PhaseStatus {

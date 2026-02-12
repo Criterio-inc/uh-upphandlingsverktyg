@@ -7,7 +7,21 @@ import type { EntityType } from "@/types/entities";
 export interface FieldMeta {
   key: string;
   label: string;
-  type: "text" | "textarea" | "number" | "select" | "multiselect" | "json" | "boolean" | "date" | "file";
+  type:
+    | "text"
+    | "textarea"
+    | "number"
+    | "select"
+    | "multiselect"
+    | "json"
+    | "boolean"
+    | "date"
+    | "file"
+    | "tag-list"
+    | "entity-picker"
+    | "key-value-repeater"
+    | "verification"
+    | "ordered-list";
   required?: boolean;
   options?: { value: string; label: string }[];
   placeholder?: string;
@@ -17,6 +31,15 @@ export interface FieldMeta {
   detailVisible?: boolean;
   /** Column width hint for list */
   width?: string;
+  /** Contextual help text (LOU guidance) shown as tooltip */
+  helpText?: string;
+  /** Config for entity-picker: which entity type to fetch */
+  entityPickerConfig?: {
+    entityType: string;
+    label: string;
+  };
+  /** Column definitions for key-value-repeater in array mode */
+  repeaterColumns?: { key: string; label: string; placeholder?: string }[];
 }
 
 export interface EntityMeta {
@@ -45,6 +68,7 @@ const statusField: FieldMeta = {
     { value: "archived", label: "Arkiverad" },
   ],
   listVisible: true,
+  helpText: "Styr arbetsflödet. Godkänd = granskad och redo. Låst = kan inte ändras utan ny version.",
 };
 
 const priorityField: FieldMeta = {
@@ -57,6 +81,7 @@ const priorityField: FieldMeta = {
     { value: "P3", label: "P3 - Önskvärd" },
   ],
   listVisible: true,
+  helpText: "P1 = verksamhetskritiskt, måste tillgodoses. P2 = viktigt men hanteras med BÖR-krav. P3 = nice-to-have.",
 };
 
 const levelField: FieldMeta = {
@@ -68,6 +93,7 @@ const levelField: FieldMeta = {
     { value: "BOR", label: "BÖR (önskvärt)" },
   ],
   listVisible: true,
+  helpText: "SKA = obligatoriskt, anbud som inte uppfyller SKA-krav diskvalificeras. BÖR = utvärderas men eliminerar inte.",
 };
 
 const ownerField: FieldMeta = {
@@ -75,12 +101,14 @@ const ownerField: FieldMeta = {
   label: "Ansvarig",
   type: "text",
   placeholder: "Namn eller roll",
+  helpText: "Vem ansvarar för detta objekt? Ange namn eller roll (t.ex. 'Projektledare').",
 };
 
 const tagsField: FieldMeta = {
   key: "tags",
   label: "Taggar",
-  type: "json",
+  type: "tag-list",
+  helpText: "Fritext-taggar för filtrering och kategorisering. Bra för att markera teman eller ursprung.",
 };
 
 const clusterField: FieldMeta = {
@@ -89,6 +117,7 @@ const clusterField: FieldMeta = {
   type: "select",
   options: [], // populated dynamically from profile
   listVisible: true,
+  helpText: "Grupperar objekt tematiskt. Kluster styrs av vald domänprofil och underlättar spårbarhet.",
 };
 
 // --- Entity meta registry ---
@@ -104,7 +133,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     listFields: ["name", "domainProfile", "status", "currentPhase", "owner"],
     filterFields: ["status", "domainProfile"],
     fields: [
-      { key: "name", label: "Namn", type: "text", required: true, listVisible: true },
+      { key: "name", label: "Namn", type: "text", required: true, listVisible: true, helpText: "Beskrivande namn för upphandlingen, t.ex. 'Nytt verksamhetssystem för avfallshantering'." },
       {
         key: "domainProfile",
         label: "Domänprofil",
@@ -116,8 +145,9 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
         ],
         required: true,
         listVisible: true,
+        helpText: "Profilen styr vilka kluster, kravmallar, riskmallar och gates som aktiveras. Välj den som bäst matchar er domän.",
       },
-      { key: "orgName", label: "Organisation", type: "text" },
+      { key: "orgName", label: "Organisation", type: "text", helpText: "Upphandlande myndighet/organisation." },
       {
         key: "procurementType",
         label: "Typ av upphandling",
@@ -127,8 +157,10 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
           { value: "byte", label: "Byte" },
           { value: "utokning", label: "Utökning" },
         ],
+        helpText: "Nyanskaffning = inget befintligt avtal. Byte = ersätter befintlig leverantör. Utökning = utvidgar befintligt avtal.",
       },
-      { key: "estimatedValueSek", label: "Uppskattat värde (SEK)", type: "number" },
+      { key: "estimatedValueSek", label: "Uppskattat värde (SEK)", type: "number", helpText: "Totalt kontraktsvärde inkl. optioner. Styr vilka tröskelvärden och förfaranderegler som gäller enl. LOU." },
+      { key: "goals", label: "Mål", type: "tag-list", helpText: "Övergripande upphandlingsmål. Minst 1 mål krävs för att passera gate A." },
       ownerField,
       statusField,
     ],
@@ -144,13 +176,13 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     listFields: ["title", "role", "unit", "influence", "interest", "status"],
     filterFields: ["status"],
     fields: [
-      { key: "title", label: "Namn", type: "text", required: true, listVisible: true },
-      { key: "role", label: "Roll", type: "text", listVisible: true },
-      { key: "unit", label: "Enhet", type: "text", listVisible: true },
-      { key: "influence", label: "Inflytande (1-5)", type: "number", listVisible: true },
-      { key: "interest", label: "Intresse (1-5)", type: "number", listVisible: true },
-      { key: "engagementStrategy", label: "Engagemangsstrategi", type: "textarea" },
-      { key: "contact", label: "Kontakt", type: "text" },
+      { key: "title", label: "Namn", type: "text", required: true, listVisible: true, helpText: "Namn på intressenten (person, roll eller organisation)." },
+      { key: "role", label: "Roll", type: "text", listVisible: true, helpText: "T.ex. beställare, slutanvändare, IT-chef, facklig representant." },
+      { key: "unit", label: "Enhet", type: "text", listVisible: true, helpText: "Organisatorisk enhet eller avdelning." },
+      { key: "influence", label: "Inflytande (1-5)", type: "number", listVisible: true, helpText: "Hur mycket makt har intressenten över upphandlingens utfall? 5 = beslutsfattare." },
+      { key: "interest", label: "Intresse (1-5)", type: "number", listVisible: true, helpText: "Hur engagerad är intressenten? 5 = aktivt involverad. Hög inflytande + lågt intresse = risk." },
+      { key: "engagementStrategy", label: "Engagemangsstrategi", type: "textarea", helpText: "Hur ska intressenten hanteras? T.ex. 'Informera löpande' eller 'Involvera i kravworkshops'." },
+      { key: "contact", label: "Kontakt", type: "text", helpText: "E-post eller telefon." },
       ownerField,
       statusField,
       tagsField,
@@ -167,12 +199,12 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     listFields: ["title", "date", "status"],
     filterFields: ["status"],
     fields: [
-      { key: "title", label: "Titel", type: "text", required: true, listVisible: true },
-      { key: "date", label: "Datum", type: "date", listVisible: true },
-      { key: "participants", label: "Deltagare", type: "json" },
-      { key: "agenda", label: "Agenda", type: "json" },
-      { key: "notes", label: "Anteckningar", type: "textarea" },
-      { key: "outputs", label: "Resultat", type: "json" },
+      { key: "title", label: "Titel", type: "text", required: true, listVisible: true, helpText: "Beskrivande namn, t.ex. 'Behovsworkshop verksamhetsprocess'." },
+      { key: "date", label: "Datum", type: "date", listVisible: true, helpText: "Planerat eller genomfört datum." },
+      { key: "participants", label: "Deltagare", type: "tag-list", placeholder: "Lägg till deltagare...", helpText: "Lista alla deltagare. Inkludera roller (beställare, slutanvändare, IT, leverantör etc.)." },
+      { key: "agenda", label: "Agenda", type: "ordered-list", placeholder: "Lägg till agendapunkt...", helpText: "Numrerade agendapunkter. Håll fokus — max 5-7 punkter per workshop." },
+      { key: "notes", label: "Anteckningar", type: "textarea", helpText: "Sammanfattning av diskussionen och viktiga slutsatser." },
+      { key: "outputs", label: "Resultat", type: "tag-list", placeholder: "Lägg till resultat...", helpText: "Konkreta leverabler, t.ex. 'Prioriterad behovslista', 'Riskregister uppdaterat'." },
       ownerField,
       statusField,
       tagsField,
@@ -226,14 +258,30 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     listFields: ["title", "cluster", "priority", "status"],
     filterFields: ["status", "priority", "cluster"],
     fields: [
-      { key: "title", label: "Titel", type: "text", required: true, listVisible: true },
+      { key: "title", label: "Titel", type: "text", required: true, listVisible: true, helpText: "Kort och specifikt, t.ex. 'Snabbare handläggning av ärenden'." },
       { ...clusterField },
-      { key: "statement", label: "Behovsbeskrivning", type: "textarea" },
-      { key: "asOutcome", label: "Som önskat resultat", type: "textarea" },
+      { key: "statement", label: "Behovsbeskrivning", type: "textarea", helpText: "Beskriv behovet ur verksamhetens perspektiv. Undvik lösningsförslag — fokusera på *vad* som behövs, inte *hur*." },
+      { key: "asOutcome", label: "Som önskat resultat", type: "textarea", helpText: "Formulera behovet som ett mätbart resultat. 'Vi vill att...' Underlättar verifiering och uppföljning." },
       { ...priorityField },
-      { key: "consequenceIfNotMet", label: "Konsekvens om ej uppfyllt", type: "textarea" },
-      { key: "sources", label: "Källor", type: "json" },
-      { key: "metrics", label: "Mätetal", type: "json" },
+      { key: "consequenceIfNotMet", label: "Konsekvens om ej uppfyllt", type: "textarea", helpText: "Vad händer om behovet inte tillgodoses? Stödjer proportionalitetsbedömning och SKA/BÖR-nivå." },
+      {
+        key: "sources",
+        label: "Källor",
+        type: "tag-list",
+        placeholder: "Lägg till källa...",
+        helpText: "Varifrån kommer behovet? T.ex. 'Workshop 2024-01-15', 'Intervju driftchef', 'Lagkrav SoL 3§'.",
+      },
+      {
+        key: "metrics",
+        label: "Mätetal",
+        type: "key-value-repeater",
+        repeaterColumns: [
+          { key: "indicator", label: "Indikator", placeholder: "T.ex. svarstid" },
+          { key: "baseline", label: "Nuläge", placeholder: "T.ex. 48h" },
+          { key: "target", label: "Mål", placeholder: "T.ex. 4h" },
+        ],
+        helpText: "Mätbara indikatorer som visar om behovet är uppfyllt. Krävs för nyttorealisering i fas D.",
+      },
       ownerField,
       statusField,
       tagsField,
@@ -250,7 +298,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     listFields: ["title", "category", "score", "status"],
     filterFields: ["status", "category"],
     fields: [
-      { key: "title", label: "Titel", type: "text", required: true, listVisible: true },
+      { key: "title", label: "Titel", type: "text", required: true, listVisible: true, helpText: "Kort beskrivning av risken, t.ex. 'Leverantörsberoende av nyckelperson'." },
       {
         key: "category",
         label: "Kategori",
@@ -266,15 +314,28 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
           { value: "data_exit", label: "Data & exit" },
         ],
         listVisible: true,
+        helpText: "Huvudkategori. Domänprofilen kan kräva att vissa kategorier täcks.",
       },
-      { key: "description", label: "Beskrivning", type: "textarea" },
-      { key: "likelihood", label: "Sannolikhet (1-5)", type: "number" },
-      { key: "impact", label: "Konsekvens (1-5)", type: "number" },
-      { key: "score", label: "Risktal", type: "number", listVisible: true },
-      { key: "mitigation", label: "Åtgärd", type: "textarea" },
-      { key: "riskOwner", label: "Riskägare", type: "text" },
-      { key: "relatedNeeds", label: "Kopplade behov", type: "json" },
-      { key: "relatedRequirements", label: "Kopplade krav", type: "json" },
+      { key: "description", label: "Beskrivning", type: "textarea", helpText: "Beskriv orsak, händelse och konsekvens. 'Om X inträffar kan det leda till Y.'" },
+      { key: "likelihood", label: "Sannolikhet (1-5)", type: "number", helpText: "1 = osannolikt, 3 = möjligt, 5 = nästan säkert." },
+      { key: "impact", label: "Konsekvens (1-5)", type: "number", helpText: "1 = försumbar, 3 = allvarlig, 5 = katastrofal. Avser påverkan på tid, kostnad eller kvalitet." },
+      { key: "score", label: "Risktal", type: "number", listVisible: true, helpText: "Sannolikhet × Konsekvens. ≥12 = hög risk (bör ha åtgärd). ≥16 = kritisk (bör kopplas till krav)." },
+      { key: "mitigation", label: "Åtgärd", type: "textarea", helpText: "Hur hanteras risken? Acceptera, eliminera, minska eller överför. Koppla gärna till krav." },
+      { key: "riskOwner", label: "Riskägare", type: "text", helpText: "Vem ansvarar för att övervaka och hantera risken?" },
+      {
+        key: "relatedNeeds",
+        label: "Kopplade behov",
+        type: "entity-picker",
+        entityPickerConfig: { entityType: "needs", label: "behov" },
+        helpText: "Vilka behov påverkas om risken inträffar? Stödjer spårbarhet och proportionalitetsbedömning.",
+      },
+      {
+        key: "relatedRequirements",
+        label: "Kopplade krav",
+        type: "entity-picker",
+        entityPickerConfig: { entityType: "requirements", label: "krav" },
+        helpText: "Krav som adresserar risken. Höga risker (≥12) bör ha minst ett kopplat SKA-krav.",
+      },
       ownerField,
       statusField,
       tagsField,
@@ -291,7 +352,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     listFields: ["title", "reqType", "cluster", "level", "status"],
     filterFields: ["status", "reqType", "level", "cluster"],
     fields: [
-      { key: "title", label: "Titel", type: "text", required: true, listVisible: true },
+      { key: "title", label: "Titel", type: "text", required: true, listVisible: true, helpText: "Kort och entydigt, t.ex. 'API-integration mot ekonomisystem'." },
       {
         key: "reqType",
         label: "Kravtyp",
@@ -303,14 +364,32 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
           { value: "kontraktsvillkor", label: "Kontraktsvillkor" },
         ],
         listVisible: true,
+        helpText: "Funktionellt = vad systemet gör. NFR = kvalitet (prestanda, säkerhet). Leverantörskrav = på företaget. Kontraktsvillkor = avtalsspecifika.",
       },
       { ...clusterField },
       { ...levelField },
-      { key: "text", label: "Kravtext", type: "textarea", required: true },
-      { key: "rationale", label: "Motivering", type: "textarea" },
-      { key: "linkedNeeds", label: "Kopplade behov", type: "json" },
-      { key: "linkedRisks", label: "Kopplade risker", type: "json" },
-      { key: "verification", label: "Verifieringsplan", type: "json" },
+      { key: "text", label: "Kravtext", type: "textarea", required: true, helpText: "Skriv verifierbart. Undvik vaga ord som 'bra', 'lämplig'. SKA-krav måste vara binärt testbara (uppfyllt/ej uppfyllt)." },
+      { key: "rationale", label: "Motivering", type: "textarea", helpText: "Varför finns kravet? Koppla till behov, risk eller LOU-krav. Stärker proportionaliteten vid eventuell överprövning." },
+      {
+        key: "linkedNeeds",
+        label: "Kopplade behov",
+        type: "entity-picker",
+        entityPickerConfig: { entityType: "needs", label: "behov" },
+        helpText: "Vilka behov adresserar kravet? Alla krav bör ha minst en koppling — annars risk för 'hängande' krav.",
+      },
+      {
+        key: "linkedRisks",
+        label: "Kopplade risker",
+        type: "entity-picker",
+        entityPickerConfig: { entityType: "risks", label: "risker" },
+        helpText: "Koppla till risker som motiverar kravet. Särskilt viktigt för SKA-krav.",
+      },
+      {
+        key: "verification",
+        label: "Verifieringsplan",
+        type: "verification",
+        helpText: "Hur verifieras kravet i tre steg? Vid anbud (vad leverantören visar), vid implementation, och löpande i drift.",
+      },
       {
         key: "conflictPriority",
         label: "Konfliktprioritet",
@@ -320,6 +399,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
           { value: "P2", label: "P2 - Viktig" },
           { value: "P3", label: "P3 - Önskvärd" },
         ],
+        helpText: "Används vid målkonflikter mellan krav. P1 = får inte kompromissas.",
       },
       ownerField,
       statusField,
@@ -337,8 +417,8 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     listFields: ["title", "weight", "scale", "status"],
     filterFields: ["status"],
     fields: [
-      { key: "title", label: "Titel", type: "text", required: true, listVisible: true },
-      { key: "weight", label: "Vikt (%)", type: "number", listVisible: true },
+      { key: "title", label: "Titel", type: "text", required: true, listVisible: true, helpText: "Namn på kriteriet, t.ex. 'Funktionalitet', 'Pris', 'Implementeringskvalitet'." },
+      { key: "weight", label: "Vikt (%)", type: "number", listVisible: true, helpText: "Kriteriets vikt i procent. Alla kriteriers vikt ska summera till 100. Reflekterar prioriteringen." },
       {
         key: "scale",
         label: "Skala",
@@ -348,11 +428,23 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
           { value: "0-10", label: "0–10" },
         ],
         listVisible: true,
+        helpText: "Poängskala för bedömning. 0-5 är vanligast. Skalan ska vara konsekvent över alla kriterier.",
       },
-      { key: "anchors", label: "Poängankare", type: "json" },
-      { key: "evidenceRequired", label: "Kräver evidens", type: "textarea" },
-      { key: "scoringGuidance", label: "Bedömningsvägledning", type: "textarea" },
-      { key: "linkedRequirements", label: "Kopplade krav", type: "json" },
+      {
+        key: "anchors",
+        label: "Poängankare",
+        type: "key-value-repeater",
+        helpText: "Beskriv vad varje poäng innebär. T.ex. 0 = 'Uppfyller inte', 3 = 'Godtagbart', 5 = 'Utmärkt'. Minskar bedömarsubjektivitet.",
+      },
+      { key: "evidenceRequired", label: "Kräver evidens", type: "textarea", helpText: "Vilken dokumentation ska leverantören bifoga som stöd? T.ex. referenscase, certifikat, projektplan." },
+      { key: "scoringGuidance", label: "Bedömningsvägledning", type: "textarea", helpText: "Detaljerade instruktioner för bedömarna. Hur ska poängen motiveras? Vilka aspekter väger tyngst?" },
+      {
+        key: "linkedRequirements",
+        label: "Kopplade krav",
+        type: "entity-picker",
+        entityPickerConfig: { entityType: "requirements", label: "krav" },
+        helpText: "Vilka BÖR-krav utvärderas under detta kriterium? SKA-krav utvärderas binärt, inte via kriterier.",
+      },
       ownerField,
       statusField,
       tagsField,
@@ -369,11 +461,11 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     listFields: ["title", "supplierName", "qualified", "status"],
     filterFields: ["status"],
     fields: [
-      { key: "title", label: "Titel", type: "text", required: true, listVisible: true },
-      { key: "supplierName", label: "Leverantör", type: "text", required: true, listVisible: true },
-      { key: "receivedAt", label: "Mottaget", type: "date" },
-      { key: "qualified", label: "Kvalificerad", type: "boolean", listVisible: true },
-      { key: "qualificationNotes", label: "Kvalificeringsnoteringar", type: "textarea" },
+      { key: "title", label: "Titel", type: "text", required: true, listVisible: true, helpText: "Identifierande titel, t.ex. 'Anbud från Leverantör AB'." },
+      { key: "supplierName", label: "Leverantör", type: "text", required: true, listVisible: true, helpText: "Anbudsgivarens juridiska namn." },
+      { key: "receivedAt", label: "Mottaget", type: "date", helpText: "Datum anbud mottogs. Anbud inkomna efter anbudstidens utgång ska avvisas." },
+      { key: "qualified", label: "Kvalificerad", type: "boolean", listVisible: true, helpText: "Uppfyller leverantören alla SKA-krav och kvalificeringskrav? Ej kvalificerade anbud utvärderas inte." },
+      { key: "qualificationNotes", label: "Kvalificeringsnoteringar", type: "textarea", helpText: "Dokumentera kvalificeringsbeslut och eventuella avvikelser. Viktigt vid överprövning." },
       ownerField,
       statusField,
       tagsField,
@@ -390,7 +482,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     listFields: ["title", "decisionType", "chosen", "status"],
     filterFields: ["status", "decisionType"],
     fields: [
-      { key: "title", label: "Titel", type: "text", required: true, listVisible: true },
+      { key: "title", label: "Titel", type: "text", required: true, listVisible: true, helpText: "T.ex. 'Val av förfarande: öppet förfarande'." },
       {
         key: "decisionType",
         label: "Beslutstyp",
@@ -404,12 +496,19 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
           { value: "kontrakt", label: "Kontrakt" },
         ],
         listVisible: true,
+        helpText: "Förfarandeval och tilldelning är obligatoriska gates. Alla beslut ska dokumenteras med motivering.",
       },
-      { key: "alternatives", label: "Alternativ", type: "json" },
-      { key: "chosen", label: "Valt alternativ", type: "text", listVisible: true },
-      { key: "rationale", label: "Motivering", type: "textarea" },
-      { key: "impactsCompetition", label: "Påverkan på konkurrens", type: "textarea" },
-      { key: "attachments", label: "Bilagor", type: "json" },
+      {
+        key: "alternatives",
+        label: "Alternativ",
+        type: "ordered-list",
+        placeholder: "Lägg till alternativ...",
+        helpText: "Lista alla övervägda alternativ — inte bara det valda. Stärker transparens vid överprövning.",
+      },
+      { key: "chosen", label: "Valt alternativ", type: "text", listVisible: true, helpText: "Det alternativ som valdes." },
+      { key: "rationale", label: "Motivering", type: "textarea", helpText: "Varför valdes detta alternativ? Referera till LOU-principer, behov, risk eller andra beslutsstöd." },
+      { key: "impactsCompetition", label: "Påverkan på konkurrens", type: "textarea", helpText: "Hur påverkar beslutet konkurrensen? LOU kräver att upphandlingar inte begränsar konkurrens i onödan." },
+      { key: "attachments", label: "Bilagor", type: "tag-list", placeholder: "Lägg till bilaga...", helpText: "Referera till stöddokument, t.ex. 'Marknadsanalys v2', 'Styrgruppsbeslut 2024-02-01'." },
       ownerField,
       statusField,
       tagsField,
@@ -459,7 +558,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
         listVisible: true,
       },
       { key: "description", label: "Beskrivning", type: "textarea" },
-      { key: "generatedFrom", label: "Genererad från", type: "json" },
+      { key: "generatedFrom", label: "Genererad från", type: "tag-list" },
       { key: "fileName", label: "Fil", type: "file" },
       ownerField,
       statusField,

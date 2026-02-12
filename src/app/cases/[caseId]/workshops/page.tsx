@@ -7,6 +7,7 @@ import { EntityList } from "@/components/entity/entity-list";
 import { FilterBar } from "@/components/filters/filter-bar";
 import { getEntityMeta } from "@/config/entity-meta";
 import { findEntities } from "@/lib/entity-helpers";
+import { LibrarySuggestions } from "@/components/library/library-suggestions";
 
 export default async function WorkshopsPage({
   params,
@@ -52,6 +53,7 @@ export default async function WorkshopsPage({
         }
       />
       <div className="p-6 space-y-4">
+        <LibrarySuggestions entityType="workshop" itemCount={items.length} caseId={caseId} />
         {filterFields.length > 0 && (
           <FilterBar filters={filterFields} clusterOptions={clusterOptions} />
         )}

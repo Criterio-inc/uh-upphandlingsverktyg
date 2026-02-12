@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/layout/header";
@@ -11,6 +12,54 @@ import { ExportButtons } from "@/components/workflow/export-buttons";
 import { ImportRestore } from "@/components/workflow/import-restore";
 import { ImportToCaseDialog } from "@/components/library/import-to-case-dialog";
 import { GlobalSearch } from "@/components/search/global-search";
+
+/** Phase-specific guidance for verksamhetsföreträdare */
+const PHASE_GUIDE: Record<string, { verksamhetRole: string; nextActions: { label: string; href: string }[]; tip: string }> = {
+  A_start_styrning: {
+    verksamhetRole: "Formulera övergripande mål, identifiera kollegor som bör involveras och påbörja riskidentifiering.",
+    nextActions: [
+      { label: "Lägg till intressenter", href: "stakeholders/new" },
+      { label: "Identifiera risker", href: "risks/new" },
+      { label: "Planera workshop", href: "workshops/new" },
+    ],
+    tip: "Tänk brett — vilka kollegor påverkas av det nya systemet? Involvera dem tidigt!",
+  },
+  B_forbered: {
+    verksamhetRole: "Delta aktivt i behovsworkshops, granska och validera krav. DIN INSATS ÄR MEST KRITISK HÄR.",
+    nextActions: [
+      { label: "Dokumentera behov", href: "needs/new" },
+      { label: "Skapa krav", href: "requirements/new" },
+      { label: "Importera kravblock", href: "" },
+      { label: "Definiera kriterier", href: "criteria/new" },
+    ],
+    tip: "Beskriv behov som verksamhetsproblem — inte tekniska lösningar. Vad behöver ni i vardagen?",
+  },
+  B0_exit_migrering_forstudie: {
+    verksamhetRole: "Beskriv vad ni använder i befintligt system, vilken data som är kritisk och vilka risker ni ser vid byte.",
+    nextActions: [
+      { label: "Dokumentera evidens", href: "evidence/new" },
+      { label: "Lägg till data/exit-risk", href: "risks/new" },
+    ],
+    tip: "Kartlägg vilken data som INTE får förloras vid systembytet — det styr migreringskraven.",
+  },
+  C_genomfor: {
+    verksamhetRole: "Bedöm kravuppfyllelse i anbud, delta i poängsättning av kvalitetskriterier.",
+    nextActions: [
+      { label: "Se anbud", href: "bids" },
+      { label: "Gå till utvärdering", href: "evaluation" },
+      { label: "Skapa beslut", href: "decisions/new" },
+    ],
+    tip: "Vid poängsättning — motivera varje poäng skriftligt. Det stärker tilldelningsbeslutet vid överprövning.",
+  },
+  D_kontrakt_forvaltning: {
+    verksamhetRole: "Delta i acceptanstest, utbilda kollegor, äga förvaltningsprocessen efter go-live.",
+    nextActions: [
+      { label: "Skapa dokument", href: "documents/new" },
+      { label: "Registrera beslut", href: "decisions/new" },
+    ],
+    tip: "Planera utbildning tidigt. Superanvändare i verksamheten bör utses redan nu.",
+  },
+};
 
 export default async function CaseDashboard({
   params,
@@ -93,6 +142,45 @@ export default async function CaseDashboard({
           <span className="text-sm text-muted-foreground">{totalEntities} objekt totalt</span>
         </div>
 
+        {/* Phase guide card for verksamhetsföreträdare */}
+        {(() => {
+          const guide = PHASE_GUIDE[c.currentPhase];
+          const currentPhaseLabel = phases.find((p) => p.id === c.currentPhase)?.label ?? c.currentPhase;
+          if (!guide) return null;
+          return (
+            <Card className="border-blue-200 bg-blue-50/30">
+              <CardContent>
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl mt-0.5">👤</span>
+                  <div className="flex-1 space-y-2">
+                    <div>
+                      <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide">
+                        Din roll i {currentPhaseLabel}
+                      </div>
+                      <p className="text-sm text-blue-900 mt-1">{guide.verksamhetRole}</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {guide.nextActions.filter(a => a.href).map((action) => (
+                        <Link
+                          key={action.label}
+                          href={`/cases/${caseId}/${action.href}`}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-md text-xs font-medium transition-colors"
+                        >
+                          {action.label} →
+                        </Link>
+                      ))}
+                    </div>
+                    <div className="flex items-start gap-1.5 bg-blue-100/50 rounded p-2">
+                      <span className="text-xs">💡</span>
+                      <span className="text-xs text-blue-800">{guide.tip}</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })()}
+
         {/* Action bar */}
         <div className="flex flex-wrap items-center gap-3">
           <ExportButtons caseId={caseId} />
@@ -130,40 +218,65 @@ export default async function CaseDashboard({
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {phases.map((phase, index) => {
                 const isCurrent = phase.id === c.currentPhase;
                 const isPast = index < currentPhaseIndex;
                 return (
                   <div
                     key={phase.id}
-                    className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm ${
+                    className={`rounded-lg border p-4 transition-colors ${
                       isCurrent
-                        ? "bg-primary/10 font-medium text-primary"
+                        ? "border-primary bg-primary/5"
                         : isPast
-                          ? "text-foreground"
-                          : "text-muted-foreground"
+                          ? "border-green-200 bg-green-50/30"
+                          : "border-border bg-muted/20"
                     }`}
                   >
-                    <span className={`flex h-5 w-5 items-center justify-center rounded-full text-xs ${
-                      isPast
-                        ? "bg-green-100 text-green-700"
-                        : isCurrent
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground"
+                    <div className="flex items-center gap-3">
+                      <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium ${
+                        isPast
+                          ? "bg-green-100 text-green-700"
+                          : isCurrent
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground"
+                      }`}>
+                        {isPast ? "✓" : index + 1}
+                      </span>
+                      <span className={`flex-1 text-sm font-medium ${
+                        isCurrent ? "text-primary" : isPast ? "text-foreground" : "text-muted-foreground"
+                      }`}>
+                        {phase.label}
+                      </span>
+                      {isCurrent && (
+                        <span className="text-xs bg-primary/20 text-primary rounded px-2 py-0.5 font-medium">
+                          Aktuell
+                        </span>
+                      )}
+                    </div>
+                    {/* Phase description */}
+                    <p className={`text-xs mt-2 ml-9 ${
+                      isCurrent ? "text-foreground" : "text-muted-foreground"
                     }`}>
-                      {isPast ? "✓" : index + 1}
-                    </span>
-                    <span className="flex-1">{phase.label}</span>
-                    {phase.subPhases && (
-                      <span className="text-xs text-muted-foreground">
-                        {phase.subPhases.length} delfaser
-                      </span>
-                    )}
-                    {isCurrent && (
-                      <span className="text-xs bg-primary/20 rounded px-2 py-0.5">
-                        Aktuell
-                      </span>
+                      {phase.description}
+                    </p>
+                    {/* Sub-phases */}
+                    {phase.subPhases && phase.subPhases.length > 0 && (isCurrent || isPast) && (
+                      <div className="mt-3 ml-9 grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                        {phase.subPhases.map((sub) => (
+                          <div key={sub.id} className="flex items-start gap-1.5 text-xs">
+                            <span className={`mt-0.5 ${isPast ? "text-green-500" : "text-muted-foreground"}`}>
+                              {isPast ? "✓" : "○"}
+                            </span>
+                            <div>
+                              <span className={isPast ? "text-foreground" : isCurrent ? "text-foreground" : "text-muted-foreground"}>
+                                {sub.label}
+                              </span>
+                              <span className="text-muted-foreground ml-1">– {sub.description}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
                 );

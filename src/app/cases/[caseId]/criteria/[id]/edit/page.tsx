@@ -42,6 +42,7 @@ export default async function EditCriterionPage({
           returnUrl={`${basePath}/${id}`}
           initialData={item as unknown as Record<string, unknown>}
           isEdit
+          caseId={caseId}
         />
       </div>
     </div>

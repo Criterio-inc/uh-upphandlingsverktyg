@@ -43,6 +43,7 @@ export const avfallNyanskaffning: ProfileConfig = {
         label: "Behov finns i minst 4 kluster",
         rule: "needs.distinctClusters>=4",
         severity: "warning",
+        helpText: "Avfallsverksamhet spänner över många områden (kund, taxa, logistik, ÅVC, digitalt, integration, data). Behov i minst 4 kluster säkerställer att kravbilden inte missar hela funktionsområden.",
       },
     ],
   },

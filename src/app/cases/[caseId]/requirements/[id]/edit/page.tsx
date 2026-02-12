@@ -46,6 +46,7 @@ export default async function EditRequirementPage({
           initialData={item as unknown as Record<string, unknown>}
           isEdit
           clusterOptions={clusterOptions}
+          caseId={caseId}
         />
       </div>
     </div>

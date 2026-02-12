@@ -35,6 +35,7 @@ export default async function NewWorkshopPage({
           meta={meta}
           apiUrl={`/api/cases/${caseId}/workshops`}
           returnUrl={`/cases/${caseId}/workshops`}
+          caseId={caseId}
         />
       </div>
     </div>

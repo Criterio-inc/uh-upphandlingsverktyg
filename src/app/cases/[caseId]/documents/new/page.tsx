@@ -35,6 +35,7 @@ export default async function NewDocumentPage({
           meta={meta}
           apiUrl={`/api/cases/${caseId}/documents`}
           returnUrl={`/cases/${caseId}/documents`}
+          caseId={caseId}
         />
       </div>
     </div>
