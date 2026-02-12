@@ -1070,6 +1070,20 @@ async function main() {
       owner: "Anna Johansson",
       governance: JSON.stringify({ steeringGroup: ["Anna Johansson (PL)", "Erik Svensson (IT-chef)"], projectGroup: ["Maria Lindström", "Per Eriksson"], decisionForums: ["Upphandlingsnämnd"] }),
       timeline: JSON.stringify({ startDate: "2025-10-01", targetAwardDate: "2026-04-15", targetContractDate: "2026-06-01" }),
+      evaluationStatus: JSON.stringify({
+        announced: true,
+        announcedDate: "2026-01-15",
+        externalSystem: "TendSign",
+        externalRef: "TS-2026-0042",
+        checklist: [
+          { id: "chk-1", label: "Formell kvalificering genomförd", checked: true, date: "2026-02-05" },
+          { id: "chk-2", label: "Kravuppfyllelse bedömd (SKA-krav)", checked: true, date: "2026-02-10" },
+          { id: "chk-3", label: "Utvärdering av tilldelningskriterier genomförd", checked: true, date: "2026-02-15" },
+          { id: "chk-4", label: "Utvärderingsprotokoll upprättat", checked: true, date: "2026-02-16" },
+          { id: "chk-5", label: "Tilldelningsbeslut fattat", checked: false },
+          { id: "chk-6", label: "Avtalspärr löpt ut (10 dagar)", checked: false },
+        ],
+      }),
     },
   });
 
@@ -1182,43 +1196,15 @@ async function main() {
   await prisma.idCounter.upsert({ where: { prefix: "BID" }, create: { prefix: "BID", counter: 3 }, update: { counter: 3 } });
   await prisma.bid.createMany({
     data: [
-      { id: "BID-000001", caseId: case1Id, title: "Anbud: WasteFlow AB", supplierName: "WasteFlow AB", receivedAt: "2026-02-01T10:00:00Z", qualified: true, qualificationNotes: "Uppfyller alla kvalificeringskrav. Etablerad leverantör med 15 kommunreferenser.", status: "active", tags: JSON.stringify(["kvalificerad"]) },
-      { id: "BID-000002", caseId: case1Id, title: "Anbud: EcoManage Systems", supplierName: "EcoManage Systems", receivedAt: "2026-02-01T14:30:00Z", qualified: true, qualificationNotes: "Uppfyller kvalificeringskraven. Relativt ny aktör men lovande demo.", status: "active", tags: JSON.stringify(["kvalificerad"]) },
-      { id: "BID-000003", caseId: case1Id, title: "Anbud: SmartWaste Nordic", supplierName: "SmartWaste Nordic", receivedAt: "2026-02-01T16:00:00Z", qualified: false, qualificationNotes: "Uppfyller inte SKA-krav REQ-000001 (kundregister med historik). Saknar ändringshistorik.", status: "active", tags: JSON.stringify(["diskvalificerad"]) },
+      { id: "BID-000001", caseId: case1Id, title: "Anbud: WasteFlow AB", supplierName: "WasteFlow AB", receivedAt: "2026-02-01T10:00:00Z", qualified: true, qualificationNotes: "Uppfyller alla kvalificeringskrav. Etablerad leverantör med 15 kommunreferenser.", externalRef: "TS-2026-0042-A1", status: "active", tags: JSON.stringify(["kvalificerad"]) },
+      { id: "BID-000002", caseId: case1Id, title: "Anbud: EcoManage Systems", supplierName: "EcoManage Systems", receivedAt: "2026-02-01T14:30:00Z", qualified: true, qualificationNotes: "Uppfyller kvalificeringskraven. Relativt ny aktör men lovande demo.", externalRef: "TS-2026-0042-A2", status: "active", tags: JSON.stringify(["kvalificerad"]) },
+      { id: "BID-000003", caseId: case1Id, title: "Anbud: SmartWaste Nordic", supplierName: "SmartWaste Nordic", receivedAt: "2026-02-01T16:00:00Z", qualified: false, qualificationNotes: "Uppfyller inte SKA-krav REQ-000001 (kundregister med historik). Saknar ändringshistorik.", externalRef: "TS-2026-0042-A3", status: "active", tags: JSON.stringify(["diskvalificerad"]) },
     ],
   });
 
-  // BidResponses for Case 1 — kvalificerade anbud × alla krav
-  await prisma.bidResponse.createMany({
-    data: [
-      // WasteFlow AB responses
-      { caseId: case1Id, bidId: "BID-000001", requirementId: "REQ-000001", meets: "yes", supplierStatement: "Fullständigt kundregister med detaljerad ändringshistorik per fält. Audit trail sedan 2018.", reviewNotes: "Verifierat via demo." },
-      { caseId: case1Id, bidId: "BID-000001", requirementId: "REQ-000002", meets: "yes", supplierStatement: "Drag-and-drop taxekonfigurator med regelmotor. Ingen kod krävs.", reviewNotes: "Imponerande demo med komplext taxeexempel." },
-      { caseId: case1Id, bidId: "BID-000001", requirementId: "REQ-000003", meets: "yes", supplierStatement: "Responsiv kundportal med WCAG 2.1 AA. Tillgänglighetsrapport bifogad.", reviewNotes: "Komplett portal." },
-      { caseId: case1Id, bidId: "BID-000001", requirementId: "REQ-000004", meets: "yes", supplierStatement: "GIS-baserad ruttoptimering med stöd för fyllnadsgradsdata.", reviewNotes: "Beprövad modul." },
-      { caseId: case1Id, bidId: "BID-000001", requirementId: "REQ-000005", meets: "yes", supplierStatement: "Export i CSV, JSON och XML. API för programmatisk export.", reviewNotes: "Komplett exportfunktion." },
-      // EcoManage Systems responses
-      { caseId: case1Id, bidId: "BID-000002", requirementId: "REQ-000001", meets: "yes", supplierStatement: "Kundregister med versionshantering. Alla ändringar spåras.", reviewNotes: "Godkänt men enklare historikvy." },
-      { caseId: case1Id, bidId: "BID-000002", requirementId: "REQ-000002", meets: "partial", supplierStatement: "Taxekonfig via admin-gränssnitt. Vissa komplexa regler kräver supportinsats.", reviewNotes: "Uppfyller delvis — komplexa taxeändringar kräver leverantörsstöd." },
-      { caseId: case1Id, bidId: "BID-000002", requirementId: "REQ-000003", meets: "yes", supplierStatement: "Kundportal med responsiv design. WCAG-granskning planerad Q2 2026.", reviewNotes: "Bra grund men WCAG-granskning ej genomförd." },
-      { caseId: case1Id, bidId: "BID-000002", requirementId: "REQ-000004", meets: "partial", supplierStatement: "Basruttplanering finns. GIS-integration planerad i v2.5.", reviewNotes: "Rudimentär ruttplanering utan full GIS." },
-      { caseId: case1Id, bidId: "BID-000002", requirementId: "REQ-000005", meets: "yes", supplierStatement: "Export i CSV och JSON. XLSX-export under utveckling.", reviewNotes: "Acceptabel export." },
-    ],
-  });
-
-  // Scores for Case 1 — kvalificerade anbud × alla kriterier
-  await prisma.score.createMany({
-    data: [
-      // WasteFlow AB scores
-      { caseId: case1Id, bidId: "BID-000001", criterionId: "CRIT-000001", rawScore: 5, normalizedScore: 50, justification: "Uppfyller alla SKA- och BÖR-krav med mervärde. Imponerande kundregister och taxekonfigurator.", scorer: "Anna Johansson", scoredAt: "2026-02-15T10:00:00Z" },
-      { caseId: case1Id, bidId: "BID-000001", criterionId: "CRIT-000002", rawScore: 3, normalizedScore: 18, justification: "Mellanpris bland anbuden. 4,2 MSEK totalt under 5 år.", scorer: "Anna Johansson", scoredAt: "2026-02-15T10:00:00Z" },
-      { caseId: case1Id, bidId: "BID-000001", criterionId: "CRIT-000003", rawScore: 4, normalizedScore: 16, justification: "15 kommunreferenser, lång branscherfarenhet, stabil organisation.", scorer: "Erik Svensson", scoredAt: "2026-02-15T11:00:00Z" },
-      // EcoManage Systems scores
-      { caseId: case1Id, bidId: "BID-000002", criterionId: "CRIT-000001", rawScore: 3, normalizedScore: 30, justification: "Uppfyller alla SKA-krav men BÖR-krav delvis (taxehantering, GIS-rutter). Grundläggande men kompetent.", scorer: "Anna Johansson", scoredAt: "2026-02-15T10:00:00Z" },
-      { caseId: case1Id, bidId: "BID-000002", criterionId: "CRIT-000002", rawScore: 5, normalizedScore: 30, justification: "Lägst pris bland anbuden. 3,1 MSEK totalt under 5 år.", scorer: "Anna Johansson", scoredAt: "2026-02-15T10:00:00Z" },
-      { caseId: case1Id, bidId: "BID-000002", criterionId: "CRIT-000003", rawScore: 2, normalizedScore: 8, justification: "Relativt nytt företag, 3 kommunreferenser. God teknisk kompetens men begränsad erfarenhet.", scorer: "Erik Svensson", scoredAt: "2026-02-15T11:00:00Z" },
-    ],
-  });
+  // NOTE: BidResponses and Scores removed in hybrid model.
+  // Detailed evaluation data lives in external procurement system (TendSign/Mercell).
+  // Only traceability skeleton (qualification status, checklist) is kept here.
 
   // Additional documents for Case 1
   await prisma.idCounter.upsert({ where: { prefix: "DOC" }, update: { counter: 3 }, create: { prefix: "DOC", counter: 3 } });
@@ -1229,7 +1215,7 @@ async function main() {
     ],
   });
 
-  console.log("  ✓ Case 1 enriched: 2 decisions, 3 bids, 10 bid responses, 6 scores, 3 documents");
+  console.log("  ✓ Case 1 enriched: 2 decisions, 3 bids (hybrid — no responses/scores), 3 documents");
 
   // ============================================================
   // Sample Case 2: Socialtjänst byte

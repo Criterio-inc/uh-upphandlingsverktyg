@@ -222,10 +222,10 @@ export const BASE_PHASES: PhaseConfig[] = [
     gates: [
       {
         id: "C_bids",
-        label: "Minst 1 anbud mottaget",
+        label: "Minst 1 anbud registrerat",
         rule: "bids.count>=1",
         severity: "blocker",
-        helpText: "Utan inkomna anbud kan utvärdering inte påbörjas. Vid 0 anbud — överväg förnyad konkurrensutsättning eller justering av krav.",
+        helpText: "Registrera mottagna anbud med leverantörsnamn och extern referens. Utan anbud kan processen inte fortskrida.",
       },
       {
         id: "C_bids_reviewed",
@@ -235,25 +235,18 @@ export const BASE_PHASES: PhaseConfig[] = [
         helpText: "Alla mottagna anbud måste aktivt kvalificeras eller avvisas. Anbud som inte bedömts skapar rättslig osäkerhet.",
       },
       {
-        id: "C_responses_complete",
-        label: "Kravuppfyllelse bedömd per anbud",
-        rule: "bidResponses.allComplete",
+        id: "C_checklist_qualification",
+        label: "Formell kvalificering bekräftad",
+        rule: "evaluationStatus.checklist(chk-1)",
         severity: "warning",
-        helpText: "Alla krav bör ha bedömd uppfyllelse (ja/delvis/nej) för varje kvalificerat anbud innan poängsättning.",
+        helpText: "Bekräfta att formell kvalificering av anbuden är genomförd. Bocka i checklistan under Fas C — Status.",
       },
       {
-        id: "C_scores_complete",
-        label: "Alla kriterier poängsatta per anbud",
-        rule: "scores.allComplete",
+        id: "C_checklist_evaluation",
+        label: "Utvärdering genomförd",
+        rule: "evaluationStatus.checklist(chk-3)",
         severity: "warning",
-        helpText: "Alla utvärderingskriterier måste poängsättas för varje kvalificerat anbud. Utebliven poängsättning ger orättvis utvärdering.",
-      },
-      {
-        id: "C_scores_justified",
-        label: "Alla poäng motiverade",
-        rule: "scores.allHaveJustification",
-        severity: "warning",
-        helpText: "Varje poäng bör ha en skriftlig motivering. Stärker tilldelningsbeslutets hållbarhet vid överprövning.",
+        helpText: "Bekräfta att utvärdering av tilldelningskriterier är genomförd i ert upphandlingssystem. Bocka i checklistan under Fas C — Status.",
       },
       {
         id: "C_doc_utvardering",

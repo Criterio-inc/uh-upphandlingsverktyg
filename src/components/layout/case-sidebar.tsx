@@ -15,10 +15,10 @@ const CASE_NAV: { segment: string; entityType?: EntityType; label: string; icon:
   { segment: "stakeholders", entityType: "stakeholder", label: ENTITY_META.stakeholder.pluralLabel, icon: ENTITY_META.stakeholder.icon },
   { segment: "workshops", entityType: "workshop", label: ENTITY_META.workshop.pluralLabel, icon: ENTITY_META.workshop.icon },
   { segment: "evidence", entityType: "evidence", label: ENTITY_META.evidence.pluralLabel, icon: ENTITY_META.evidence.icon },
-  { segment: "bids", entityType: "bid", label: ENTITY_META.bid.pluralLabel, icon: ENTITY_META.bid.icon },
+  { segment: "bids", entityType: "bid", label: "Anbud & status", icon: "📨" },
+  { segment: "evaluation", label: "Fas C — Status", icon: "📋" },
   { segment: "decisions", entityType: "decision", label: ENTITY_META.decision.pluralLabel, icon: ENTITY_META.decision.icon },
   { segment: "documents", entityType: "document", label: ENTITY_META.document.pluralLabel, icon: ENTITY_META.document.icon },
-  { segment: "evaluation", label: "Utvärdering", icon: "📊" },
   { segment: "traceability", label: "Spårbarhet", icon: "🔗" },
   { segment: "settings", label: "Inställningar", icon: "⚙️" },
 ];

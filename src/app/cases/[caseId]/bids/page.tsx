@@ -39,11 +39,11 @@ export default async function BidsPage({
   return (
     <div>
       <Header
-        title={meta.pluralLabel}
+        title="Anbud & status"
         breadcrumbs={[
           { label: "Upphandlingar", href: "/cases" },
           { label: c.name, href: `/cases/${caseId}` },
-          { label: meta.pluralLabel },
+          { label: "Anbud & status" },
         ]}
         actions={
           <Link href={`${basePath}/new`}>
@@ -52,6 +52,12 @@ export default async function BidsPage({
         }
       />
       <div className="p-6 space-y-4">
+        <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-3 text-sm text-blue-800">
+          Detaljerad anbudsutvärdering sker i ert upphandlingssystem. Här registreras övergripande status för spårbarhet.{" "}
+          <a href={`/cases/${caseId}/evaluation`} className="underline font-medium">
+            Fas C — Genomförande & status →
+          </a>
+        </div>
         {filterFields.length > 0 && (
           <FilterBar filters={filterFields} clusterOptions={clusterOptions} />
         )}

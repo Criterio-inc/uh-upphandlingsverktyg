@@ -207,7 +207,24 @@ async function evaluateRule(rule: string, caseId: string): Promise<{ passed: boo
     return { passed: bids.length === 0 || reviewed.length === bids.length, actual: reviewed.length };
   }
 
-  // ===================== BID RESPONSE RULES =====================
+  // ===================== EVALUATION STATUS CHECKLIST RULES =====================
+
+  // evaluationStatus.checklist(chk-N) — check if a specific checklist item is checked
+  const checklistMatch = rule.match(/^evaluationStatus\.checklist\((.+)\)$/);
+  if (checklistMatch) {
+    const checklistId = checklistMatch[1];
+    const c = await prisma.case.findUnique({ where: { id: caseId }, select: { evaluationStatus: true } });
+    try {
+      const evalStatus = JSON.parse(c?.evaluationStatus ?? "{}");
+      const checklist = evalStatus.checklist ?? [];
+      const item = checklist.find((i: any) => i.id === checklistId);
+      return { passed: item?.checked === true, actual: item?.checked ? "✓" : "—" };
+    } catch {
+      return { passed: false, actual: "—" };
+    }
+  }
+
+  // ===================== BID RESPONSE RULES (legacy, kept for compatibility) =====================
 
   // bidResponses.allComplete — all requirements answered for all qualified bids
   if (rule === "bidResponses.allComplete") {
@@ -220,7 +237,7 @@ async function evaluateRule(rule: string, caseId: string): Promise<{ passed: boo
     return { passed: responseCount >= expected, actual: `${responseCount}/${expected}` };
   }
 
-  // ===================== SCORE RULES =====================
+  // ===================== SCORE RULES (legacy, kept for compatibility) =====================
 
   // scores.allComplete — all criteria scored for all qualified bids
   if (rule === "scores.allComplete") {

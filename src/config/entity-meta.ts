@@ -466,6 +466,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
       { key: "receivedAt", label: "Mottaget", type: "date", helpText: "Datum anbud mottogs. Anbud inkomna efter anbudstidens utgång ska avvisas." },
       { key: "qualified", label: "Kvalificerad", type: "boolean", listVisible: true, helpText: "Uppfyller leverantören alla SKA-krav och kvalificeringskrav? Ej kvalificerade anbud utvärderas inte." },
       { key: "qualificationNotes", label: "Kvalificeringsnoteringar", type: "textarea", helpText: "Dokumentera kvalificeringsbeslut och eventuella avvikelser. Viktigt vid överprövning." },
+      { key: "externalRef", label: "Extern referens", type: "text", helpText: "Referens i ert upphandlingssystem, t.ex. TendSign diarienummer eller Mercell referensnr. Möjliggör spårbarhet mellan systemen." },
       ownerField,
       statusField,
       tagsField,

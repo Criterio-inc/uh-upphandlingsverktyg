@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/layout/header";
-import { EvaluationMatrix } from "./evaluation-matrix";
+import { EvaluationStatus } from "./evaluation-status";
+
+export const dynamic = "force-dynamic";
 
 export default async function EvaluationPage({
   params,
@@ -12,45 +14,32 @@ export default async function EvaluationPage({
 
   const c = await prisma.case.findUnique({
     where: { id: caseId },
-    select: { name: true },
+    select: { name: true, evaluationStatus: true },
   });
   if (!c) notFound();
 
-  // Fetch all qualified bids
-  const bids = await prisma.bid.findMany({
-    where: { caseId },
-    orderBy: { id: "asc" },
-    select: { id: true, title: true, supplierName: true, qualified: true },
-  });
+  // Parse evaluationStatus JSON
+  let evalStatus = {};
+  try {
+    evalStatus = JSON.parse(c.evaluationStatus || "{}");
+  } catch {
+    evalStatus = {};
+  }
 
-  // Fetch all criteria
-  const criteria = await prisma.criterion.findMany({
-    where: { caseId },
-    orderBy: { id: "asc" },
-    select: { id: true, title: true, weight: true, scale: true },
-  });
-
-  // Fetch all requirements
-  const requirements = await prisma.requirement.findMany({
-    where: { caseId },
-    orderBy: { id: "asc" },
-    select: { id: true, title: true, level: true },
-  });
-
-  // Fetch all scores
-  const scores = await prisma.score.findMany({
-    where: { caseId },
-  });
-
-  // Fetch all bid responses
-  const bidResponses = await prisma.bidResponse.findMany({
-    where: { caseId },
-  });
+  // Count bids
+  const [bidCount, qualifiedCount, disqualifiedCount, requirementCount, criterionCount] =
+    await Promise.all([
+      prisma.bid.count({ where: { caseId } }),
+      prisma.bid.count({ where: { caseId, qualified: true } }),
+      prisma.bid.count({ where: { caseId, qualified: false } }),
+      prisma.requirement.count({ where: { caseId } }),
+      prisma.criterion.count({ where: { caseId } }),
+    ]);
 
   return (
     <div>
       <Header
-        title="Utvärdering"
+        title="Fas C — Genomförande & status"
         breadcrumbs={[
           { label: "Upphandlingar", href: "/cases" },
           { label: c.name, href: `/cases/${caseId}` },
@@ -58,13 +47,15 @@ export default async function EvaluationPage({
         ]}
       />
       <div className="p-6">
-        <EvaluationMatrix
+        <EvaluationStatus
           caseId={caseId}
-          bids={bids}
-          criteria={criteria}
-          requirements={requirements}
-          scores={scores as unknown as Record<string, unknown>[]}
-          bidResponses={bidResponses as unknown as Record<string, unknown>[]}
+          caseName={c.name}
+          evaluationStatus={evalStatus}
+          bidCount={bidCount}
+          qualifiedCount={qualifiedCount}
+          disqualifiedCount={disqualifiedCount}
+          requirementCount={requirementCount}
+          criterionCount={criterionCount}
         />
       </div>
     </div>

@@ -22,6 +22,7 @@ model Case {
   scopeOut         String   @default("[]") // JSON array
   dependencies     String   @default("[]") // JSON array
   governance       String   @default("{}") // JSON: {steeringGroup[], projectGroup[], decisionForums[]}
+  evaluationStatus String   @default("{}") // JSON: {announced, announcedDate, externalSystem, externalRef, winner, winnerMotivation, awardDate, checklist[]}
   status           String   @default("draft") // draft | active | completed | archived
   currentPhase     String   @default("A_start_styrning")
   owner            String   @default("")
@@ -260,6 +261,7 @@ model Bid {
   receivedAt          String   @default("") // ISO datetime
   qualified           Boolean  @default(false)
   qualificationNotes  String   @default("")
+  externalRef         String   @default("") // Reference in external procurement system (e.g. TendSign dnr)
 
   case      Case          @relation(fields: [caseId], references: [id], onDelete: Cascade)
   responses BidResponse[]
