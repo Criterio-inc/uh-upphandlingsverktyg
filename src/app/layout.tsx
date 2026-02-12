@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { ToastProvider } from "@/components/ui/toast-provider";
+import { AuthProvider } from "@/components/auth/auth-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Criterio — Upphandlingsstöd",
+  title: "Critero — Upphandlingsstöd",
   description: "Verktyg för offentlig upphandling enligt LOU",
 };
 
@@ -26,17 +27,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="sv" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <ToastProvider>
-            <div className="flex h-screen">
-              <AppSidebar />
-              <main className="flex-1 overflow-auto">{children}</main>
-            </div>
-          </ToastProvider>
-        </ThemeProvider>
-      </body>
-    </html>
+    <AuthProvider>
+      <html lang="sv" suppressHydrationWarning>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <ToastProvider>
+              <div className="flex h-screen">
+                <AppSidebar />
+                <main className="flex-1 overflow-auto">{children}</main>
+              </div>
+            </ToastProvider>
+          </ThemeProvider>
+        </body>
+      </html>
+    </AuthProvider>
   );
 }

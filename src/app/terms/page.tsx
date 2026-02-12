@@ -29,7 +29,7 @@ export default function TermsPage() {
           </div>
           <div className="text-sm text-muted-foreground space-y-3 leading-relaxed">
             <p>
-              Criterio Upphandling LOU ("Tjänsten") tillhandahålls av Criterio Consulting AB
+              Critero Upphandling LOU ("Tjänsten") tillhandahålls av Critero Consulting AB
               som ett verktyg för stöd vid offentlig upphandling enligt Lagen om offentlig
               upphandling (LOU).
             </p>
@@ -39,7 +39,7 @@ export default function TermsPage() {
               att upphandlingsunderlag uppfyller gällande lagkrav.
             </p>
             <p>
-              Criterio Consulting AB förbehåller sig rätten att uppdatera eller förändra
+              Critero Consulting AB förbehåller sig rätten att uppdatera eller förändra
               tjänsten utan föregående meddelande. Obehörig åtkomst, automatiserad
               datainsamling eller användning i strid med svensk lag är inte tillåten.
             </p>
@@ -56,7 +56,7 @@ export default function TermsPage() {
           </div>
           <div className="text-sm text-muted-foreground space-y-3 leading-relaxed">
             <p>
-              Upphandlingsdata som skapas i Criterio lagras i en molndatabas (Turso/LibSQL)
+              Upphandlingsdata som skapas i Critero lagras i en molndatabas (Turso/LibSQL)
               med kryptering i vila och under transport. All kommunikation sker via HTTPS.
             </p>
             <p>
@@ -88,7 +88,7 @@ export default function TermsPage() {
           <div className="text-sm text-muted-foreground space-y-3 leading-relaxed">
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-xl border border-border/60 p-4 space-y-1">
-                <p className="text-xs font-semibold text-foreground">Criterio Consulting AB</p>
+                <p className="text-xs font-semibold text-foreground">Critero Consulting AB</p>
                 <p className="text-xs">Organisationsnummer: [att fylla i]</p>
               </div>
               <div className="rounded-xl border border-border/60 p-4 space-y-1">
