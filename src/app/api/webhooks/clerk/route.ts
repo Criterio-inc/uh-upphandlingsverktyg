@@ -1,6 +1,7 @@
 import { Webhook } from "svix";
 import { prisma } from "@/lib/db";
 import { createDefaultFeatures } from "@/lib/user-features";
+import { ensureUserTables } from "@/lib/ensure-user-tables";
 
 export const dynamic = "force-dynamic";
 
@@ -68,6 +69,9 @@ export async function POST(req: Request) {
     console.error("Webhook verification failed:", err);
     return new Response("Invalid signature", { status: 400 });
   }
+
+  // Ensure User/UserFeature tables exist before handling events
+  await ensureUserTables();
 
   // Handle events
   try {
