@@ -10,7 +10,7 @@ interface CourseInfo {
   description: string;
   modules: number;
   estimatedMinutes: number;
-  level: "Grundl\u00e4ggande" | "Medel" | "Avancerad";
+  level: "Grundläggande" | "Medel" | "Avancerad";
   tags: string[];
 }
 
@@ -20,10 +20,10 @@ const COURSES: CourseInfo[] = [
     title: "Upphandling & LOU",
     icon: "scale",
     description:
-      "Grunderna i Lagen om offentlig upphandling \u2014 tr\u00f6skelv\u00e4rden, f\u00f6rfaranden, annonsering, utv\u00e4rdering och tilldelning.",
+      "Grunderna i Lagen om offentlig upphandling — tröskelvärden, förfaranden, annonsering, utvärdering och tilldelning.",
     modules: 8,
     estimatedMinutes: 45,
-    level: "Grundl\u00e4ggande",
+    level: "Grundläggande",
     tags: ["LOU", "Offentlig upphandling", "Juridik"],
   },
   {
@@ -31,50 +31,50 @@ const COURSES: CourseInfo[] = [
     title: "Kravhantering",
     icon: "ruler",
     description:
-      "Fr\u00e5n behov till kravspecifikation \u2014 behovsanalys, funktionella vs icke-funktionella krav, kravsp\u00e5rbarhet och verifiering.",
+      "Från behov till kravspecifikation — behovsanalys, funktionella vs icke-funktionella krav, kravspårbarhet och verifiering.",
     modules: 6,
     estimatedMinutes: 35,
     level: "Medel",
-    tags: ["Krav", "Specifikation", "Sp\u00e5rbarhet"],
+    tags: ["Krav", "Specifikation", "Spårbarhet"],
   },
   {
     id: "formagabedomning",
-    title: "F\u00f6rm\u00e5gebed\u00f6mning",
+    title: "Förmågebedömning",
     icon: "gauge",
     description:
-      "Utv\u00e4rdera f\u00f6rm\u00e5gor inom m\u00e4nniska, teknik och process \u2014 mognadsmodeller, gap-analys, handlingsplaner.",
+      "Utvärdera förmågor inom människa, teknik och process — mognadsmodeller, gap-analys, handlingsplaner.",
     modules: 5,
     estimatedMinutes: 30,
     level: "Medel",
-    tags: ["F\u00f6rm\u00e5ga", "M\u00e4nniska", "Teknik", "Process"],
+    tags: ["Förmåga", "Människa", "Teknik", "Process"],
   },
   {
     id: "systemforvaltning",
-    title: "Systemf\u00f6rvaltning",
+    title: "Systemförvaltning",
     icon: "server-cog",
     description:
-      "Strukturerad IT-f\u00f6rvaltning \u2014 f\u00f6rvaltningsobjekt, roller, budgetering, livscykelhantering och pm3-inspirerat arbetss\u00e4tt.",
+      "Strukturerad IT-förvaltning — förvaltningsobjekt, roller, budgetering, livscykelhantering och pm3-inspirerat arbetssätt.",
     modules: 6,
     estimatedMinutes: 40,
     level: "Medel",
-    tags: ["F\u00f6rvaltning", "IT", "Livscykel"],
+    tags: ["Förvaltning", "IT", "Livscykel"],
   },
   {
     id: "forandringsledning-adkar",
-    title: "F\u00f6r\u00e4ndringsledning ADKAR",
+    title: "Förändringsledning ADKAR",
     icon: "repeat",
     description:
-      "Prosci ADKAR-modellen steg f\u00f6r steg \u2014 Awareness, Desire, Knowledge, Ability, Reinforcement \u2014 med praktiska verktyg.",
+      "Prosci ADKAR-modellen steg för steg — Awareness, Desire, Knowledge, Ability, Reinforcement — med praktiska verktyg.",
     modules: 7,
     estimatedMinutes: 50,
-    level: "Grundl\u00e4ggande",
-    tags: ["ADKAR", "F\u00f6r\u00e4ndring", "Prosci"],
+    level: "Grundläggande",
+    tags: ["ADKAR", "Förändring", "Prosci"],
   },
 ];
 
 function getLevelColor(level: CourseInfo["level"]) {
   switch (level) {
-    case "Grundl\u00e4ggande":
+    case "Grundläggande":
       return "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300";
     case "Medel":
       return "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300";
@@ -105,7 +105,7 @@ export default function TrainingPage() {
                 Utbildning
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                St\u00e4rk din kompetens inom upphandling och verksamhetsutveckling
+                Stärk din kompetens inom upphandling och verksamhetsutveckling
               </p>
             </div>
             <div className="flex items-center gap-2">

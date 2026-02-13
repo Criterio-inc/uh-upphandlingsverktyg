@@ -34,89 +34,89 @@ const COURSES: Record<string, CourseData> = {
     title: "Upphandling & LOU",
     icon: "scale",
     description:
-      "Grunderna i Lagen om offentlig upphandling \u2014 tr\u00f6skelv\u00e4rden, f\u00f6rfaranden, annonsering, utv\u00e4rdering och tilldelning.",
-    level: "Grundl\u00e4ggande",
+      "Grunderna i Lagen om offentlig upphandling — tröskelvärden, förfaranden, annonsering, utvärdering och tilldelning.",
+    level: "Grundläggande",
     modules: [
       {
         title: "Introduktion till LOU",
         content: [
-          "Lagen om offentlig upphandling (LOU 2016:1145) reglerar hur myndigheter och andra offentliga organ k\u00f6per varor, tj\u00e4nster och byggentreprenader. Syftet \u00e4r att s\u00e4kerst\u00e4lla konkurrens, likabehandling och transparens.",
-          "LOU bygger p\u00e5 EU:s upphandlingsdirektiv (2014/24/EU) och g\u00e4ller f\u00f6r alla upphandlande myndigheter \u2014 kommuner, regioner, statliga myndigheter och offentligt styrda organ.",
-          "De fem grundprinciperna \u00e4r: icke-diskriminering, likabehandling, proportionalitet, \u00f6msesidigt erk\u00e4nnande och \u00f6ppenhet.",
+          "Lagen om offentlig upphandling (LOU 2016:1145) reglerar hur myndigheter och andra offentliga organ köper varor, tjänster och byggentreprenader. Syftet är att säkerställa konkurrens, likabehandling och transparens.",
+          "LOU bygger på EU:s upphandlingsdirektiv (2014/24/EU) och gäller för alla upphandlande myndigheter — kommuner, regioner, statliga myndigheter och offentligt styrda organ.",
+          "De fem grundprinciperna är: icke-diskriminering, likabehandling, proportionalitet, ömsesidigt erkännande och öppenhet.",
         ],
         keyTakeaway:
-          "LOU s\u00e4kerst\u00e4ller att skattemedel anv\u00e4nds effektivt genom \u00f6ppen konkurrens.",
+          "LOU säkerställer att skattemedel används effektivt genom öppen konkurrens.",
       },
       {
-        title: "Tr\u00f6skelv\u00e4rden och ber\u00e4kning",
+        title: "Tröskelvärden och beräkning",
         content: [
-          "Tr\u00f6skelv\u00e4rdena avg\u00f6r vilka regler som g\u00e4ller. \u00d6ver EU-tr\u00f6skelv\u00e4rdet g\u00e4ller direktivstyrd upphandling; under g\u00e4ller f\u00f6renklat f\u00f6rfarande.",
-          "F\u00f6r varor och tj\u00e4nster ligger EU-tr\u00f6skeln runt 2,3 MSEK (2024), f\u00f6r byggentreprenader ca 58 MSEK. V\u00e4rdena uppdateras vartannat \u00e5r.",
-          "Ber\u00e4kning: Uppskattat kontraktsv\u00e4rde exklusive moms \u00f6ver hela avtalstiden inklusive optioner. Uppdelning f\u00f6r att undvika tr\u00f6skeln \u00e4r f\u00f6rbjuden.",
+          "Tröskelvärdena avgör vilka regler som gäller. Över EU-tröskelvärdet gäller direktivstyrd upphandling; under gäller förenklat förfarande.",
+          "För varor och tjänster ligger EU-tröskeln runt 2,3 MSEK (2024), för byggentreprenader ca 58 MSEK. Värdena uppdateras vartannat år.",
+          "Beräkning: Uppskattat kontraktsvärde exklusive moms över hela avtalstiden inklusive optioner. Uppdelning för att undvika tröskeln är förbjuden.",
         ],
         keyTakeaway:
-          "Kontraktsv\u00e4rdet best\u00e4mmer regelverket \u2014 \u00f6ver eller under tr\u00f6skeln.",
+          "Kontraktsvärdet bestämmer regelverket — över eller under tröskeln.",
       },
       {
-        title: "Upphandlingsf\u00f6rfaranden",
+        title: "Upphandlingsförfaranden",
         content: [
-          "\u00d6ppet f\u00f6rfarande: Alla leverant\u00f6rer f\u00e5r l\u00e4mna anbud. Mest anv\u00e4nt, s\u00e4rskilt f\u00f6r tydligt definierade behov.",
-          "Selektivt f\u00f6rfarande: Tv\u00e5stegsprocess \u2014 f\u00f6rst kvalificering, sedan anbud fr\u00e5n utvalda. Anv\u00e4nds vid m\u00e5nga potentiella leverant\u00f6rer.",
-          "F\u00f6rhandlat f\u00f6rfarande med f\u00f6reg\u00e5ende annonsering: Kr\u00e4ver s\u00e4rskilda sk\u00e4l, exempelvis komplexa behov eller om \u00f6ppet f\u00f6rfarande inte gett giltiga anbud.",
-          "Konkurrenspolitisk dialog: F\u00f6r s\u00e4rskilt komplexa projekt d\u00e4r myndigheten beh\u00f6ver dialog f\u00f6r att definiera l\u00f6sningen.",
+          "Öppet förfarande: Alla leverantörer får lämna anbud. Mest använt, särskilt för tydligt definierade behov.",
+          "Selektivt förfarande: Tvåstegsprocess — först kvalificering, sedan anbud från utvalda. Används vid många potentiella leverantörer.",
+          "Förhandlat förfarande med föregående annonsering: Kräver särskilda skäl, exempelvis komplexa behov eller om öppet förfarande inte gett giltiga anbud.",
+          "Konkurrenspolitisk dialog: För särskilt komplexa projekt där myndigheten behöver dialog för att definiera lösningen.",
         ],
         keyTakeaway:
-          "Valet av f\u00f6rfarande styrs av behovets komplexitet och kontraktsv\u00e4rdet.",
+          "Valet av förfarande styrs av behovets komplexitet och kontraktsvärdet.",
       },
       {
-        title: "Kravst\u00e4llning och upphandlingsdokument",
+        title: "Kravställning och upphandlingsdokument",
         content: [
-          "Kravspecifikationen \u00e4r upphandlingens ryggrad. Den definierar obligatoriska krav (ska-krav) och utv\u00e4rderingsbara krav (b\u00f6r-krav/tilldelningskriterier).",
-          "Ska-krav \u00e4r absoluta \u2014 anbud som inte uppfyller dem f\u00f6rkastas. B\u00f6r-krav p\u00e5verkar po\u00e4ngs\u00e4ttningen.",
-          "Krav ska vara proportionella, icke-diskriminerande och m\u00f6jliga att verifiera. Undvik produktspecifika krav \u2014 anv\u00e4nd funktionskrav.",
+          "Kravspecifikationen är upphandlingens ryggrad. Den definierar obligatoriska krav (ska-krav) och utvärderingsbara krav (bör-krav/tilldelningskriterier).",
+          "Ska-krav är absoluta — anbud som inte uppfyller dem förkastas. Bör-krav påverkar poängsättningen.",
+          "Krav ska vara proportionella, icke-diskriminerande och möjliga att verifiera. Undvik produktspecifika krav — använd funktionskrav.",
         ],
         keyTakeaway:
-          "Tydliga, proportionella krav \u00e4r grunden f\u00f6r en lyckad upphandling.",
+          "Tydliga, proportionella krav är grunden för en lyckad upphandling.",
       },
       {
         title: "Annonsering och tidfrister",
         content: [
-          "\u00d6ver EU-tr\u00f6skeln annonseras i TED (Tenders Electronic Daily). Under tr\u00f6skeln annonseras i nationella databaser.",
-          "Tidsfrister varierar per f\u00f6rfarande: \u00d6ppet \u2014 minst 30 dagar (EU), 22 dagar med f\u00f6rhandsannonsering. Selektivt \u2014 30 dagar f\u00f6r anb\u00e5kan, 25 dagar f\u00f6r anbud.",
-          "Elektronisk annonsering \u00e4r obligatorisk. Alla leverant\u00f6rer ska kunna ta del av upphandlingsdokumenten kostnadsfritt.",
+          "Över EU-tröskeln annonseras i TED (Tenders Electronic Daily). Under tröskeln annonseras i nationella databaser.",
+          "Tidsfrister varierar per förfarande: Öppet — minst 30 dagar (EU), 22 dagar med förhandsannonsering. Selektivt — 30 dagar för anbåkan, 25 dagar för anbud.",
+          "Elektronisk annonsering är obligatorisk. Alla leverantörer ska kunna ta del av upphandlingsdokumenten kostnadsfritt.",
         ],
         keyTakeaway:
-          "Annonsering s\u00e4kerst\u00e4ller transparens och r\u00e4ckvidd till potentiella leverant\u00f6rer.",
+          "Annonsering säkerställer transparens och räckvidd till potentiella leverantörer.",
       },
       {
-        title: "Utv\u00e4rdering och tilldelning",
+        title: "Utvärdering och tilldelning",
         content: [
-          "Tre tilldelningsgrunder: b\u00e4sta f\u00f6rh\u00e5llandet mellan pris och kvalitet, kostnad (livscykelkostnad), eller l\u00e4gsta pris.",
-          "Utv\u00e4rderingsmodeller: po\u00e4ngmodell (viktad summa), prisavdragsmodell (merv\u00e4rde minskar pris), eller fastprismodell (b\u00e4st kvalitet vid givet pris).",
-          "Alla tilldelningskriterier ska vara transparenta, viktade och m\u00f6jliga att verifiera. De ska ha koppling till upphandlingsf\u00f6rem\u00e5let.",
+          "Tre tilldelningsgrunder: bästa förhållandet mellan pris och kvalitet, kostnad (livscykelkostnad), eller lägsta pris.",
+          "Utvärderingsmodeller: poängmodell (viktad summa), prisavdragsmodell (mervärde minskar pris), eller fastprismodell (bäst kvalitet vid givet pris).",
+          "Alla tilldelningskriterier ska vara transparenta, viktade och möjliga att verifiera. De ska ha koppling till upphandlingsföremålet.",
         ],
         keyTakeaway:
-          "Utv\u00e4rderingsmodellen m\u00e5ste vara tydlig, transparent och definierad i f\u00f6rv\u00e4g.",
+          "Utvärderingsmodellen måste vara tydlig, transparent och definierad i förväg.",
       },
       {
         title: "Tilldelningsbeslut och avtalstecknande",
         content: [
-          "N\u00e4r utv\u00e4rderingen \u00e4r klar meddelas tilldelningsbeslutet till alla anbudsgivare. Beslutet ska motiveras.",
-          "Avtalssf\u00e4ren (standstill-perioden) \u00e4r minst 10 dagar (15 dagar vid brevmeddelande). Under denna tid kan leverant\u00f6rer \u00f6verpr\u00f6va.",
-          "Avtal tecknas efter avtalssf\u00e4ren. Avtalet ska \u00e5terspegla upphandlingsdokumenten \u2014 v\u00e4sentliga \u00e4ndringar \u00e4r inte till\u00e5tna.",
+          "När utvärderingen är klar meddelas tilldelningsbeslutet till alla anbudsgivare. Beslutet ska motiveras.",
+          "Avtalsspärren (standstill-perioden) är minst 10 dagar (15 dagar vid brevmeddelande). Under denna tid kan leverantörer överpröva.",
+          "Avtal tecknas efter avtalsspärren. Avtalet ska återspegla upphandlingsdokumenten — väsentliga ändringar är inte tillåtna.",
         ],
         keyTakeaway:
-          "Standstill-perioden ger leverant\u00f6rer r\u00e4tt att \u00f6verpr\u00f6va beslutet.",
+          "Standstill-perioden ger leverantörer rätt att överpröva beslutet.",
       },
       {
-        title: "\u00d6verpr\u00f6vning och uppf\u00f6ljning",
+        title: "Överprövning och uppföljning",
         content: [
-          "\u00d6verpr\u00f6vning sker i f\u00f6rvaltningsdomstol. Leverant\u00f6ren m\u00e5ste visa att ett fel har begicks och att det har orsakat skada.",
-          "Domstolen kan besluta om r\u00e4ttelse (g\u00f6r om utv\u00e4rderingen) eller att upphandlingen ska g\u00f6ras om helt.",
-          "Avtalsuppf\u00f6ljning \u00e4r avgr\u00f6rande: kontrollera att leverant\u00f6ren levererar enligt avtal. Dokumentera avvikelser och hantera dem systematiskt.",
+          "Överprövning sker i förvaltningsdomstol. Leverantören måste visa att ett fel har begåtts och att det har orsakat skada.",
+          "Domstolen kan besluta om rättelse (gör om utvärderingen) eller att upphandlingen ska göras om helt.",
+          "Avtalsuppföljning är avgörande: kontrollera att leverantören levererar enligt avtal. Dokumentera avvikelser och hantera dem systematiskt.",
         ],
         keyTakeaway:
-          "Uppf\u00f6ljning \u00e4r lika viktig som upphandlingen \u2014 det s\u00e4krar leveransens kvalitet.",
+          "Uppföljning är lika viktig som upphandlingen — det säkrar leveransens kvalitet.",
       },
     ],
   },
@@ -126,126 +126,126 @@ const COURSES: Record<string, CourseData> = {
     title: "Kravhantering",
     icon: "ruler",
     description:
-      "Fr\u00e5n behov till kravspecifikation \u2014 behovsanalys, funktionella vs icke-funktionella krav, kravsp\u00e5rbarhet och verifiering.",
+      "Från behov till kravspecifikation — behovsanalys, funktionella vs icke-funktionella krav, kravspårbarhet och verifiering.",
     level: "Medel",
     modules: [
       {
         title: "Behovsanalys",
         content: [
-          "Behovsanalysen \u00e4r grunden f\u00f6r all kravhantering. Den besvarar: Varf\u00f6r beh\u00f6ver vi detta? Vad \u00e4r problemet vi l\u00f6ser?",
-          "Anv\u00e4nd intressentanalys f\u00f6r att identifiera alla ber\u00f6rda parter och deras behov. Prioritera behov med MoSCoW (Must, Should, Could, Won\u2019t).",
-          "Dokumentera behoven strukturerat med unikt ID, beskrivning, k\u00e4lla (intressent), prioritet och sp\u00e5rbarhet till \u00f6vergripande m\u00e5l.",
+          "Behovsanalysen är grunden för all kravhantering. Den besvarar: Varför behöver vi detta? Vad är problemet vi löser?",
+          "Använd intressentanalys för att identifiera alla berörda parter och deras behov. Prioritera behov med MoSCoW (Must, Should, Could, Won't).",
+          "Dokumentera behoven strukturerat med unikt ID, beskrivning, källa (intressent), prioritet och spårbarhet till övergripande mål.",
         ],
         keyTakeaway:
-          "Tydliga, v\u00e4ldokumenterade behov f\u00f6rebygger kravmissf\u00f6rst\u00e5nd.",
+          "Tydliga, väldokumenterade behov förebygger kravmissförstånd.",
       },
       {
         title: "Funktionella krav",
         content: [
-          "Funktionella krav beskriver vad systemet/tj\u00e4nsten ska g\u00f6ra. De uttrycks som ber\u00e4ttelser: \u201dSom [roll] vill jag [funktion] s\u00e5 att [nytta].\u201d",
-          "Exempel: \u201dSystemet ska kunna hantera minst 500 samtida anv\u00e4ndare.\u201d \u201dAnv\u00e4ndaren ska kunna exportera data i CSV-format.\u201d",
-          "Varje funktionellt krav beh\u00f6ver: unikt ID, beskrivning, verifieringsmetod, prioritet (SKA/B\u00d6R) och sp\u00e5rbarhet till behov.",
+          "Funktionella krav beskriver vad systemet/tjänsten ska göra. De uttrycks som berättelser: \"Som [roll] vill jag [funktion] så att [nytta].\"",
+          "Exempel: \"Systemet ska kunna hantera minst 500 samtida användare.\" \"Användaren ska kunna exportera data i CSV-format.\"",
+          "Varje funktionellt krav behöver: unikt ID, beskrivning, verifieringsmetod, prioritet (SKA/BÖR) och spårbarhet till behov.",
         ],
         keyTakeaway:
-          "Funktionella krav definierar systemets beteende \u2014 g\u00f6r dem testbara.",
+          "Funktionella krav definierar systemets beteende — gör dem testbara.",
       },
       {
         title: "Icke-funktionella krav",
         content: [
-          "Icke-funktionella krav (NFR) handlar om hur systemet presterar: prestanda, s\u00e4kerhet, tillg\u00e4nglighet, skalbarhet, underh\u00e5llbarhet.",
-          "Anv\u00e4nd ISO 25010 som ramverk f\u00f6r kvalitetsegenskaper. Modellen t\u00e4cker 8 huvudkategorier med underkategorier.",
-          "Kvantifiera NFR: \u201dSystemet ska svara inom 2 sekunder vid 95:e percentilen\u201d \u00e4r b\u00e4ttre \u00e4n \u201dSystemet ska vara snabbt.\u201d",
+          "Icke-funktionella krav (NFR) handlar om hur systemet presterar: prestanda, säkerhet, tillgänglighet, skalbarhet, underhållbarhet.",
+          "Använd ISO 25010 som ramverk för kvalitetsegenskaper. Modellen täcker 8 huvudkategorier med underkategorier.",
+          "Kvantifiera NFR: \"Systemet ska svara inom 2 sekunder vid 95:e percentilen\" är bättre än \"Systemet ska vara snabbt.\"",
         ],
         keyTakeaway:
-          "M\u00e4tbara icke-funktionella krav \u00e4r avg\u00f6rande f\u00f6r upplevd kvalitet.",
+          "Mätbara icke-funktionella krav är avgörande för upplevd kvalitet.",
       },
       {
         title: "Kravspecifikation",
         content: [
-          "Kravspecifikationen samlar alla krav i ett strukturerat dokument. Anv\u00e4nd hierarkisk struktur: Kapitel \u2192 Kravomr\u00e5de \u2192 Enskilt krav.",
-          "Varje krav ska vara: entydigt, testbart, sp\u00e5rbart, konsistent med andra krav och genomf\u00f6rbart.",
-          "Undvik vaghet: \u201dSystemet ska vara anv\u00e4ndarv\u00e4nligt\u201d \u00e4r d\u00e5ligt. \u201dSystemet ska f\u00f6lja WCAG 2.1 AA\u201d \u00e4r bra.",
+          "Kravspecifikationen samlar alla krav i ett strukturerat dokument. Använd hierarkisk struktur: Kapitel, Kravområde, Enskilt krav.",
+          "Varje krav ska vara: entydigt, testbart, spårbart, konsistent med andra krav och genomförbart.",
+          "Undvik vaghet: \"Systemet ska vara användarvänligt\" är dåligt. \"Systemet ska följa WCAG 2.1 AA\" är bra.",
         ],
         keyTakeaway:
-          "En bra kravspecifikation \u00e4r testbar, sp\u00e5rbar och entydig.",
+          "En bra kravspecifikation är testbar, spårbar och entydig.",
       },
       {
-        title: "Kravsp\u00e5rbarhet",
+        title: "Kravspårbarhet",
         content: [
-          "Sp\u00e5rbarhet inneb\u00e4r att kunna f\u00f6lja ett krav fr\u00e5n behov, genom specifikation, till implementation och verifiering.",
-          "Anv\u00e4nd en sp\u00e5rbarhetsmatris: Behov \u2192 Krav \u2192 Designbeslut \u2192 Testfall. Detta s\u00e4kerst\u00e4ller att inget behov tappas bort.",
-          "Sp\u00e5rbarhet hj\u00e4lper vid \u00e4ndringshantering: n\u00e4r ett behov \u00e4ndras kan du sn\u00e4bbt se vilka krav, design och tester som p\u00e5verkas.",
+          "Spårbarhet innebär att kunna följa ett krav från behov, genom specifikation, till implementation och verifiering.",
+          "Använd en spårbarhetsmatris: Behov → Krav → Designbeslut → Testfall. Detta säkerställer att inget behov tappas bort.",
+          "Spårbarhet hjälper vid ändringshantering: när ett behov ändras kan du snabbt se vilka krav, design och tester som påverkas.",
         ],
         keyTakeaway:
-          "Sp\u00e5rbarhet s\u00e4kerst\u00e4ller att alla behov t\u00e4cks och att \u00e4ndringar hanteras kontrollerat.",
+          "Spårbarhet säkerställer att alla behov täcks och att ändringar hanteras kontrollerat.",
       },
       {
         title: "Verifiering och validering",
         content: [
-          "Verifiering: \u201dByggde vi r\u00e4tt?\u201d \u2014 kontrollerar att leveransen uppfyller kravspecifikationen genom granskning, test eller inspektion.",
-          "Validering: \u201dByggde vi r\u00e4tt sak?\u201d \u2014 kontrollerar att leveransen m\u00f6ter det verkliga behovet hos anv\u00e4ndarna.",
-          "Skapa testfall som direkt sp\u00e5rar till krav. Varje SKA-krav beh\u00f6ver minst ett testfall. Dokumentera resultat och avvikelser.",
+          "Verifiering: \"Byggde vi rätt?\" — kontrollerar att leveransen uppfyller kravspecifikationen genom granskning, test eller inspektion.",
+          "Validering: \"Byggde vi rätt sak?\" — kontrollerar att leveransen möter det verkliga behovet hos användarna.",
+          "Skapa testfall som direkt spårar till krav. Varje SKA-krav behöver minst ett testfall. Dokumentera resultat och avvikelser.",
         ],
         keyTakeaway:
-          "B\u00e5de verifiering (r\u00e4tt byggt) och validering (r\u00e4tt sak) kr\u00e4vs.",
+          "Både verifiering (rätt byggt) och validering (rätt sak) krävs.",
       },
     ],
   },
 
   formagabedomning: {
     id: "formagabedomning",
-    title: "F\u00f6rm\u00e5gebed\u00f6mning",
+    title: "Förmågebedömning",
     icon: "gauge",
     description:
-      "Utv\u00e4rdera f\u00f6rm\u00e5gor inom m\u00e4nniska, teknik och process \u2014 mognadsmodeller, gap-analys, handlingsplaner.",
+      "Utvärdera förmågor inom människa, teknik och process — mognadsmodeller, gap-analys, handlingsplaner.",
     level: "Medel",
     modules: [
       {
-        title: "Vad \u00e4r f\u00f6rm\u00e5ga?",
+        title: "Vad är förmåga?",
         content: [
-          "F\u00f6rm\u00e5ga (capability) \u00e4r en organisations samlade kapacitet att leverera ett \u00f6nskat utfall. Den best\u00e5r av tre dimensioner: M\u00e4nniska, Teknik och Process.",
-          "M\u00e4nniska: Kompetens, erfarenhet, motivation och organisation. Teknik: Verktyg, system och infrastruktur. Process: Arbetss\u00e4tt, rutiner och styrning.",
-          "F\u00f6rm\u00e5gebed\u00f6mning syftar till att identifiera nuvarande niv\u00e5, \u00f6nskad niv\u00e5 och gapet d\u00e4remellan \u2014 f\u00f6r att kunna prioritera insatser.",
+          "Förmåga (capability) är en organisations samlade kapacitet att leverera ett önskat utfall. Den består av tre dimensioner: Människa, Teknik och Process.",
+          "Människa: Kompetens, erfarenhet, motivation och organisation. Teknik: Verktyg, system och infrastruktur. Process: Arbetssätt, rutiner och styrning.",
+          "Förmågebedömning syftar till att identifiera nuvarande nivå, önskad nivå och gapet däremellan — för att kunna prioritera insatser.",
         ],
         keyTakeaway:
-          "F\u00f6rm\u00e5ga = M\u00e4nniska + Teknik + Process. Alla tre m\u00e5ste bed\u00f6mas.",
+          "Förmåga = Människa + Teknik + Process. Alla tre måste bedömas.",
       },
       {
         title: "Mognadsmodeller",
         content: [
-          "CMM/CMMI (Capability Maturity Model Integration) definierar fem mognadsniv\u00e5er: Initial, Managed, Defined, Quantitatively Managed, Optimizing.",
-          "Niv\u00e5 1 (Initial): Ostrukturerat, ad hoc. Niv\u00e5 2 (Managed): Grundl\u00e4ggande styrning. Niv\u00e5 3 (Defined): Standardiserade processer.",
-          "Anv\u00e4nd mognadsmodellen som ett kommunikationsverktyg \u2014 inte som ett betyg. Fokus p\u00e5 att identifiera f\u00f6rb\u00e4ttringsomr\u00e5den.",
+          "CMM/CMMI (Capability Maturity Model Integration) definierar fem mognadsnivåer: Initial, Managed, Defined, Quantitatively Managed, Optimizing.",
+          "Nivå 1 (Initial): Ostrukturerat, ad hoc. Nivå 2 (Managed): Grundläggande styrning. Nivå 3 (Defined): Standardiserade processer.",
+          "Använd mognadsmodellen som ett kommunikationsverktyg — inte som ett betyg. Fokus på att identifiera förbättringsområden.",
         ],
         keyTakeaway:
-          "Mognadsniv\u00e5er hj\u00e4lper organisationen f\u00f6rst\u00e5 var den st\u00e5r och vart den beh\u00f6ver g\u00e5.",
+          "Mognadsnivåer hjälper organisationen förstå var den står och vart den behöver gå.",
       },
       {
         title: "Gap-analys",
         content: [
-          "Gap-analys j\u00e4mf\u00f6r nuvarande f\u00f6rm\u00e5ga (AS-IS) med \u00f6nskad f\u00f6rm\u00e5ga (TO-BE). Skillnaden \u00e4r gapet som m\u00e5ste \u00f6verbryggas.",
-          "F\u00f6r varje f\u00f6rm\u00e5geomr\u00e5de: bed\u00f6m nul\u00e4ge (1\u20135), definiera m\u00e5lniv\u00e5, identifiera gap, estimera insats och prioritera.",
-          "Visualisera med spindeldiagram (radar chart) f\u00f6r att tydligg\u00f6ra styrkor och svagheter \u00f6ver alla dimensioner.",
+          "Gap-analys jämför nuvarande förmåga (AS-IS) med önskad förmåga (TO-BE). Skillnaden är gapet som måste överbryggas.",
+          "För varje förmågeområde: bedöm nuläge (1–5), definiera målnivå, identifiera gap, estimera insats och prioritera.",
+          "Visualisera med spindeldiagram (radar chart) för att tydliggöra styrkor och svagheter över alla dimensioner.",
         ],
         keyTakeaway:
-          "Gap-analys kvantifierar skillnaden mellan nul\u00e4ge och m\u00e5l.",
+          "Gap-analys kvantifierar skillnaden mellan nuläge och mål.",
       },
       {
-        title: "Bed\u00f6mning av m\u00e4nniska",
+        title: "Bedömning av människa",
         content: [
-          "Kompetensbed\u00f6mning: Inventera roller, kompetenser och certifieringar. J\u00e4mf\u00f6r med kr\u00e4vd kompetens f\u00f6r m\u00e5lf\u00f6rm\u00e5gan.",
-          "Organisationsbed\u00f6mning: \u00c4r ansvar och roller tydliga? Finns r\u00e4tt ledarskap? \u00c4r teamet r\u00e4tt dimensionerat?",
-          "Kulturbed\u00f6mning: Finns l\u00e4randekultur? Uppmuntras f\u00f6rb\u00e4ttring? Hur hanteras misstag?",
+          "Kompetensbedömning: Inventera roller, kompetenser och certifieringar. Jämför med krävd kompetens för målförmågan.",
+          "Organisationsbedömning: Är ansvar och roller tydliga? Finns rätt ledarskap? Är teamet rätt dimensionerat?",
+          "Kulturbedömning: Finns lärandekultur? Uppmuntras förbättring? Hur hanteras misstag?",
         ],
         keyTakeaway:
-          "M\u00e4nniskan \u00e4r ofta den mest kritiska och mest underskattade dimensionen.",
+          "Människan är ofta den mest kritiska och mest underskattade dimensionen.",
       },
       {
         title: "Handlingsplan och roadmap",
         content: [
-          "Baserat p\u00e5 gap-analysen: skapa en handlingsplan med konkreta \u00e5tg\u00e4rder, ansvariga, tidplan och f\u00f6rv\u00e4ntad effekt.",
-          "Prioritera med avseende p\u00e5 aff\u00e4rsnytta vs insats. \u201dQuick wins\u201d (l\u00e5g insats, h\u00f6g nytta) f\u00f6rst, sedan strategiska initiativ.",
-          "Skapa en f\u00f6rm\u00e5geroadmap med milstolpar p\u00e5 3, 6 och 12 m\u00e5nader. F\u00f6lj upp kvartalsvis med ny bed\u00f6mning.",
+          "Baserat på gap-analysen: skapa en handlingsplan med konkreta åtgärder, ansvariga, tidplan och förväntad effekt.",
+          "Prioritera med avseende på affärsnytta vs insats. \"Quick wins\" (låg insats, hög nytta) först, sedan strategiska initiativ.",
+          "Skapa en förmågeroadmap med milstolpar på 3, 6 och 12 månader. Följ upp kvartalsvis med ny bedömning.",
         ],
         keyTakeaway:
           "Handlingsplanen omsätter gap-analysen till konkreta, prioriterade insatser.",
@@ -255,152 +255,152 @@ const COURSES: Record<string, CourseData> = {
 
   systemforvaltning: {
     id: "systemforvaltning",
-    title: "Systemf\u00f6rvaltning",
+    title: "Systemförvaltning",
     icon: "server-cog",
     description:
-      "Strukturerad IT-f\u00f6rvaltning \u2014 f\u00f6rvaltningsobjekt, roller, budgetering, livscykelhantering och pm3-inspirerat arbetss\u00e4tt.",
+      "Strukturerad IT-förvaltning — förvaltningsobjekt, roller, budgetering, livscykelhantering och pm3-inspirerat arbetssätt.",
     level: "Medel",
     modules: [
       {
-        title: "Vad \u00e4r systemf\u00f6rvaltning?",
+        title: "Vad är systemförvaltning?",
         content: [
-          "Systemf\u00f6rvaltning handlar om att s\u00e4kerst\u00e4lla att IT-system levererar v\u00e4rde \u00f6ver tid \u2014 fr\u00e5n drifts\u00e4ttning till avveckling.",
-          "Utan strukturerad f\u00f6rvaltning f\u00f6rf\u00e5lls system: s\u00e4kerhetsbrister, teknisk skuld, missnöjda anv\u00e4ndare och stigande kostnader.",
-          "pm3 (Practical Product Management) \u00e4r en svensk f\u00f6rvaltningsmodell som organiserar f\u00f6rvaltning runt f\u00f6rvaltningsobjekt med tydliga roller.",
+          "Systemförvaltning handlar om att säkerställa att IT-system levererar värde över tid — från driftsättning till avveckling.",
+          "Utan strukturerad förvaltning förfalls system: säkerhetsbrister, teknisk skuld, missnöjda användare och stigande kostnader.",
+          "pm3 (Practical Product Management) är en svensk förvaltningsmodell som organiserar förvaltning runt förvaltningsobjekt med tydliga roller.",
         ],
         keyTakeaway:
-          "Strukturerad f\u00f6rvaltning f\u00f6rl\u00e4nger systemets livsl\u00e4ngd och optimerar v\u00e4rdeleveransen.",
+          "Strukturerad förvaltning förlänger systemets livslängd och optimerar värdeleveransen.",
       },
       {
-        title: "F\u00f6rvaltningsobjekt",
+        title: "Förvaltningsobjekt",
         content: [
-          "Ett f\u00f6rvaltningsobjekt \u00e4r det som f\u00f6rvaltas: ett system, en tj\u00e4nst eller en grupp av relaterade system.",
-          "Varje f\u00f6rvaltningsobjekt beh\u00f6ver: en \u00e4gare (verksamhetsansvarig), en f\u00f6rvaltningsledare, budget och en f\u00f6rvaltningsplan.",
-          "Avgr\u00e4nsning \u00e4r viktigt: ett f\u00f6rvaltningsobjekt ska vara lagom stort \u2014 \u00f6versk\u00e5dligt men inte trivialt.",
+          "Ett förvaltningsobjekt är det som förvaltas: ett system, en tjänst eller en grupp av relaterade system.",
+          "Varje förvaltningsobjekt behöver: en ägare (verksamhetsansvarig), en förvaltningsledare, budget och en förvaltningsplan.",
+          "Avgränsning är viktigt: ett förvaltningsobjekt ska vara lagom stort — överskådligt men inte trivialt.",
         ],
         keyTakeaway:
-          "F\u00f6rvaltningsobjektet \u00e4r den grundl\u00e4ggande enheten \u2014 allt organiseras kring det.",
+          "Förvaltningsobjektet är den grundläggande enheten — allt organiseras kring det.",
       },
       {
         title: "Roller och ansvar",
         content: [
-          "Objekt\u00e4gare: Verksamhetsansvarig som prioriterar och beslutar. Ansvarar f\u00f6r att objektet levererar aff\u00e4rsnytta.",
-          "F\u00f6rvaltningsledare: Operativt ansvarig f\u00f6r den dagliga f\u00f6rvaltningen. Samordnar verksamhet och IT.",
-          "F\u00f6rvaltningsgrupp: Tv\u00e4rfunktionellt team med verksamhetskompetens och teknisk kompetens. Arbetar med \u00e4renden, f\u00f6rb\u00e4ttringar och f\u00f6r\u00e4ndringar.",
+          "Objektägare: Verksamhetsansvarig som prioriterar och beslutar. Ansvarar för att objektet levererar affärsnytta.",
+          "Förvaltningsledare: Operativt ansvarig för den dagliga förvaltningen. Samordnar verksamhet och IT.",
+          "Förvaltningsgrupp: Tvärfunktionellt team med verksamhetskompetens och teknisk kompetens. Arbetar med ärenden, förbättringar och förändringar.",
         ],
         keyTakeaway:
-          "Tydliga roller \u00e4r avg\u00f6rande \u2014 s\u00e4rskilt gr\u00e4nssnittet verksamhet/IT.",
+          "Tydliga roller är avgörande — särskilt gränssnittet verksamhet/IT.",
       },
       {
         title: "Budget och styrning",
         content: [
-          "F\u00f6rvaltningsbudget best\u00e5r av: driftkostnad (basline), vidareutveckling (\u00e4ndringar), och f\u00f6rb\u00e4ttringsarbete.",
-          "Anv\u00e4nd \u00e5rshjul: Budgetplanering (Q4), f\u00f6rvaltningsplan (Q1), kvartalsuppf\u00f6ljning, \u00e5rsutvärdering.",
-          "Styrning: Nyckeltal (KPI) som anv\u00e4ndarn\u00f6jdhet, tillg\u00e4nglighet, \u00e4rendehanteringstid, andel l\u00f6sta \u00e4renden.",
+          "Förvaltningsbudget består av: driftkostnad (baseline), vidareutveckling (ändringar), och förbättringsarbete.",
+          "Använd årshjul: Budgetplanering (Q4), förvaltningsplan (Q1), kvartalsuppföljning, årsutvärdering.",
+          "Styrning: Nyckeltal (KPI) som användarnöjdhet, tillgänglighet, ärendehanteringstid, andel lösta ärenden.",
         ],
         keyTakeaway:
-          "Budget och styrning s\u00e4kerst\u00e4ller att f\u00f6rvaltningen \u00e4r ekonomiskt h\u00e5llbar.",
+          "Budget och styrning säkerställer att förvaltningen är ekonomiskt hållbar.",
       },
       {
         title: "Livscykelhantering",
         content: [
-          "Varje system g\u00e5r genom faser: Anskaffning \u2192 Inffr\u00e5de \u2192 F\u00f6rvaltning \u2192 Vidareutveckling \u2192 Avveckling.",
-          "Under f\u00f6rvaltningsfasen: hantera incidenter, genomfr\u00f6 \u00e4ndringar, optimera prestanda och planera f\u00f6r n\u00e4sta fas.",
-          "Avvecklingsplanering b\u00f6r starta tidigt \u2014 datamigration, avtal, kunskaps\u00f6verf\u00f6ring och utfasning kr\u00e4ver tid.",
+          "Varje system går genom faser: Anskaffning → Införande → Förvaltning → Vidareutveckling → Avveckling.",
+          "Under förvaltningsfasen: hantera incidenter, genomför ändringar, optimera prestanda och planera för nästa fas.",
+          "Avvecklingsplanering bör starta tidigt — datamigration, avtal, kunskapsöverföring och utfasning kräver tid.",
         ],
         keyTakeaway:
-          "T\u00e4nk livscykel fr\u00e5n dag ett \u2014 avveckling \u00e4r en del av planen.",
+          "Tänk livscykel från dag ett — avveckling är en del av planen.",
       },
       {
-        title: "Kontinuerlig f\u00f6rb\u00e4ttring",
+        title: "Kontinuerlig förbättring",
         content: [
-          "Anv\u00e4nd PDCA-cykeln (Plan, Do, Check, Act) f\u00f6r systematiskt f\u00f6rb\u00e4ttringsarbete.",
-          "Samla in f\u00f6rb\u00e4ttringsf\u00f6rslag fr\u00e5n anv\u00e4ndare, f\u00f6rvaltningsgrupp och ledning. Prioritera med nytta vs kostnad.",
-          "M\u00e4t effekt: Definiea basline innan f\u00f6r\u00e4ndring, m\u00e4t efter, och besluta om justering eller fortsatt utrullning.",
+          "Använd PDCA-cykeln (Plan, Do, Check, Act) för systematiskt förbättringsarbete.",
+          "Samla in förbättringsförslag från användare, förvaltningsgrupp och ledning. Prioritera med nytta vs kostnad.",
+          "Mät effekt: Definiera baseline innan förändring, mät efter, och besluta om justering eller fortsatt utrullning.",
         ],
         keyTakeaway:
-          "F\u00f6rvaltning \u00e4r inte statisk \u2014 kontinuerlig f\u00f6rb\u00e4ttring \u00e4r kärnan.",
+          "Förvaltning är inte statisk — kontinuerlig förbättring är kärnan.",
       },
     ],
   },
 
   "forandringsledning-adkar": {
     id: "forandringsledning-adkar",
-    title: "F\u00f6r\u00e4ndringsledning ADKAR",
+    title: "Förändringsledning ADKAR",
     icon: "repeat",
     description:
-      "Prosci ADKAR-modellen steg f\u00f6r steg \u2014 Awareness, Desire, Knowledge, Ability, Reinforcement \u2014 med praktiska verktyg.",
-    level: "Grundl\u00e4ggande",
+      "Prosci ADKAR-modellen steg för steg — Awareness, Desire, Knowledge, Ability, Reinforcement — med praktiska verktyg.",
+    level: "Grundläggande",
     modules: [
       {
         title: "Introduktion till ADKAR",
         content: [
-          "ADKAR \u00e4r en modell f\u00f6r individuell f\u00f6r\u00e4ndring, utvecklad av Prosci. Den beskriver fem sekventiella steg som varje person m\u00e5ste g\u00e5 igenom.",
-          "A = Awareness (medvetenhet om behovet av f\u00f6r\u00e4ndring), D = Desire (\u00f6nskan att delta), K = Knowledge (kunskap om hur), A = Ability (f\u00f6rm\u00e5ga att genomf\u00f6ra), R = Reinforcement (f\u00f6rst\u00e4rkning f\u00f6r att beh\u00e5lla).",
-          "Modellens styrka \u00e4r att den fokuserar p\u00e5 individen \u2014 organisationsf\u00f6r\u00e4ndring sker n\u00e4r tillr\u00e4ckligt m\u00e5nga individer f\u00f6r\u00e4ndras.",
+          "ADKAR är en modell för individuell förändring, utvecklad av Prosci. Den beskriver fem sekventiella steg som varje person måste gå igenom.",
+          "A = Awareness (medvetenhet om behovet av förändring), D = Desire (önskan att delta), K = Knowledge (kunskap om hur), A = Ability (förmåga att genomföra), R = Reinforcement (förstärkning för att behålla).",
+          "Modellens styrka är att den fokuserar på individen — organisationsförändring sker när tillräckligt många individer förändras.",
         ],
         keyTakeaway:
-          "ADKAR fokuserar p\u00e5 individen \u2014 organisationer f\u00f6r\u00e4ndras en person i taget.",
+          "ADKAR fokuserar på individen — organisationer förändras en person i taget.",
       },
       {
-        title: "Awareness \u2014 Medvetenhet",
+        title: "Awareness — Medvetenhet",
         content: [
-          "Awareness handlar om att f\u00f6rst\u00e5 varf\u00f6r f\u00f6r\u00e4ndringen beh\u00f6vs. Utan f\u00f6rst\u00e5else f\u00f6r \u201dvarf\u00f6r\u201d uppst\u00e5r motst\u00e5nd.",
-          "Viktiga aktiviteter: Kommunicera problemet/m\u00f6jligheten, dela data och fakta, f\u00f6rklara konsekvenser av att inte f\u00f6r\u00e4ndra.",
-          "Kommunikation b\u00f6r komma fr\u00e5n tv\u00e5 k\u00e4llor: sponsorn (ledningen) f\u00f6r det strategiska \u201dvarf\u00f6r\u201d, och n\u00e4rmaste chef f\u00f6r det personliga \u201dvad inneb\u00e4r det f\u00f6r mig?\u201d.",
+          "Awareness handlar om att förstå varför förändringen behövs. Utan förståelse för \"varför\" uppstår motstånd.",
+          "Viktiga aktiviteter: Kommunicera problemet/möjligheten, dela data och fakta, förklara konsekvenser av att inte förändra.",
+          "Kommunikation bör komma från två källor: sponsorn (ledningen) för det strategiska \"varför\", och närmaste chef för det personliga \"vad innebär det för mig?\".",
         ],
         keyTakeaway:
-          "Kommunicera \u201dvarf\u00f6r\u201d innan \u201dvad\u201d \u2014 f\u00f6rst\u00e5else minskar motst\u00e5nd.",
+          "Kommunicera \"varför\" innan \"vad\" — förståelse minskar motstånd.",
       },
       {
-        title: "Desire \u2014 \u00d6nskan",
+        title: "Desire — Önskan",
         content: [
-          "Desire \u00e4r den personliga motivationen att delta i f\u00f6r\u00e4ndringen. Den kan inte kommenderas \u2014 den m\u00e5ste v\u00e4xas fram.",
-          "Faktorer som p\u00e5verkar: \u201dWhat\u2019s in it for me?\u201d (personlig vinst), f\u00f6rtroende f\u00f6r ledningen, organisationskultur och p\u00e5verkan av kollegor.",
-          "Hantera motst\u00e5nd: Lyssna aktivt, adressera oro, involvera ber\u00f6rda tidigt, visa konsekvenser av att inte delta.",
+          "Desire är den personliga motivationen att delta i förändringen. Den kan inte kommenderas — den måste växa fram.",
+          "Faktorer som påverkar: \"What's in it for me?\" (personlig vinst), förtroende för ledningen, organisationskultur och påverkan av kollegor.",
+          "Hantera motstånd: Lyssna aktivt, adressera oro, involvera berörda tidigt, visa konsekvenser av att inte delta.",
         ],
         keyTakeaway:
-          "Du kan inte tvinga motivation \u2014 men du kan skapa f\u00f6ruts\u00e4ttningar f\u00f6r den.",
+          "Du kan inte tvinga motivation — men du kan skapa förutsättningar för den.",
       },
       {
-        title: "Knowledge \u2014 Kunskap",
+        title: "Knowledge — Kunskap",
         content: [
-          "Knowledge handlar om att ge individen kunskap om hur f\u00f6r\u00e4ndringen genomf\u00f6rs \u2014 nya processer, verktyg, beteenden.",
-          "Utbildningsinsatser: formell utbildning, e-l\u00e4rande, workshops, mentorskap, handledning, \u201dshow and tell\u201d.",
-          "Timing \u00e4r avg\u00f6rande: utbildning f\u00f6r tidigt gl\u00f6ms bort, f\u00f6r sent skapar stress. Planera just-in-time utbildning.",
+          "Knowledge handlar om att ge individen kunskap om hur förändringen genomförs — nya processer, verktyg, beteenden.",
+          "Utbildningsinsatser: formell utbildning, e-lärande, workshops, mentorskap, handledning, \"show and tell\".",
+          "Timing är avgörande: utbildning för tidigt glöms bort, för sent skapar stress. Planera just-in-time utbildning.",
         ],
         keyTakeaway:
-          "Utbilda n\u00e4r behovet \u00e4r som st\u00f6rst \u2014 just-in-time, inte just-in-case.",
+          "Utbilda när behovet är som störst — just-in-time, inte just-in-case.",
       },
       {
-        title: "Ability \u2014 F\u00f6rm\u00e5ga",
+        title: "Ability — Förmåga",
         content: [
-          "Ability \u00e4r skillnaden mellan att veta hur och att kunna g\u00f6ra det i praktiken. Kunskap \u00e4r n\u00f6dv\u00e4ndig men inte tillr\u00e4cklig.",
-          "St\u00f6d f\u00f6r ability: \u00f6vningstillf\u00e4llen, pilotprojekt, coachning, superusers/ambassad\u00f6rer, tillg\u00e5ng till hj\u00e4lp.",
-          "Identifiera hinder: tekniska begr\u00e4nsningar, tidsbrist, kompetensgap, organisatoriska barri\u00e4rer. Ta bort dem aktivt.",
+          "Ability är skillnaden mellan att veta hur och att kunna göra det i praktiken. Kunskap är nödvändig men inte tillräcklig.",
+          "Stöd för ability: övningstillfällen, pilotprojekt, coachning, superusers/ambassadörer, tillgång till hjälp.",
+          "Identifiera hinder: tekniska begränsningar, tidsbrist, kompetensgap, organisatoriska barriärer. Ta bort dem aktivt.",
         ],
         keyTakeaway:
-          "F\u00f6rm\u00e5ga kr\u00e4ver \u00f6vning och st\u00f6d \u2014 kunskap ensam r\u00e4cker inte.",
+          "Förmåga kräver övning och stöd — kunskap ensam räcker inte.",
       },
       {
-        title: "Reinforcement \u2014 F\u00f6rst\u00e4rkning",
+        title: "Reinforcement — Förstärkning",
         content: [
-          "Reinforcement s\u00e4kerst\u00e4ller att f\u00f6r\u00e4ndringen h\u00e5ller \u00f6ver tid. Utan f\u00f6rst\u00e4rkning \u00e5terg\u00e5r m\u00e4nniskor till gamla beteenden.",
-          "Verktyg: fira framg\u00e5ngar, erkk\u00e4nn bidrag, m\u00e4t och visa resultat, samla feedback, korrigera avvikelser.",
-          "Sponsorns roll \u00e4r avg\u00f6rande: synligt st\u00f6d, fortsatt kommunikation, och snabb hantering av tillbakag\u00e5ng.",
+          "Reinforcement säkerställer att förändringen håller över tid. Utan förstärkning återgår människor till gamla beteenden.",
+          "Verktyg: fira framgångar, erkänn bidrag, mät och visa resultat, samla feedback, korrigera avvikelser.",
+          "Sponsorns roll är avgörande: synligt stöd, fortsatt kommunikation, och snabb hantering av tillbakagång.",
         ],
         keyTakeaway:
-          "F\u00f6r\u00e4ndring \u00e4r inte klar vid lansering \u2014 f\u00f6rst\u00e4rkning \u00e4r det som g\u00f6r den best\u00e5ende.",
+          "Förändring är inte klar vid lansering — förstärkning är det som gör den bestående.",
       },
       {
         title: "ADKAR i praktiken",
         content: [
-          "Anv\u00e4nd ADKAR-bed\u00f6mning: l\u00e5t individer sj\u00e4lvskatta A, D, K, A, R p\u00e5 skala 1\u20135. Identifiera \u201dbarri\u00e4rpunkten\u201d \u2014 det f\u00f6rsta steget med l\u00e5g po\u00e4ng.",
-          "\u00c5tg\u00e4rder riktas mot barri\u00e4rpunkten: om Awareness \u00e4r l\u00e5g \u2014 kommunicera mer. Om Ability \u00e4r l\u00e5g \u2014 ge mer st\u00f6d och \u00f6vning.",
-          "Kombinera ADKAR med projektledning: ADKAR hanterar \u201dm\u00e4nniskosidan\u201d, projektplanen hanterar \u201dtekniska sidan\u201d. B\u00e5da beh\u00f6vs.",
+          "Använd ADKAR-bedömning: låt individer självskatta A, D, K, A, R på skala 1–5. Identifiera \"barriärpunkten\" — det första steget med låg poäng.",
+          "Åtgärder riktas mot barriärpunkten: om Awareness är låg — kommunicera mer. Om Ability är låg — ge mer stöd och övning.",
+          "Kombinera ADKAR med projektledning: ADKAR hanterar \"människosidan\", projektplanen hanterar \"tekniska sidan\". Båda behövs.",
         ],
         keyTakeaway:
-          "Hitta barri\u00e4rpunkten och fokusera insatserna d\u00e4r \u2014 det \u00e4r nyckeln.",
+          "Hitta barriärpunkten och fokusera insatserna där — det är nyckeln.",
       },
     ],
   },
