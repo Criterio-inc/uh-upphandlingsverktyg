@@ -53,8 +53,18 @@ export async function GET() {
     return NextResponse.json({ users: result });
   } catch (e) {
     console.error("GET /api/admin/users error:", e);
+
+    // Graceful handling if User table doesn't exist yet (migration not applied)
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    if (msg.includes("no such table")) {
+      return NextResponse.json({
+        users: [],
+        warning: "Databastabellerna för användare har inte skapats ännu. En ny deploy bör lösa detta automatiskt.",
+      });
+    }
+
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Unknown error" },
+      { error: msg },
       { status: 500 },
     );
   }

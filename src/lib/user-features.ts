@@ -64,18 +64,28 @@ export async function createDefaultFeatures(
 
 /** Check if a userId exists in the User table. */
 export async function userExists(userId: string): Promise<boolean> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { id: true },
-  });
-  return !!user;
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    });
+    return !!user;
+  } catch {
+    // Table may not exist yet (migration not applied) — fail-open
+    return false;
+  }
 }
 
 /** Check if a userId belongs to an admin. */
 export async function isUserAdmin(userId: string): Promise<boolean> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { isAdmin: true },
-  });
-  return user?.isAdmin ?? false;
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { isAdmin: true },
+    });
+    return user?.isAdmin ?? false;
+  } catch {
+    // Table may not exist yet (migration not applied) — fail-safe
+    return false;
+  }
 }

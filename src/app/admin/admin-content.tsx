@@ -147,6 +147,7 @@ export default function AdminContent() {
   const [syncMessage, setSyncMessage] = useState("");
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [userSaving, setUserSaving] = useState<string | null>(null);
+  const [usersError, setUsersError] = useState("");
 
   // Fetch current global features
   useEffect(() => {
@@ -161,16 +162,20 @@ export default function AdminContent() {
 
   // Fetch users
   const fetchUsers = useCallback(() => {
+    setUsersError("");
     fetch("/api/admin/users")
-      .then((r) => {
-        if (!r.ok) throw new Error("Not authorized");
-        return r.json();
-      })
+      .then((r) => r.json())
       .then((data) => {
+        if (data.error) {
+          setUsersError(data.error);
+        } else if (data.warning) {
+          setUsersError(data.warning);
+        }
         setUsers(data.users ?? []);
         setUsersLoaded(true);
       })
       .catch(() => {
+        setUsersError("Kunde inte hämta användare. Kontrollera att databasen är uppdaterad.");
         setUsersLoaded(true);
       });
   }, []);
@@ -336,6 +341,13 @@ export default function AdminContent() {
           {syncMessage && (
             <div className="rounded-xl border border-border/60 bg-card px-4 py-3 text-sm text-muted-foreground">
               {syncMessage}
+            </div>
+          )}
+
+          {usersError && (
+            <div className="rounded-xl border border-amber-500/30 bg-amber-50/50 dark:bg-amber-950/20 px-4 py-3 text-sm text-amber-700 dark:text-amber-400 flex items-center gap-2">
+              <Icon name="alert-triangle" size={14} className="flex-shrink-0" />
+              {usersError}
             </div>
           )}
 
