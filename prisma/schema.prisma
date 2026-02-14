@@ -29,20 +29,21 @@ model Case {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  stakeholders  Stakeholder[]
-  workshops     Workshop[]
-  evidence      Evidence[]
-  needs         Need[]
-  risks         Risk[]
-  requirements  Requirement[]
-  criteria      Criterion[]
-  bids          Bid[]
-  bidResponses  BidResponse[]
-  scores        Score[]
-  decisions     Decision[]
-  documents     Document[]
-  traceLinks    TraceLink[]
-  libraryItems  LibraryItem[] @relation("CaseLibraryItems")
+  stakeholders      Stakeholder[]
+  workshops         Workshop[]
+  evidence          Evidence[]
+  needs             Need[]
+  risks             Risk[]
+  requirements      Requirement[]
+  criteria          Criterion[]
+  bids              Bid[]
+  bidResponses      BidResponse[]
+  scores            Score[]
+  decisions         Decision[]
+  documents         Document[]
+  traceLinks        TraceLink[]
+  libraryItems      LibraryItem[] @relation("CaseLibraryItems")
+  maturitySessions  MaturitySession[]
 }
 
 // ============================================================
@@ -548,4 +549,49 @@ model LibraryItem {
   @@index([type])
   @@index([profile])
   @@index([cluster])
+}
+
+// ============================================================
+// MATURITY SESSION - Survey sessions for maturity assessments
+// ============================================================
+model MaturitySession {
+  id                String   @id @default(cuid())
+  caseId            String
+  sessionType       String   @default("general") // general | ai_maturity
+  name              String   @default("Anonym respondent")
+  shareableLink     String   @unique // unique token for anonymous access
+  status            String   @default("active") // active | completed
+  respondentEmail   String   @default("") // optional
+  respondentRole    String   @default("") // optional
+  startedAt         DateTime?
+  completedAt       DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  case              Case                @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  responses         MaturityResponse[]
+
+  @@index([caseId])
+  @@index([shareableLink])
+  @@index([status])
+}
+
+// ============================================================
+// MATURITY RESPONSE - Individual responses per dimension
+// ============================================================
+model MaturityResponse {
+  id                String   @id @default(cuid())
+  sessionId         String
+  dimensionKey      String   // e.g., "gdpr", "ai_strategy", "data_governance"
+  score             Float    @default(0) // 1-5 scale
+  notes             String   @default("")
+  evidence          String   @default("") // supporting evidence
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  session           MaturitySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, dimensionKey])
+  @@index([sessionId])
+  @@index([dimensionKey])
 }

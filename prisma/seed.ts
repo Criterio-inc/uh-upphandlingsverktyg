@@ -14,6 +14,8 @@ async function main() {
   console.log("Seeding database...");
 
   // Clear all existing data
+  await prisma.maturityResponse.deleteMany();
+  await prisma.maturitySession.deleteMany();
   await prisma.traceLink.deleteMany();
   await prisma.score.deleteMany();
   await prisma.bidResponse.deleteMany();
@@ -2346,7 +2348,97 @@ async function main() {
   });
 
   console.log("  ✓ Case 2 enriched: evidence, workshops, decision");
-  console.log("Seed complete! Created 2 enriched cases with full Phase C data, trace links, and ~100 library items.");
+
+  // ============================================================
+  // MATURITY SESSIONS - Example maturity assessments
+  // ============================================================
+
+  console.log("Creating maturity sessions...");
+
+  // General maturity session for Case 1
+  const generalSession1 = await prisma.maturitySession.create({
+    data: {
+      caseId: case1Id,
+      sessionType: "general",
+      name: "Projektledare bedömning",
+      shareableLink: "demo-general-session-001",
+      status: "completed",
+      startedAt: new Date("2025-12-01"),
+      completedAt: new Date("2025-12-01"),
+    },
+  });
+
+  // Add responses for general maturity dimensions
+  await prisma.maturityResponse.createMany({
+    data: [
+      { sessionId: generalSession1.id, dimensionKey: "gdpr", score: 3.5, notes: "GDPR-processer finns men kan förbättras", evidence: "GDPR-dokumentation finns" },
+      { sessionId: generalSession1.id, dimensionKey: "security", score: 4.0, notes: "God säkerhetsarkitektur", evidence: "ISO 27001-certifierad" },
+      { sessionId: generalSession1.id, dimensionKey: "processes", score: 3.0, notes: "Processer dokumenterade men inte alltid följda", evidence: "Processdokument finns" },
+      { sessionId: generalSession1.id, dimensionKey: "quality", score: 3.5, notes: "Kvalitetssystem etablerat", evidence: "Kvalitetsledningssystem" },
+      { sessionId: generalSession1.id, dimensionKey: "change_management", score: 2.5, notes: "Förändringsledning behöver utvecklas", evidence: "Tidigare projekt visar utmaningar" },
+    ],
+  });
+
+  // Second general maturity session for Case 1
+  const generalSession2 = await prisma.maturitySession.create({
+    data: {
+      caseId: case1Id,
+      sessionType: "general",
+      name: "Verksamhetsföreträdare bedömning",
+      shareableLink: "demo-general-session-002",
+      status: "completed",
+      startedAt: new Date("2025-12-02"),
+      completedAt: new Date("2025-12-02"),
+    },
+  });
+
+  await prisma.maturityResponse.createMany({
+    data: [
+      { sessionId: generalSession2.id, dimensionKey: "gdpr", score: 3.0, notes: "Medvetenhet finns men mer utbildning behövs" },
+      { sessionId: generalSession2.id, dimensionKey: "security", score: 3.5, notes: "Säkerhet tas på allvar" },
+      { sessionId: generalSession2.id, dimensionKey: "processes", score: 2.5, notes: "Många ad-hoc lösningar" },
+      { sessionId: generalSession2.id, dimensionKey: "quality", score: 3.0, notes: "Kvalitetsfokus varierar mellan team" },
+      { sessionId: generalSession2.id, dimensionKey: "change_management", score: 2.0, notes: "Motstånd mot förändring förekommer" },
+    ],
+  });
+
+  // AI maturity session for Case 1
+  const aiSession1 = await prisma.maturitySession.create({
+    data: {
+      caseId: case1Id,
+      sessionType: "ai_maturity",
+      name: "IT-chef AI-bedömning",
+      shareableLink: "demo-ai-session-001",
+      status: "completed",
+      startedAt: new Date("2025-12-03"),
+      completedAt: new Date("2025-12-03"),
+    },
+  });
+
+  await prisma.maturityResponse.createMany({
+    data: [
+      { sessionId: aiSession1.id, dimensionKey: "ai_strategy", score: 2.0, notes: "AI-strategi i tidigt skede", evidence: "Draft AI-strategi finns" },
+      { sessionId: aiSession1.id, dimensionKey: "ai_competence", score: 2.5, notes: "Begränsad AI-kompetens", evidence: "2 medarbetare med ML-kunskap" },
+      { sessionId: aiSession1.id, dimensionKey: "data_governance", score: 3.0, notes: "Datahantering fungerar bra", evidence: "Datahanteringsplan finns" },
+      { sessionId: aiSession1.id, dimensionKey: "ai_infrastructure", score: 1.5, notes: "Ingen AI-specifik infrastruktur", evidence: "Traditionell IT-infrastruktur" },
+      { sessionId: aiSession1.id, dimensionKey: "ai_ethics", score: 2.5, notes: "Etiska principer under utveckling", evidence: "AI-etik diskuterad i ledningsgrupp" },
+      { sessionId: aiSession1.id, dimensionKey: "ai_adoption", score: 1.0, notes: "Inga AI-lösningar i drift", evidence: "Proof-of-concepts pågår" },
+    ],
+  });
+
+  // Create an active session without responses (will show warning)
+  await prisma.maturitySession.create({
+    data: {
+      caseId: case1Id,
+      sessionType: "general",
+      name: "Anonym respondent",
+      shareableLink: "demo-general-session-003",
+      status: "active",
+    },
+  });
+
+  console.log("  ✓ Created 4 maturity sessions (3 completed, 1 active)");
+  console.log("Seed complete! Created 2 enriched cases with full Phase C data, trace links, maturity sessions, and ~100 library items.");
 }
 
 main()
