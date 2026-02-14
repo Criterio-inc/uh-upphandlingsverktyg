@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
@@ -178,15 +179,129 @@ const PHASE_GUIDES: PhaseGuide[] = [
 ];
 
 // ============================================================
+// FAQ items
+// ============================================================
+
+const FAQ_ITEMS: { question: string; answer: string; relatedTerms?: string[] }[] = [
+  {
+    question: "Hur vet jag om ett krav ska vara SKA eller BÖR?",
+    answer: "SKA-krav är binära och eliminatoriska — om leverantören inte uppfyller kravet, diskvalificeras anbudet. Använd SKA endast för absolut nödvändiga funktioner. BÖR-krav ger extrapoäng och används för 'nice-to-have' funktioner som höjer kvaliteten. Tumregel: Om ni kan leva utan funktionen, gör det till BÖR.",
+    relatedTerms: ["SKA-krav", "BÖR-krav", "Proportionalitet"],
+  },
+  {
+    question: "Vad händer om vi inte kan spåra ett krav till ett behov?",
+    answer: "Det är en allvarlig svaghet! Ett krav utan spårbart behov riskerar att anses oproportionerligt. Vid överprövning kan domstolen underkänna kravet. Använd verktygets spårbarhetsfunktion för att säkerställa att varje krav är länkat till minst ett dokumenterat behov.",
+    relatedTerms: ["Spårbarhet", "Proportionalitet", "Överprövning"],
+  },
+  {
+    question: "Hur många behov behöver vi dokumentera?",
+    answer: "Det beror på upphandlingens omfattning. För ett mindre system räcker 10–20 välformulerade behov. För komplexa system kan det behövas 50–100. Kvalitet viktigare än kvantitet — varje behov ska vara unikt, mätbart och spårbart.",
+    relatedTerms: ["Gate", "Spårbarhet"],
+  },
+  {
+    question: "Kan vi ändra krav efter att upphandlingen publicerats?",
+    answer: "Ja, men endast genom förtydliganden eller rättelser. Ändringen får INTE vara så omfattande att nya leverantörer skulle vilja delta. Stora ändringar kräver ny upphandling. Dokumentera alltid ändringar och kommunicera till alla anbudsgivare samtidigt.",
+    relatedTerms: ["LOU", "Proportionalitet"],
+  },
+  {
+    question: "Vad är skillnaden mellan kriterium och krav?",
+    answer: "Ett KRAV beskriver vad systemet ska eller bör kunna göra (t.ex. 'Systemet ska exportera data i öppna format'). Ett KRITERIUM är en mätbar aspekt som används för att JÄMFÖRA anbud (t.ex. 'Användarvänlighet', vikt 20%, skala 0-5). Kriterier får endast utvärderas aspekter som är relevanta för krav och behov.",
+    relatedTerms: ["Utvärderingskriterium", "SKA-krav", "BÖR-krav", "Spårbarhet"],
+  },
+  {
+    question: "Hur undviker vi leverantörsinlåsning?",
+    answer: "Ställ krav på öppna standarder, export i öppna format (CSV, XML, JSON), API-tillgång och dokumenterade exit-rutiner. Identifiera risken 'Inlåsning' i riskanalysen och koppla konkreta krav till denna risk. Kräv migreringsplan i anbuden.",
+    relatedTerms: ["Riskmatris", "Spårbarhet", "Evidens"],
+  },
+  {
+    question: "Vad gör vi om två anbud får exakt samma poäng?",
+    answer: "Detta är ovanligt men kan hända. Ha en förutbestämd metod i utvärderingsmodellen, t.ex. 'vid lika poäng vinner lägsta pris' eller 'vid lika poäng vinner högst poäng i kriterium X'. Dokumentera metoden INNAN anbuden öppnas.",
+    relatedTerms: ["Utvärderingskriterium", "Tilldelningsbeslut"],
+  },
+  {
+    question: "Hur hanterar vi personuppgifter i upphandlingen?",
+    answer: "Om systemet behandlar personuppgifter, krävs GDPR-krav och PuB-avtal (Personuppgiftsbiträdesavtal). Vid särskilt känsliga uppgifter (t.ex. socialtjänst, vård) krävs även DPIA (dataskyddskonsekvensbedömning). Involvera dataskyddsombud tidigt.",
+    relatedTerms: ["DPIA", "Verifieringsplan"],
+  },
+  {
+    question: "Måste alla gates vara gröna?",
+    answer: "Blockerande gates (röda) måste vara gröna för att gå vidare. Varningsgates (gula) är rekommendationer — du kan gå vidare men bör åtgärda varningen. Verktyget visar vilka gates som är blockerande vs. varning.",
+    relatedTerms: ["Gate", "Spårbarhet"],
+  },
+  {
+    question: "Vad är TCO och hur räknar vi det?",
+    answer: "TCO (Total Cost of Ownership) är den totala kostnaden under hela avtalsperioden: licenser + drift + support + anpassning + utbildning + migrering + exit. Använd verktygets Nyttokalkyl för att räkna TCO. Viktigt: billigaste anbud har sällan lägst TCO.",
+    relatedTerms: ["TCO"],
+  },
+];
+
+// ============================================================
+// Common pitfalls
+// ============================================================
+
+const PITFALLS: { title: string; description: string; prevention: string; phase: string }[] = [
+  {
+    title: "För många SKA-krav",
+    description: "Ställer 50+ SKA-krav, vilket leder till att inga leverantörer klarar kvalificeringen eller att upphandlingen anses oproportionerlig.",
+    prevention: "Använd SKA endast för absolut nödvändiga funktioner. Övriga blir BÖR-krav. Tumregel: 60% BÖR, 40% SKA.",
+    phase: "Fas B",
+  },
+  {
+    title: "Krav utan behov",
+    description: "Skriver krav som inte går att spåra till dokumenterade behov, vilket gör dem svåra att försvara vid överprövning.",
+    prevention: "Använd verktygets spårbarhetsfunktion. Varje krav måste länkas till minst ett behov. Inga孤立krav.",
+    phase: "Fas B",
+  },
+  {
+    title: "Teknisk överspecifikation",
+    description: "Beskriver lösningar istället för behov (t.ex. 'ska byggas i React' istället för 'ska vara responsiv').",
+    prevention: "Fokusera på VAD som behövs, inte HUR. Låt leverantören välja teknisk lösning om det inte finns verkliga skäl.",
+    phase: "Fas A-B",
+  },
+  {
+    title: "Utvärderingsmodell utan ankare",
+    description: "Kriterier saknar poängankare, vilket leder till inkonsekvent bedömning mellan olika bedömare.",
+    prevention: "Definiera vad varje poängnivå innebär för varje kriterium INNAN anbud öppnas. Träna bedömarna tillsammans.",
+    phase: "Fas B-C",
+  },
+  {
+    title: "Glömmer intressenter",
+    description: "Missar att involvera slutanvändare, IT-avdelning eller ekonomi, vilket leder till krav som inte speglar verkligheten.",
+    prevention: "Gör grundlig intressentanalys i Fas A. Involvera alla berörda i workshops. Verksamhetsföreträdare är nyckeln.",
+    phase: "Fas A",
+  },
+  {
+    title: "Ingen riskanalys",
+    description: "Identifierar inte risker som leverantörsinlåsning, datamigrering eller integrationsutmaningar förrän det är för sent.",
+    prevention: "Använd verktygets riskmatris tidigt (Fas A). Varje risk med score ≥12 måste ha åtgärdskrav.",
+    phase: "Fas A",
+  },
+  {
+    title: "Svag verifieringsplan",
+    description: "Krav utan tydlig metod för hur de ska verifieras, vilket leder till tvister om vad som faktiskt levereras.",
+    prevention: "Varje SKA-krav ska ha verifieringsplan: Hur bevisas det i anbudet? Hur verifieras det vid implementation?",
+    phase: "Fas B",
+  },
+  {
+    title: "Motivering saknas i tilldelning",
+    description: "Tilldelningsbeslut saknar tydlig motivering för varför vinnande leverantör valdes, vilket ökar överprövningsrisk.",
+    prevention: "Dokumentera utvärderingen noggrant. Visa hur poäng gavs och motivera avvikelser från utvärderingsmodellen.",
+    phase: "Fas C",
+  },
+];
+
+// ============================================================
 // Component
 // ============================================================
 
-type HelpTab = "overview" | "phases" | "roles" | "glossary";
+type HelpTab = "overview" | "phases" | "roles" | "glossary" | "faq" | "pitfalls";
 
 const TABS: { id: HelpTab; label: string; icon: string }[] = [
   { id: "overview", label: "Översikt", icon: "home" },
   { id: "phases", label: "Faserna", icon: "refresh-cw" },
   { id: "roles", label: "Roller", icon: "users" },
+  { id: "faq", label: "Vanliga frågor", icon: "help-circle" },
+  { id: "pitfalls", label: "Fallgropar", icon: "alert-triangle" },
   { id: "glossary", label: "Ordlista", icon: "book-open" },
 ];
 
@@ -340,6 +455,56 @@ export default function HelpPage() {
                 </div>
               </CardContent>
             </Card>
+
+            <Card>
+              <CardContent>
+                <CardTitle className="mb-3">Användbara verktyg i systemet</CardTitle>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Link href="/tools/risk-matrix" className="border border-border rounded-lg p-3 hover:bg-accent transition-colors">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Icon name="shield-alert" size={16} className="text-primary" />
+                      <div className="text-sm font-medium">Riskmatris</div>
+                    </div>
+                    <div className="text-xs text-muted-foreground">Identifiera och hantera risker tidigt. Score ≥12 kräver åtgärd.</div>
+                  </Link>
+                  <Link href="/tools/benefit-calculator" className="border border-border rounded-lg p-3 hover:bg-accent transition-colors">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Icon name="calculator" size={16} className="text-primary" />
+                      <div className="text-sm font-medium">Nyttokalkyl</div>
+                    </div>
+                    <div className="text-xs text-muted-foreground">Räkna TCO och jämför anbud ekonomiskt.</div>
+                  </Link>
+                  <Link href="/tools/stakeholder-map" className="border border-border rounded-lg p-3 hover:bg-accent transition-colors">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Icon name="users" size={16} className="text-primary" />
+                      <div className="text-sm font-medium">Intressentanalys</div>
+                    </div>
+                    <div className="text-xs text-muted-foreground">Identifiera alla berörda parter och deras inflytande.</div>
+                  </Link>
+                  <Link href="/tools/evaluation-model" className="border border-border rounded-lg p-3 hover:bg-accent transition-colors">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Icon name="scale" size={16} className="text-primary" />
+                      <div className="text-sm font-medium">Utvärderingsmodell</div>
+                    </div>
+                    <div className="text-xs text-muted-foreground">Designa kriterier, vikter och poängankare.</div>
+                  </Link>
+                  <Link href="/tools/timeline-planner" className="border border-border rounded-lg p-3 hover:bg-accent transition-colors">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Icon name="clock" size={16} className="text-primary" />
+                      <div className="text-sm font-medium">Tidslinjeplanerare</div>
+                    </div>
+                    <div className="text-xs text-muted-foreground">Planera milstolpar och deadlines för upphandlingen.</div>
+                  </Link>
+                  <Link href="/tools/kunskapsbank" className="border border-border rounded-lg p-3 hover:bg-accent transition-colors">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Icon name="book-open" size={16} className="text-primary" />
+                      <div className="text-sm font-medium">Kunskapsbank</div>
+                    </div>
+                    <div className="text-xs text-muted-foreground">Lär dig om upphandlingsdomäner och bästa praxis.</div>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
 
@@ -415,6 +580,80 @@ export default function HelpPage() {
                         {role.focusAreas.map((a) => (
                           <span key={a} className="bg-primary/10 text-primary rounded px-2 py-0.5 text-xs font-medium">{a}</span>
                         ))}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* FAQ tab */}
+        {tab === "faq" && (
+          <div className="max-w-3xl space-y-3">
+            <div className="mb-4">
+              <p className="text-sm text-muted-foreground">
+                Vanliga frågor från verksamhetsföreträdare och projektledare. Klicka på en fråga för att se svaret.
+              </p>
+            </div>
+            {FAQ_ITEMS.map((item, idx) => (
+              <Card key={idx}>
+                <CardContent className="py-3">
+                  <div className="flex items-start gap-3">
+                    <Icon name="help-circle" size={18} className="text-primary mt-0.5 shrink-0" />
+                    <div className="flex-1">
+                      <div className="text-sm font-semibold text-foreground mb-2">{item.question}</div>
+                      <p className="text-sm text-muted-foreground">{item.answer}</p>
+                      {item.relatedTerms && (
+                        <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                          <span className="text-xs text-muted-foreground">Relaterat:</span>
+                          {item.relatedTerms.map((term) => (
+                            <button
+                              key={term}
+                              onClick={() => setTab("glossary")}
+                              className="text-xs bg-muted hover:bg-muted/80 px-2 py-0.5 rounded transition-colors"
+                            >
+                              {term}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* Pitfalls tab */}
+        {tab === "pitfalls" && (
+          <div className="max-w-3xl space-y-3">
+            <div className="mb-4">
+              <p className="text-sm text-muted-foreground">
+                Vanliga fallgropar i upphandlingsprocessen — och hur du undviker dem.
+              </p>
+            </div>
+            {PITFALLS.map((pitfall, idx) => (
+              <Card key={idx}>
+                <CardContent className="py-3">
+                  <div className="flex items-start gap-3">
+                    <Icon name="alert-triangle" size={18} className="text-destructive mt-0.5 shrink-0" />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="text-sm font-semibold text-foreground">{pitfall.title}</div>
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded font-medium">{pitfall.phase}</span>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-2">
+                          <div className="text-xs font-semibold text-destructive mb-1">Problem</div>
+                          <p className="text-xs text-muted-foreground">{pitfall.description}</p>
+                        </div>
+                        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-2">
+                          <div className="text-xs font-semibold text-emerald-700 mb-1">Förebygg</div>
+                          <p className="text-xs text-emerald-900">{pitfall.prevention}</p>
+                        </div>
                       </div>
                     </div>
                   </div>

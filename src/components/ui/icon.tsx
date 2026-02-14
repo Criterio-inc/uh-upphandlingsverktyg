@@ -58,10 +58,15 @@ import {
   Repeat,
   ChevronDown,
   ChevronUp,
+  ChevronRight,
   Clock,
   CheckCircle,
   BookOpenCheck,
   CircleDot,
+  Pencil,
+  Trash2,
+  Folder,
+  PlusCircle,
   type LucideProps,
 } from "lucide-react";
 
@@ -123,10 +128,15 @@ const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
   repeat: Repeat,
   "chevron-down": ChevronDown,
   "chevron-up": ChevronUp,
+  "chevron-right": ChevronRight,
   clock: Clock,
   "check-circle": CheckCircle,
   "book-open-check": BookOpenCheck,
   "circle-dot": CircleDot,
+  pencil: Pencil,
+  "trash-2": Trash2,
+  folder: Folder,
+  "plus-circle": PlusCircle,
 };
 
 interface IconProps extends Omit<LucideProps, "ref"> {

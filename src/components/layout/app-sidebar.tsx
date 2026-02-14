@@ -101,6 +101,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: "/cases", label: "Upphandlingar", icon: "clipboard-list" },
       { href: "/library", label: "Bibliotek", icon: "library" },
       { href: "/training", label: "Utbildning", icon: "graduation-cap", featureKey: "upphandling.training" },
+      { href: "/help", label: "Hjälpcenter", icon: "help-circle", featureKey: "upphandling.help" },
     ],
   },
   // Verktyg
@@ -135,12 +136,6 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: "/ai-mognadmatning", label: "Ny mätning", icon: "plus-circle", featureKey: "ai-mognadmatning.survey" },
       { href: "/ai-mognadmatning/projekt", label: "Projekt", icon: "folder", featureKey: "ai-mognadmatning.results" },
-    ],
-  },
-  // Always-on
-  {
-    items: [
-      { href: "/help", label: "Hjälpcenter", icon: "help-circle" },
     ],
   },
 ];
