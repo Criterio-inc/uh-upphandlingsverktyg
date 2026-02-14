@@ -27,8 +27,13 @@ export default function MognadmatningProjektPage() {
 function ProjektListContent() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   useEffect(() => {
+    loadProjects();
+  }, []);
+
+  function loadProjects() {
     fetch("/api/assessments?type=digital-mognad")
       .then((r) => r.json())
       .then((data) => {
@@ -36,7 +41,29 @@ function ProjektListContent() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, []);
+  }
+
+  async function handleDelete(projectId: string, projectName: string) {
+    if (deleteConfirm !== projectId) {
+      setDeleteConfirm(projectId);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/assessments/${projectId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setProjects((prev) => prev.filter((p) => p.id !== projectId));
+        setDeleteConfirm(null);
+      } else {
+        alert("Kunde inte radera projektet");
+      }
+    } catch (err) {
+      alert("Ett fel uppstod");
+    }
+  }
 
   return (
     <div className="min-h-screen">
@@ -85,10 +112,27 @@ function ProjektListContent() {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {projects.map((p) => (
-              <Link key={p.id} href={`/mognadmatning/projekt/${p.id}`} className="group block">
-                <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5">
+              <div key={p.id} className="group relative rounded-2xl border border-border/60 bg-card p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/30">
+                {/* Delete button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(p.id, p.name);
+                  }}
+                  className={`absolute top-3 right-3 z-10 rounded-lg p-1.5 transition-all ${
+                    deleteConfirm === p.id
+                      ? "bg-destructive text-destructive-foreground"
+                      : "bg-muted/50 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                  }`}
+                  title={deleteConfirm === p.id ? "Klicka igen för att bekräfta radering" : "Radera projekt"}
+                >
+                  <Icon name="trash-2" size={14} />
+                </button>
+
+                {/* Clickable area */}
+                <Link href={`/mognadmatning/projekt/${p.id}`} className="block">
                   {/* Type tag */}
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-3 pr-8">
                     <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
                       Digital Mognad
                     </span>
@@ -120,8 +164,8 @@ function ProjektListContent() {
                     </div>
                     <Icon name="arrow-right" size={14} className="text-muted-foreground/30 group-hover:text-primary/50 transition-colors" />
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </div>
             ))}
           </div>
         )}
