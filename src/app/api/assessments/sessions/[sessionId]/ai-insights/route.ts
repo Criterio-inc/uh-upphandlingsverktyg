@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { ensureTables } from "@/lib/ensure-tables";
 import { getAssessmentConfig } from "@/config/assessments";
+import { generateFallbackInsights } from "@/lib/assessment-fallback-insights";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ async function getClerkUserId(): Promise<string | null> {
 /* ------------------------------------------------------------------ */
 /*  POST /api/assessments/sessions/[sessionId]/ai-insights              */
 /*  Generate AI-powered insights. Requires auth (project owner only).   */
+/*  Falls back to locally generated insights if API is unavailable.     */
 /* ------------------------------------------------------------------ */
 
 export async function POST(
@@ -66,15 +68,6 @@ export async function POST(
       );
     }
 
-    // Check for API key
-    const apiKey = process.env.OPENROUTER_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "AI-insikter ej konfigurerade" },
-        { status: 503 },
-      );
-    }
-
     // Get assessment config
     const config = getAssessmentConfig(session.project.assessmentType.slug);
     if (!config) {
@@ -90,7 +83,34 @@ export async function POST(
       { average: number; questionCount: number; answeredCount: number }
     >;
 
-    // Get the maturity level info
+    // Helper: save insights and return response
+    const saveAndReturn = async (insights: string, source: "ai" | "fallback") => {
+      await prisma.assessmentResult.update({
+        where: { id: session.result!.id },
+        data: { aiInsights: insights },
+      });
+      return NextResponse.json({
+        aiInsights: insights,
+        resultId: session.result!.id,
+        source,
+      });
+    };
+
+    // Check for Anthropic API key
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      // No API key — generate fallback insights
+      const fallback = generateFallbackInsights(
+        config,
+        scores,
+        session.result.overall,
+        session.result.level,
+      );
+      return saveAndReturn(fallback, "fallback");
+    }
+
+    // --- Build the AI prompt ---
+
     const maturityLevel = config.maturityLevels.find(
       (ml) => ml.level === session.result!.level,
     );
@@ -111,7 +131,6 @@ ${config.dimensionDescriptions[dim] ?? ""}
 ${questionDetails.join("\n")}`;
     });
 
-    // Build the prompt
     const prompt = `Du är en expert på ${config.name.toLowerCase()} för svenska organisationer. Analysera följande resultat och ge konkreta, handlingsbara insikter på svenska.
 
 ## Bedömningstyp
@@ -139,55 +158,69 @@ Ge en analys med följande struktur (använd markdown):
 
 Var konkret, undvik generella råd. Referera till faktiska poäng och frågor.`;
 
-    // Call OpenRouter API
-    const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "anthropic/claude-sonnet-4",
-        messages: [
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-        max_tokens: 2000,
-        temperature: 0.7,
-      }),
-    });
+    // --- Call Anthropic API ---
 
-    if (!aiResponse.ok) {
-      const errorBody = await aiResponse.text();
-      console.error("OpenRouter API error:", aiResponse.status, errorBody);
-      return NextResponse.json(
-        { error: "AI-tjänsten svarade med fel. Försök igen senare." },
-        { status: 502 },
+    try {
+      const aiResponse = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: process.env.ANTHROPIC_MODEL || "claude-sonnet-4-20250514",
+          max_tokens: 2000,
+          temperature: 0.7,
+          system: `Du är en expert på ${config.name.toLowerCase()} för svenska organisationer. Svara alltid på svenska med tydlig markdown-formatering.`,
+          messages: [
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+        }),
+      });
+
+      if (!aiResponse.ok) {
+        const errorBody = await aiResponse.text();
+        console.error("Anthropic API error:", aiResponse.status, errorBody);
+        // Fall back to local insights
+        const fallback = generateFallbackInsights(
+          config,
+          scores,
+          session.result.overall,
+          session.result.level,
+        );
+        return saveAndReturn(fallback, "fallback");
+      }
+
+      const aiData = await aiResponse.json();
+      const insights = aiData.content?.[0]?.text ?? "";
+
+      if (!insights) {
+        // Empty response — fall back
+        const fallback = generateFallbackInsights(
+          config,
+          scores,
+          session.result.overall,
+          session.result.level,
+        );
+        return saveAndReturn(fallback, "fallback");
+      }
+
+      return saveAndReturn(insights, "ai");
+    } catch (aiError) {
+      // Network error or other fetch failure — fall back
+      console.error("Anthropic API fetch error:", aiError);
+      const fallback = generateFallbackInsights(
+        config,
+        scores,
+        session.result.overall,
+        session.result.level,
       );
+      return saveAndReturn(fallback, "fallback");
     }
-
-    const aiData = await aiResponse.json();
-    const insights = aiData.choices?.[0]?.message?.content ?? "";
-
-    if (!insights) {
-      return NextResponse.json(
-        { error: "AI-tjänsten returnerade inget svar" },
-        { status: 502 },
-      );
-    }
-
-    // Store the insights in the result
-    await prisma.assessmentResult.update({
-      where: { id: session.result.id },
-      data: { aiInsights: insights },
-    });
-
-    return NextResponse.json({
-      aiInsights: insights,
-      resultId: session.result.id,
-    });
   } catch (e) {
     console.error("POST /api/assessments/sessions/[sessionId]/ai-insights error:", e);
     const msg = e instanceof Error ? e.message : "Unknown error";
