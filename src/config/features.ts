@@ -1,108 +1,174 @@
-import fs from "fs";
-import path from "path";
+/* ------------------------------------------------------------------ */
+/*  App keys — top-level toggles for entire app sections               */
+/* ------------------------------------------------------------------ */
+
+export const APP_KEYS = [
+  "upphandling",
+  "verktyg",
+  "mognadmatning",
+  "ai-mognadmatning",
+] as const;
+
+export type AppKey = (typeof APP_KEYS)[number];
 
 /* ------------------------------------------------------------------ */
 /*  Feature keys                                                       */
 /* ------------------------------------------------------------------ */
 
 export type FeatureKey =
-  | "tools.benefit-calculator"
-  | "tools.risk-matrix"
-  | "tools.evaluation-model"
-  | "tools.timeline-planner"
-  | "tools.stakeholder-map"
-  | "tools.kunskapsbank"
-  | "training";
+  // App master toggles
+  | "upphandling"
+  | "verktyg"
+  | "mognadmatning"
+  | "ai-mognadmatning"
+  // Upphandling sub-features
+  | "upphandling.training"
+  // Verktyg sub-features
+  | "verktyg.benefit-calculator"
+  | "verktyg.risk-matrix"
+  | "verktyg.evaluation-model"
+  | "verktyg.timeline-planner"
+  | "verktyg.stakeholder-map"
+  | "verktyg.kunskapsbank"
+  // Mognadsmätning sub-features
+  | "mognadmatning.survey"
+  | "mognadmatning.results"
+  | "mognadmatning.ai-insights"
+  | "mognadmatning.consultant-dashboard"
+  // AI-Mognadsmätning sub-features
+  | "ai-mognadmatning.survey"
+  | "ai-mognadmatning.results"
+  | "ai-mognadmatning.ai-insights"
+  | "ai-mognadmatning.consultant-dashboard";
 
 /** Features that are always active and cannot be toggled off */
-export const ALWAYS_ON = ["cases", "library"] as const;
+export const ALWAYS_ON = ["cases", "library", "help"] as const;
 
 /** Human-readable labels for each toggleable feature */
 export const FEATURE_LABELS: Record<FeatureKey, string> = {
-  "tools.benefit-calculator": "Nyttokalkyl",
-  "tools.risk-matrix": "Riskmatris",
-  "tools.evaluation-model": "Utvärderingsmodell",
-  "tools.timeline-planner": "Tidslinjeplanerare",
-  "tools.stakeholder-map": "Intressentanalys",
-  "tools.kunskapsbank": "Kunskapsbank",
-  training: "Utbildning",
+  upphandling: "Upphandling",
+  verktyg: "Verktyg",
+  mognadmatning: "Digital Mognadsmätning",
+  "ai-mognadmatning": "AI-Mognadsmätning",
+  "upphandling.training": "Utbildning",
+  "verktyg.benefit-calculator": "Nyttokalkyl",
+  "verktyg.risk-matrix": "Riskmatris",
+  "verktyg.evaluation-model": "Utvärderingsmodell",
+  "verktyg.timeline-planner": "Tidslinjeplanerare",
+  "verktyg.stakeholder-map": "Intressentanalys",
+  "verktyg.kunskapsbank": "Kunskapsbank",
+  "mognadmatning.survey": "Enkät",
+  "mognadmatning.results": "Resultat",
+  "mognadmatning.ai-insights": "AI-insikter",
+  "mognadmatning.consultant-dashboard": "Konsult-dashboard",
+  "ai-mognadmatning.survey": "Enkät",
+  "ai-mognadmatning.results": "Resultat",
+  "ai-mognadmatning.ai-insights": "AI-insikter",
+  "ai-mognadmatning.consultant-dashboard": "Konsult-dashboard",
 };
 
 /** Icon names matching the sidebar icon for each feature */
 export const FEATURE_ICONS: Record<FeatureKey, string> = {
-  "tools.benefit-calculator": "calculator",
-  "tools.risk-matrix": "shield-alert",
-  "tools.evaluation-model": "scale",
-  "tools.timeline-planner": "clock",
-  "tools.stakeholder-map": "users",
-  "tools.kunskapsbank": "book-open",
-  training: "graduation-cap",
+  upphandling: "clipboard-list",
+  verktyg: "wrench",
+  mognadmatning: "bar-chart-3",
+  "ai-mognadmatning": "brain",
+  "upphandling.training": "graduation-cap",
+  "verktyg.benefit-calculator": "calculator",
+  "verktyg.risk-matrix": "shield-alert",
+  "verktyg.evaluation-model": "scale",
+  "verktyg.timeline-planner": "clock",
+  "verktyg.stakeholder-map": "users",
+  "verktyg.kunskapsbank": "book-open",
+  "mognadmatning.survey": "file-question",
+  "mognadmatning.results": "bar-chart-3",
+  "mognadmatning.ai-insights": "sparkles",
+  "mognadmatning.consultant-dashboard": "layout-dashboard",
+  "ai-mognadmatning.survey": "file-question",
+  "ai-mognadmatning.results": "bar-chart-3",
+  "ai-mognadmatning.ai-insights": "sparkles",
+  "ai-mognadmatning.consultant-dashboard": "layout-dashboard",
 };
 
 /** Ordered list of all feature keys for consistent UI rendering */
 export const ALL_FEATURE_KEYS: FeatureKey[] = [
-  "tools.benefit-calculator",
-  "tools.risk-matrix",
-  "tools.evaluation-model",
-  "tools.timeline-planner",
-  "tools.stakeholder-map",
-  "tools.kunskapsbank",
-  "training",
+  // App master toggles
+  "upphandling",
+  "verktyg",
+  "mognadmatning",
+  "ai-mognadmatning",
+  // Upphandling
+  "upphandling.training",
+  // Verktyg
+  "verktyg.benefit-calculator",
+  "verktyg.risk-matrix",
+  "verktyg.evaluation-model",
+  "verktyg.timeline-planner",
+  "verktyg.stakeholder-map",
+  "verktyg.kunskapsbank",
+  // Mognadsmätning
+  "mognadmatning.survey",
+  "mognadmatning.results",
+  "mognadmatning.ai-insights",
+  "mognadmatning.consultant-dashboard",
+  // AI-Mognadsmätning
+  "ai-mognadmatning.survey",
+  "ai-mognadmatning.results",
+  "ai-mognadmatning.ai-insights",
+  "ai-mognadmatning.consultant-dashboard",
 ];
+
+/**
+ * Get the parent app key for a feature key.
+ * Returns undefined for app-level keys.
+ */
+export function getAppKeyForFeature(key: FeatureKey): AppKey | undefined {
+  for (const appKey of APP_KEYS) {
+    if (key !== appKey && key.startsWith(appKey + ".")) {
+      return appKey;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Check if a feature is effectively enabled, considering cascade logic.
+ * If the parent app is disabled, all sub-features are disabled.
+ */
+export function isEffectivelyEnabled(
+  features: Record<string, boolean>,
+  key: FeatureKey,
+): boolean {
+  // Check if the feature itself is disabled
+  if (features[key] === false) return false;
+
+  // Check parent app cascade
+  const appKey = getAppKeyForFeature(key);
+  if (appKey && features[appKey] === false) return false;
+
+  return true;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Server-side helpers (read/write feature-config.json)               */
 /* ------------------------------------------------------------------ */
 
-interface FeatureConfig {
-  features: Record<string, boolean>;
-}
-
-const CONFIG_PATH = path.join(process.cwd(), "feature-config.json");
-
-/** Read feature flags from disk. Returns all keys as true if file missing. */
-export function getFeatures(): Record<FeatureKey, boolean> {
-  try {
-    const raw = fs.readFileSync(CONFIG_PATH, "utf-8");
-    const config: FeatureConfig = JSON.parse(raw);
-    // Ensure every known key has a value (default true for new keys)
-    const result = {} as Record<FeatureKey, boolean>;
-    for (const key of ALL_FEATURE_KEYS) {
-      result[key] = config.features[key] ?? true;
-    }
-    return result;
-  } catch {
-    // If file doesn't exist or is invalid, all features are enabled
-    const result = {} as Record<FeatureKey, boolean>;
-    for (const key of ALL_FEATURE_KEYS) {
-      result[key] = true;
-    }
-    return result;
-  }
-}
-
-/** Check if a specific feature is enabled */
-export function isFeatureEnabled(key: FeatureKey): boolean {
-  return getFeatures()[key];
-}
-
-/** Write updated feature flags to disk */
-export function saveFeatures(features: Record<string, boolean>): void {
-  const config: FeatureConfig = { features: {} };
-  for (const key of ALL_FEATURE_KEYS) {
-    config.features[key] = features[key] ?? true;
-  }
-  fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2) + "\n", "utf-8");
-}
-
 /** Map a route path to its feature key (if any). Returns undefined for always-on routes. */
 export function routeToFeatureKey(pathname: string): FeatureKey | undefined {
-  if (pathname.startsWith("/tools/benefit-calculator")) return "tools.benefit-calculator";
-  if (pathname.startsWith("/tools/risk-matrix")) return "tools.risk-matrix";
-  if (pathname.startsWith("/tools/evaluation-model")) return "tools.evaluation-model";
-  if (pathname.startsWith("/tools/timeline-planner")) return "tools.timeline-planner";
-  if (pathname.startsWith("/tools/stakeholder-map")) return "tools.stakeholder-map";
-  if (pathname.startsWith("/tools/kunskapsbank")) return "tools.kunskapsbank";
-  if (pathname.startsWith("/training")) return "training";
+  // Verktyg
+  if (pathname.startsWith("/tools/benefit-calculator")) return "verktyg.benefit-calculator";
+  if (pathname.startsWith("/tools/risk-matrix")) return "verktyg.risk-matrix";
+  if (pathname.startsWith("/tools/evaluation-model")) return "verktyg.evaluation-model";
+  if (pathname.startsWith("/tools/timeline-planner")) return "verktyg.timeline-planner";
+  if (pathname.startsWith("/tools/stakeholder-map")) return "verktyg.stakeholder-map";
+  if (pathname.startsWith("/tools/kunskapsbank")) return "verktyg.kunskapsbank";
+  // Upphandling
+  if (pathname.startsWith("/training")) return "upphandling.training";
+  if (pathname.startsWith("/cases")) return "upphandling";
+  if (pathname.startsWith("/library")) return "upphandling";
+  // Mognadsmätning
+  if (pathname.startsWith("/mognadmatning")) return "mognadmatning";
+  // AI-Mognadsmätning
+  if (pathname.startsWith("/ai-mognadmatning")) return "ai-mognadmatning";
   return undefined;
 }

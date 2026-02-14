@@ -1234,7 +1234,7 @@ export default function EvaluationModelPage() {
   }, []);
 
   return (
-    <FeatureGate featureKey="tools.evaluation-model">
+    <FeatureGate featureKey="verktyg.evaluation-model">
     <div className="flex h-full flex-col">
       {/* Header */}
       <header className="border-b border-border/60 px-6 py-4">

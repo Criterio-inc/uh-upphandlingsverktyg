@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { ALL_FEATURE_KEYS, type FeatureKey } from "@/config/features";
-import { ensureUserTables } from "@/lib/ensure-user-tables";
+import { ensureTables } from "@/lib/ensure-tables";
 
 /* ------------------------------------------------------------------ */
 /*  Per-user feature helpers                                           */
@@ -10,7 +10,7 @@ import { ensureUserTables } from "@/lib/ensure-user-tables";
 export async function getUserFeatures(
   userId: string,
 ): Promise<Record<FeatureKey, boolean>> {
-  await ensureUserTables();
+  await ensureTables();
   const rows = await prisma.userFeature.findMany({ where: { userId } });
   const result = {} as Record<FeatureKey, boolean>;
   for (const key of ALL_FEATURE_KEYS) {
@@ -25,7 +25,7 @@ export async function setUserFeatures(
   userId: string,
   features: Record<string, boolean>,
 ): Promise<Record<FeatureKey, boolean>> {
-  await ensureUserTables();
+  await ensureTables();
   const ops = [];
   for (const key of ALL_FEATURE_KEYS) {
     if (key in features && typeof features[key] === "boolean") {
@@ -48,7 +48,7 @@ export async function setUserFeatures(
 export async function createDefaultFeatures(
   userId: string,
 ): Promise<void> {
-  await ensureUserTables();
+  await ensureTables();
   const existing = await prisma.userFeature.findMany({
     where: { userId },
     select: { featureKey: true },
@@ -68,7 +68,7 @@ export async function createDefaultFeatures(
 
 /** Check if a userId exists in the User table. */
 export async function userExists(userId: string): Promise<boolean> {
-  await ensureUserTables();
+  await ensureTables();
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -83,7 +83,7 @@ export async function userExists(userId: string): Promise<boolean> {
 
 /** Check if a userId belongs to an admin. */
 export async function isUserAdmin(userId: string): Promise<boolean> {
-  await ensureUserTables();
+  await ensureTables();
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },

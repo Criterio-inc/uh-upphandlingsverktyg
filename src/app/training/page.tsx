@@ -47,7 +47,7 @@ export default function TrainingPage() {
   const completedCourses = getCompletedCourseCount(progress, courseModuleMap);
 
   return (
-    <FeatureGate featureKey="training">
+    <FeatureGate featureKey="upphandling.training">
     <div className="min-h-screen">
       {/* Header */}
       <div className="border-b border-border/60 bg-card/60">

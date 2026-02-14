@@ -59,7 +59,7 @@ const ADMIN_TIPS = [
 ];
 
 /* ------------------------------------------------------------------ */
-/*  Feature toggle config — labels, icons, categories                  */
+/*  Feature toggle config — labels, icons, app groups                  */
 /* ------------------------------------------------------------------ */
 
 interface FeatureDef {
@@ -67,17 +67,37 @@ interface FeatureDef {
   label: string;
   description: string;
   icon: string;
-  category: "tools" | "training";
+  appKey: "upphandling" | "verktyg" | "mognadmatning" | "ai-mognadmatning";
 }
 
+// App master toggles info
+const APP_DEFS = [
+  { key: "upphandling", label: "Upphandling", description: "LOU-stöd med ärendehantering och bibliotek", icon: "clipboard-list" },
+  { key: "verktyg", label: "Verktyg", description: "Analysverktyg och kunskapsbank", icon: "wrench" },
+  { key: "mognadmatning", label: "Digital Mognadsmätning", description: "22 frågor, 4 dimensioner, 5 mognadsnivåer", icon: "bar-chart-3" },
+  { key: "ai-mognadmatning", label: "AI-Mognadsmätning", description: "32 frågor, 8 dimensioner, AI-fokus", icon: "brain" },
+];
+
 const FEATURE_DEFS: FeatureDef[] = [
-  { key: "tools.benefit-calculator", label: "Nyttokalkyl", description: "Kalkylverktyg för kostnads- och nyttoanalys", icon: "calculator", category: "tools" },
-  { key: "tools.risk-matrix", label: "Riskmatris", description: "Riskbedömning med sannolikhet och konsekvens", icon: "shield-alert", category: "tools" },
-  { key: "tools.evaluation-model", label: "Utvärderingsmodell", description: "Utvärdering och poängsättning av anbud", icon: "scale", category: "tools" },
-  { key: "tools.timeline-planner", label: "Tidslinjeplanerare", description: "Planering och visualisering av upphandlingstidslinje", icon: "clock", category: "tools" },
-  { key: "tools.stakeholder-map", label: "Intressentanalys", description: "Kartläggning av intressenter och deras påverkan", icon: "users", category: "tools" },
-  { key: "tools.kunskapsbank", label: "Kunskapsbank", description: "Domäner, resonemang och AI-samtalsstöd", icon: "book-open", category: "tools" },
-  { key: "training", label: "Utbildning", description: "Upphandlingsakademin med kurser, quiz och scenarion", icon: "graduation-cap", category: "training" },
+  // Upphandling
+  { key: "upphandling.training", label: "Utbildning", description: "Upphandlingsakademin med kurser, quiz och scenarion", icon: "graduation-cap", appKey: "upphandling" },
+  // Verktyg
+  { key: "verktyg.benefit-calculator", label: "Nyttokalkyl", description: "Kalkylverktyg för kostnads- och nyttoanalys", icon: "calculator", appKey: "verktyg" },
+  { key: "verktyg.risk-matrix", label: "Riskmatris", description: "Riskbedömning med sannolikhet och konsekvens", icon: "shield-alert", appKey: "verktyg" },
+  { key: "verktyg.evaluation-model", label: "Utvärderingsmodell", description: "Utvärdering och poängsättning av anbud", icon: "scale", appKey: "verktyg" },
+  { key: "verktyg.timeline-planner", label: "Tidslinjeplanerare", description: "Planering och visualisering av upphandlingstidslinje", icon: "clock", appKey: "verktyg" },
+  { key: "verktyg.stakeholder-map", label: "Intressentanalys", description: "Kartläggning av intressenter och deras påverkan", icon: "users", appKey: "verktyg" },
+  { key: "verktyg.kunskapsbank", label: "Kunskapsbank", description: "Domäner, resonemang och AI-samtalsstöd", icon: "book-open", appKey: "verktyg" },
+  // Mognadsmätning
+  { key: "mognadmatning.survey", label: "Enkät", description: "Digital mognadsmätning med 22 frågor", icon: "file-question", appKey: "mognadmatning" },
+  { key: "mognadmatning.results", label: "Resultat", description: "Visualisering av mätresultat och historik", icon: "bar-chart-3", appKey: "mognadmatning" },
+  { key: "mognadmatning.ai-insights", label: "AI-insikter", description: "AI-genererade rekommendationer och analys", icon: "sparkles", appKey: "mognadmatning" },
+  { key: "mognadmatning.consultant-dashboard", label: "Konsult-dashboard", description: "Översikt för konsulter med alla projekt", icon: "layout-dashboard", appKey: "mognadmatning" },
+  // AI-Mognadsmätning
+  { key: "ai-mognadmatning.survey", label: "Enkät", description: "AI-mognadsmätning med 32 frågor", icon: "file-question", appKey: "ai-mognadmatning" },
+  { key: "ai-mognadmatning.results", label: "Resultat", description: "Visualisering av AI-mognadsresultat", icon: "bar-chart-3", appKey: "ai-mognadmatning" },
+  { key: "ai-mognadmatning.ai-insights", label: "AI-insikter", description: "AI-genererade rekommendationer och analys", icon: "sparkles", appKey: "ai-mognadmatning" },
+  { key: "ai-mognadmatning.consultant-dashboard", label: "Konsult-dashboard", description: "Översikt för konsulter med alla AI-projekt", icon: "layout-dashboard", appKey: "ai-mognadmatning" },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -126,6 +146,23 @@ function ToggleSwitch({
       />
     </button>
   );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Helper: check if all sub-features of an app are enabled             */
+/* ------------------------------------------------------------------ */
+
+function isAppEnabled(appKey: string, featureMap: Record<string, boolean>): boolean {
+  const appFeatures = FEATURE_DEFS.filter((f) => f.appKey === appKey);
+  if (appFeatures.length === 0) return featureMap[appKey] !== false;
+  return appFeatures.every((f) => featureMap[f.key] !== false);
+}
+
+function isAppPartiallyEnabled(appKey: string, featureMap: Record<string, boolean>): boolean {
+  const appFeatures = FEATURE_DEFS.filter((f) => f.appKey === appKey);
+  if (appFeatures.length === 0) return false;
+  const enabledCount = appFeatures.filter((f) => featureMap[f.key] !== false).length;
+  return enabledCount > 0 && enabledCount < appFeatures.length;
 }
 
 /* ------------------------------------------------------------------ */
@@ -206,6 +243,33 @@ export default function AdminContent() {
     [features],
   );
 
+  // Toggle all features for an app (global defaults)
+  const toggleAppFeatures = useCallback(
+    async (appKey: string) => {
+      const appFeatures = FEATURE_DEFS.filter((f) => f.appKey === appKey);
+      const allEnabled = isAppEnabled(appKey, features);
+      const updated = { ...features };
+      for (const f of appFeatures) {
+        updated[f.key] = !allEnabled;
+      }
+      setFeatures(updated);
+      setFeaturesSaving(true);
+      try {
+        await fetch("/api/features", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ features: updated }),
+        });
+      } catch (e) {
+        setFeatures(features);
+        console.error("Failed to save features:", e);
+      } finally {
+        setFeaturesSaving(false);
+      }
+    },
+    [features],
+  );
+
   // Toggle per-user feature
   const toggleUserFeature = useCallback(
     async (userId: string, key: string) => {
@@ -231,6 +295,45 @@ export default function AdminContent() {
         // Revert on error
         fetchUsers();
         console.error("Failed to save user feature:", e);
+      } finally {
+        setUserSaving(null);
+      }
+    },
+    [users, fetchUsers],
+  );
+
+  // Toggle all features for an app (per-user)
+  const toggleUserAppFeatures = useCallback(
+    async (userId: string, appKey: string) => {
+      const userObj = users.find((u) => u.id === userId);
+      if (!userObj) return;
+
+      const appFeatures = FEATURE_DEFS.filter((f) => f.appKey === appKey);
+      const allEnabled = isAppEnabled(appKey, userObj.features);
+      const updatedFeatures: Record<string, boolean> = {};
+      for (const f of appFeatures) {
+        updatedFeatures[f.key] = !allEnabled;
+      }
+
+      // Optimistic update
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === userId
+            ? { ...u, features: { ...u.features, ...updatedFeatures } }
+            : u,
+        ),
+      );
+      setUserSaving(userId);
+
+      try {
+        await fetch(`/api/admin/users/${userId}/features`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ features: updatedFeatures }),
+        });
+      } catch (e) {
+        fetchUsers();
+        console.error("Failed to save user features:", e);
       } finally {
         setUserSaving(null);
       }
@@ -272,13 +375,8 @@ export default function AdminContent() {
   );
 
   if (!isAdmin) {
-    redirect("/cases");
+    redirect("/");
   }
-
-  const toolFeatures = FEATURE_DEFS.filter((f) => f.category === "tools");
-  const trainingFeatures = FEATURE_DEFS.filter(
-    (f) => f.category === "training",
-  );
 
   return (
     <div className="min-h-screen">
@@ -286,10 +384,10 @@ export default function AdminContent() {
         <div className="px-8 py-8">
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
             <Link
-              href="/cases"
+              href="/"
               className="hover:text-foreground transition-colors"
             >
-              Upphandlingar
+              Hem
             </Link>
             <span>/</span>
             <span className="text-foreground">Admin</span>
@@ -446,53 +544,104 @@ export default function AdminContent() {
                       />
                     </button>
 
-                    {/* Expanded: feature toggles */}
+                    {/* Expanded: feature toggles grouped by app */}
                     {isExpanded && (
-                      <div className="border-t border-border/40 px-5 py-4 space-y-2 bg-muted/10">
+                      <div className="border-t border-border/40 px-5 py-4 space-y-4 bg-muted/10">
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-3">
                           Funktioner
                         </p>
-                        {FEATURE_DEFS.map((feat) => {
-                          const enabled = u.features[feat.key] !== false;
+                        {APP_DEFS.map((app) => {
+                          const appFeatures = FEATURE_DEFS.filter((f) => f.appKey === app.key);
+                          if (appFeatures.length === 0) return null;
+                          const appEnabled = isAppEnabled(app.key, u.features);
+                          const appPartial = isAppPartiallyEnabled(app.key, u.features);
+
                           return (
-                            <div
-                              key={feat.key}
-                              className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-muted/20 transition-colors"
-                            >
-                              <div
-                                className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors ${
-                                  enabled ? "bg-primary/10" : "bg-muted/50"
-                                }`}
-                              >
-                                <Icon
-                                  name={feat.icon}
-                                  size={14}
-                                  className={
-                                    enabled
-                                      ? "text-primary"
-                                      : "text-muted-foreground/40"
-                                  }
-                                />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p
-                                  className={`text-sm transition-colors ${
-                                    enabled
-                                      ? "text-foreground"
-                                      : "text-muted-foreground"
+                            <div key={app.key} className="space-y-1">
+                              {/* App master toggle */}
+                              <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-muted/20 transition-colors">
+                                <div
+                                  className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors ${
+                                    appEnabled || appPartial ? "bg-primary/10" : "bg-muted/50"
                                   }`}
                                 >
-                                  {feat.label}
-                                </p>
+                                  <Icon
+                                    name={app.icon}
+                                    size={14}
+                                    className={
+                                      appEnabled || appPartial
+                                        ? "text-primary"
+                                        : "text-muted-foreground/40"
+                                    }
+                                  />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p
+                                    className={`text-sm font-semibold transition-colors ${
+                                      appEnabled || appPartial
+                                        ? "text-foreground"
+                                        : "text-muted-foreground"
+                                    }`}
+                                  >
+                                    {app.label}
+                                  </p>
+                                </div>
+                                <ToggleSwitch
+                                  enabled={appEnabled}
+                                  onToggle={() =>
+                                    toggleUserAppFeatures(u.id, app.key)
+                                  }
+                                  disabled={saving}
+                                  label={app.label}
+                                />
                               </div>
-                              <ToggleSwitch
-                                enabled={enabled}
-                                onToggle={() =>
-                                  toggleUserFeature(u.id, feat.key)
-                                }
-                                disabled={saving}
-                                label={feat.label}
-                              />
+                              {/* Sub-features */}
+                              <div className={`ml-6 space-y-1 transition-opacity ${!appEnabled && !appPartial ? "opacity-40" : ""}`}>
+                                {appFeatures.map((feat) => {
+                                  const enabled = u.features[feat.key] !== false;
+                                  return (
+                                    <div
+                                      key={feat.key}
+                                      className="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-muted/20 transition-colors"
+                                    >
+                                      <div
+                                        className={`flex h-6 w-6 items-center justify-center rounded-md transition-colors ${
+                                          enabled ? "bg-primary/10" : "bg-muted/50"
+                                        }`}
+                                      >
+                                        <Icon
+                                          name={feat.icon}
+                                          size={12}
+                                          className={
+                                            enabled
+                                              ? "text-primary"
+                                              : "text-muted-foreground/40"
+                                          }
+                                        />
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p
+                                          className={`text-sm transition-colors ${
+                                            enabled
+                                              ? "text-foreground"
+                                              : "text-muted-foreground"
+                                          }`}
+                                        >
+                                          {feat.label}
+                                        </p>
+                                      </div>
+                                      <ToggleSwitch
+                                        enabled={enabled}
+                                        onToggle={() =>
+                                          toggleUserFeature(u.id, feat.key)
+                                        }
+                                        disabled={saving}
+                                        label={feat.label}
+                                      />
+                                    </div>
+                                  );
+                                })}
+                              </div>
                             </div>
                           );
                         })}
@@ -571,105 +720,93 @@ export default function AdminContent() {
             </div>
           </div>
 
-          {/* Toggleable: Verktyg */}
-          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">
-              Verktyg
-            </p>
-            <div className="space-y-2">
-              {toolFeatures.map((feat) => {
-                const enabled = features[feat.key] !== false;
-                return (
-                  <div
-                    key={feat.key}
-                    className="flex items-center gap-3 rounded-xl px-4 py-3 hover:bg-muted/20 transition-colors"
-                  >
-                    <div
-                      className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
-                        enabled ? "bg-primary/10" : "bg-muted/50"
-                      }`}
-                    >
-                      <Icon
-                        name={feat.icon}
-                        size={16}
-                        className={
-                          enabled ? "text-primary" : "text-muted-foreground/50"
-                        }
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p
-                        className={`text-sm font-medium transition-colors ${
-                          enabled ? "text-foreground" : "text-muted-foreground"
-                        }`}
-                      >
-                        {feat.label}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground">
-                        {feat.description}
-                      </p>
-                    </div>
-                    <ToggleSwitch
-                      enabled={enabled}
-                      onToggle={() => toggleFeature(feat.key)}
-                      disabled={!featuresLoaded}
-                      label={feat.label}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          {/* App-grouped feature toggles */}
+          {APP_DEFS.map((app) => {
+            const appFeatures = FEATURE_DEFS.filter((f) => f.appKey === app.key);
+            if (appFeatures.length === 0) return null;
+            const appEnabled = isAppEnabled(app.key, features);
+            const appPartial = isAppPartiallyEnabled(app.key, features);
 
-          {/* Toggleable: Utbildning */}
-          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">
-              Utbildning
-            </p>
-            <div className="space-y-2">
-              {trainingFeatures.map((feat) => {
-                const enabled = features[feat.key] !== false;
-                return (
+            return (
+              <div key={app.key} className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-3">
+                {/* App header with master toggle */}
+                <div className="flex items-center gap-3">
                   <div
-                    key={feat.key}
-                    className="flex items-center gap-3 rounded-xl px-4 py-3 hover:bg-muted/20 transition-colors"
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+                      appEnabled || appPartial ? "bg-primary/10" : "bg-muted/50"
+                    }`}
                   >
-                    <div
-                      className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
-                        enabled ? "bg-primary/10" : "bg-muted/50"
-                      }`}
-                    >
-                      <Icon
-                        name={feat.icon}
-                        size={16}
-                        className={
-                          enabled ? "text-primary" : "text-muted-foreground/50"
-                        }
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p
-                        className={`text-sm font-medium transition-colors ${
-                          enabled ? "text-foreground" : "text-muted-foreground"
-                        }`}
-                      >
-                        {feat.label}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground">
-                        {feat.description}
-                      </p>
-                    </div>
-                    <ToggleSwitch
-                      enabled={enabled}
-                      onToggle={() => toggleFeature(feat.key)}
-                      disabled={!featuresLoaded}
-                      label={feat.label}
+                    <Icon
+                      name={app.icon}
+                      size={16}
+                      className={
+                        appEnabled || appPartial ? "text-primary" : "text-muted-foreground/50"
+                      }
                     />
                   </div>
-                );
-              })}
-            </div>
-          </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">
+                      {app.label}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {app.description}
+                    </p>
+                  </div>
+                  <ToggleSwitch
+                    enabled={appEnabled}
+                    onToggle={() => toggleAppFeatures(app.key)}
+                    disabled={!featuresLoaded}
+                    label={app.label}
+                  />
+                </div>
+
+                {/* Sub-features */}
+                <div className={`space-y-2 transition-opacity ${!appEnabled && !appPartial ? "opacity-40" : ""}`}>
+                  {appFeatures.map((feat) => {
+                    const enabled = features[feat.key] !== false;
+                    return (
+                      <div
+                        key={feat.key}
+                        className="flex items-center gap-3 rounded-xl px-4 py-3 hover:bg-muted/20 transition-colors"
+                      >
+                        <div
+                          className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+                            enabled ? "bg-primary/10" : "bg-muted/50"
+                          }`}
+                        >
+                          <Icon
+                            name={feat.icon}
+                            size={16}
+                            className={
+                              enabled ? "text-primary" : "text-muted-foreground/50"
+                            }
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p
+                            className={`text-sm font-medium transition-colors ${
+                              enabled ? "text-foreground" : "text-muted-foreground"
+                            }`}
+                          >
+                            {feat.label}
+                          </p>
+                          <p className="text-[11px] text-muted-foreground">
+                            {feat.description}
+                          </p>
+                        </div>
+                        <ToggleSwitch
+                          enabled={enabled}
+                          onToggle={() => toggleFeature(feat.key)}
+                          disabled={!featuresLoaded}
+                          label={feat.label}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </section>
 
         {/* Snabblänkar */}
@@ -790,11 +927,11 @@ export default function AdminContent() {
         {/* Tillbaka */}
         <div className="pt-2 pb-8">
           <Link
-            href="/cases"
+            href="/"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1.5"
           >
             <Icon name="arrow-left" size={14} />
-            Tillbaka till upphandlingar
+            Tillbaka till startsidan
           </Link>
         </div>
       </div>

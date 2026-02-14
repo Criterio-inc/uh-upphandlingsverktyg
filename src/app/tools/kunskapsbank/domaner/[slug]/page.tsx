@@ -28,7 +28,7 @@ export default function DomainDetailPage({
   const iconName = DOMAIN_ICONS[domain.slug] || "folder";
 
   return (
-    <FeatureGate featureKey="tools.kunskapsbank">
+    <FeatureGate featureKey="verktyg.kunskapsbank">
       <div className="min-h-screen">
         {/* Header */}
         <div className="border-b border-border/60 bg-card/60">

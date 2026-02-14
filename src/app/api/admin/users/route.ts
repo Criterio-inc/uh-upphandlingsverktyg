@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { checkAdminAccess } from "@/lib/user-features";
-import { ensureUserTables } from "@/lib/ensure-user-tables";
+import { ensureTables } from "@/lib/ensure-tables";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +32,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    await ensureUserTables();
+    await ensureTables();
 
     const users = await prisma.user.findMany({
       include: { features: true },

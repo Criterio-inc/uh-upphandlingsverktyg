@@ -983,7 +983,7 @@ export default function TimelinePlannerPage() {
   const parsedContractDate = contractDate ? new Date(contractDate + "T00:00:00") : null;
 
   return (
-    <FeatureGate featureKey="tools.timeline-planner">
+    <FeatureGate featureKey="verktyg.timeline-planner">
     <div className="flex h-full flex-col">
       {/* Header */}
       <header className="border-b border-border/60 px-6 py-4">

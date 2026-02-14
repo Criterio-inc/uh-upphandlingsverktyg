@@ -1156,7 +1156,7 @@ export default function RiskMatrixPage() {
   );
 
   return (
-    <FeatureGate featureKey="tools.risk-matrix">
+    <FeatureGate featureKey="verktyg.risk-matrix">
     <div className="flex h-full flex-col">
       {/* Header */}
       <header className="border-b border-border/60 px-6 py-4">

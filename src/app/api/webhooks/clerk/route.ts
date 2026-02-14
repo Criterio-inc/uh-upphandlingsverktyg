@@ -1,7 +1,7 @@
 import { Webhook } from "svix";
 import { prisma } from "@/lib/db";
 import { createDefaultFeatures } from "@/lib/user-features";
-import { ensureUserTables } from "@/lib/ensure-user-tables";
+import { ensureTables } from "@/lib/ensure-tables";
 
 export const dynamic = "force-dynamic";
 
@@ -71,7 +71,7 @@ export async function POST(req: Request) {
   }
 
   // Ensure User/UserFeature tables exist before handling events
-  await ensureUserTables();
+  await ensureTables();
 
   // Handle events
   try {

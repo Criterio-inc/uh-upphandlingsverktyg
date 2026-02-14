@@ -35,7 +35,7 @@ export default function ResonemangDetailPage({
     .filter(Boolean);
 
   return (
-    <FeatureGate featureKey="tools.kunskapsbank">
+    <FeatureGate featureKey="verktyg.kunskapsbank">
       <div className="min-h-screen">
         {/* Header */}
         <div className="border-b border-border/60 bg-card/60">

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { createDefaultFeatures, checkAdminAccess } from "@/lib/user-features";
-import { ensureUserTables } from "@/lib/ensure-user-tables";
+import { ensureTables } from "@/lib/ensure-tables";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +32,7 @@ export async function POST() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    await ensureUserTables();
+    await ensureTables();
 
     const secretKey = process.env.CLERK_SECRET_KEY;
     if (!secretKey || secretKey === "sk_test_REPLACE_ME") {

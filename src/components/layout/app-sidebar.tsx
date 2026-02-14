@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Icon } from "@/components/ui/icon";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { APP_KEYS } from "@/config/features";
 
 // Lazy-load UserButton so @clerk/nextjs isn't bundled when Clerk is disabled
 const ClerkUserButton = dynamic(
@@ -64,7 +65,7 @@ const AdminNavLink = dynamic(
 );
 
 /* ------------------------------------------------------------------ */
-/*  Navigation config — each item optionally maps to a feature key     */
+/*  Navigation config — app-grouped sections with feature keys         */
 /* ------------------------------------------------------------------ */
 
 interface NavItem {
@@ -77,33 +78,66 @@ interface NavItem {
 
 interface NavSection {
   label?: string;
+  /** If set, the entire section is hidden when this app is disabled */
+  appKey?: string;
+  /** If true, section is collapsible */
+  collapsible?: boolean;
   items: NavItem[];
 }
 
 const NAV_SECTIONS: NavSection[] = [
+  // Platform home
   {
+    items: [
+      { href: "/", label: "Hem", icon: "home" },
+    ],
+  },
+  // Upphandling
+  {
+    label: "Upphandling",
+    appKey: "upphandling",
+    collapsible: true,
     items: [
       { href: "/cases", label: "Upphandlingar", icon: "clipboard-list" },
       { href: "/library", label: "Bibliotek", icon: "library" },
+      { href: "/training", label: "Utbildning", icon: "graduation-cap", featureKey: "upphandling.training" },
     ],
   },
+  // Verktyg
   {
     label: "Verktyg",
+    appKey: "verktyg",
+    collapsible: true,
     items: [
-      { href: "/tools/benefit-calculator", label: "Nyttokalkyl", icon: "calculator", featureKey: "tools.benefit-calculator" },
-      { href: "/tools/risk-matrix", label: "Riskmatris", icon: "shield-alert", featureKey: "tools.risk-matrix" },
-      { href: "/tools/evaluation-model", label: "Utvärderingsmodell", icon: "scale", featureKey: "tools.evaluation-model" },
-      { href: "/tools/timeline-planner", label: "Tidslinjeplanerare", icon: "clock", featureKey: "tools.timeline-planner" },
-      { href: "/tools/stakeholder-map", label: "Intressentanalys", icon: "users", featureKey: "tools.stakeholder-map" },
-      { href: "/tools/kunskapsbank", label: "Kunskapsbank", icon: "book-open", featureKey: "tools.kunskapsbank" },
+      { href: "/tools/benefit-calculator", label: "Nyttokalkyl", icon: "calculator", featureKey: "verktyg.benefit-calculator" },
+      { href: "/tools/risk-matrix", label: "Riskmatris", icon: "shield-alert", featureKey: "verktyg.risk-matrix" },
+      { href: "/tools/evaluation-model", label: "Utvärderingsmodell", icon: "scale", featureKey: "verktyg.evaluation-model" },
+      { href: "/tools/timeline-planner", label: "Tidslinjeplanerare", icon: "clock", featureKey: "verktyg.timeline-planner" },
+      { href: "/tools/stakeholder-map", label: "Intressentanalys", icon: "users", featureKey: "verktyg.stakeholder-map" },
+      { href: "/tools/kunskapsbank", label: "Kunskapsbank", icon: "book-open", featureKey: "verktyg.kunskapsbank" },
     ],
   },
+  // Mognadsmätning
   {
-    label: "Utbildning",
+    label: "Mognadsmätning",
+    appKey: "mognadmatning",
+    collapsible: true,
     items: [
-      { href: "/training", label: "Kurser", icon: "graduation-cap", featureKey: "training" },
+      { href: "/mognadmatning", label: "Ny mätning", icon: "plus-circle", featureKey: "mognadmatning.survey" },
+      { href: "/mognadmatning/projekt", label: "Projekt", icon: "folder", featureKey: "mognadmatning.results" },
     ],
   },
+  // AI-Mognadsmätning
+  {
+    label: "AI-Mognadsmätning",
+    appKey: "ai-mognadmatning",
+    collapsible: true,
+    items: [
+      { href: "/ai-mognadmatning", label: "Ny mätning", icon: "plus-circle", featureKey: "ai-mognadmatning.survey" },
+      { href: "/ai-mognadmatning/projekt", label: "Projekt", icon: "folder", featureKey: "ai-mognadmatning.results" },
+    ],
+  },
+  // Always-on
   {
     items: [
       { href: "/help", label: "Hjälpcenter", icon: "help-circle" },
@@ -135,66 +169,127 @@ function useFeatures(): Record<string, boolean> | null {
 export function AppSidebar() {
   const pathname = usePathname();
   const features = useFeatures();
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+
+  const toggleSection = (label: string) => {
+    setCollapsed((prev) => ({ ...prev, [label]: !prev[label] }));
+  };
 
   // Hide sidebar on auth pages
   if (pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up")) {
     return null;
   }
 
-  /** Filter items based on feature flags. If features haven't loaded yet, show all. */
+  // Hide sidebar on public survey pages
+  if (pathname.match(/^\/(mognadmatning|ai-mognadmatning)\/survey\//)) {
+    return null;
+  }
+
+  /** Check if an app master toggle is disabled */
+  function isAppDisabled(appKey: string): boolean {
+    if (!features) return false;
+    return features[appKey] === false;
+  }
+
+  /** Check if a feature is effectively enabled (with cascade) */
+  function isFeatureEnabled(featureKey: string): boolean {
+    if (!features) return true;
+    if (features[featureKey] === false) return false;
+    for (const appKey of APP_KEYS) {
+      if (featureKey !== appKey && featureKey.startsWith(appKey + ".")) {
+        if (features[appKey] === false) return false;
+        break;
+      }
+    }
+    return true;
+  }
+
+  /** Filter items based on feature flags */
   function filterItems(items: NavItem[]): NavItem[] {
-    if (!features) return items; // loading — show all
+    if (!features) return items;
     return items.filter((item) => {
-      if (!item.featureKey) return true; // always-on item
-      return features[item.featureKey] !== false;
+      if (!item.featureKey) return true;
+      return isFeatureEnabled(item.featureKey);
+    });
+  }
+
+  /** Check if any item in a section matches the current pathname */
+  function isSectionActive(section: NavSection): boolean {
+    return section.items.some((item) => {
+      if (item.href === "/") return pathname === "/";
+      return pathname.startsWith(item.href);
     });
   }
 
   return (
     <aside className="flex h-screen w-56 flex-col border-r border-border/60 bg-card">
       <div className="flex h-14 items-center border-b border-border/60 px-5">
-        <Link href="/cases" className="flex items-center gap-2.5 font-semibold text-foreground">
+        <Link href="/" className="flex items-center gap-2.5 font-semibold text-foreground">
           <Icon name="scale" size={20} className="text-primary" />
-          <div className="flex flex-col leading-none">
-            <span className="text-sm font-semibold tracking-tight">Critero</span>
-            <span className="text-[9px] text-muted-foreground font-normal tracking-wide">Upphandling LOU</span>
-          </div>
+          <span className="text-sm font-semibold tracking-tight">Critero</span>
         </Link>
       </div>
       <nav className="flex-1 overflow-y-auto p-3 space-y-1">
         {NAV_SECTIONS.map((section, idx) => {
+          // Hide entire section if app is disabled
+          if (section.appKey && isAppDisabled(section.appKey)) return null;
+
           const visibleItems = filterItems(section.items);
-          // Hide entire section if no items are visible
           if (visibleItems.length === 0) return null;
+
+          const sectionLabel = section.label ?? "";
+          const isCollapsed = section.collapsible && collapsed[sectionLabel];
+          const isActive = isSectionActive(section);
 
           return (
             <div key={idx}>
               {idx > 0 && <div className="my-2 border-t border-border/30" />}
               {section.label && (
-                <p className="px-3 pt-1 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
-                  {section.label}
-                </p>
+                <button
+                  type="button"
+                  onClick={() => section.collapsible && toggleSection(sectionLabel)}
+                  className={cn(
+                    "flex w-full items-center justify-between px-3 pt-1 pb-1 text-[10px] font-semibold uppercase tracking-wider transition-colors",
+                    isActive
+                      ? "text-primary/70"
+                      : "text-muted-foreground/50",
+                    section.collapsible && "cursor-pointer hover:text-muted-foreground/80",
+                  )}
+                >
+                  <span>{section.label}</span>
+                  {section.collapsible && (
+                    <Icon
+                      name={isCollapsed ? "chevron-right" : "chevron-down"}
+                      size={10}
+                      className="opacity-50"
+                    />
+                  )}
+                </button>
               )}
-              <div className="space-y-0.5">
-                {visibleItems.map((item) => {
-                  const isActive = pathname.startsWith(item.href);
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        "flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-150",
-                        isActive
-                          ? "bg-primary/10 text-primary shadow-sm"
-                          : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                      )}
-                    >
-                      <Icon name={item.icon} size={16} />
-                      <span>{item.label}</span>
-                    </Link>
-                  );
-                })}
-              </div>
+              {!isCollapsed && (
+                <div className="space-y-0.5">
+                  {visibleItems.map((item) => {
+                    const isItemActive = item.href === "/"
+                      ? pathname === "/"
+                      : pathname.startsWith(item.href);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          "flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-150",
+                          isItemActive
+                            ? "bg-primary/10 text-primary shadow-sm"
+                            : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                        )}
+                      >
+                        <Icon name={item.icon} size={16} />
+                        <span>{item.label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           );
         })}

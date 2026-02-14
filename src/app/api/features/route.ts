@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getFeatures, saveFeatures, ALL_FEATURE_KEYS, type FeatureKey } from "@/config/features";
-import { getUserFeatures, userExists } from "@/lib/user-features";
+import { ALL_FEATURE_KEYS, type FeatureKey } from "@/config/features";
+import { getUserFeatures, setUserFeatures, userExists } from "@/lib/user-features";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +19,15 @@ async function getClerkUserId(): Promise<string | null> {
   }
 }
 
+/** Return default features (all enabled) */
+function getDefaultFeatures(): Record<FeatureKey, boolean> {
+  const features = {} as Record<FeatureKey, boolean>;
+  for (const key of ALL_FEATURE_KEYS) {
+    features[key] = true;
+  }
+  return features;
+}
+
 /* ------------------------------------------------------------------ */
 /*  GET /api/features — return features for the current user           */
 /* ------------------------------------------------------------------ */
@@ -34,29 +43,29 @@ export async function GET() {
         const features = await getUserFeatures(userId);
         return NextResponse.json({ features });
       }
-      // User not synced to DB yet — fall through to global defaults (fail-open)
+      // User not synced to DB yet — fall through to defaults (fail-open)
     }
 
-    // Fallback: global feature-config.json (dev mode or user not in DB yet)
-    const features = getFeatures();
-    return NextResponse.json({ features });
+    // Fallback: all features enabled (dev mode or user not in DB yet)
+    return NextResponse.json({ features: getDefaultFeatures() });
   } catch (e) {
     console.error("GET /api/features error:", e);
     // Fail-open: return all features enabled
-    const features = {} as Record<FeatureKey, boolean>;
-    for (const key of ALL_FEATURE_KEYS) {
-      features[key] = true;
-    }
-    return NextResponse.json({ features });
+    return NextResponse.json({ features: getDefaultFeatures() });
   }
 }
 
 /* ------------------------------------------------------------------ */
-/*  PATCH /api/features — update global defaults (admin, backward compat) */
+/*  PATCH /api/features — update per-user features                      */
 /* ------------------------------------------------------------------ */
 
 export async function PATCH(req: Request) {
   try {
+    const userId = await getClerkUserId();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
     const updates: Record<string, boolean> = body.features;
 
@@ -64,16 +73,9 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
     }
 
-    // Merge with existing — only update known keys
-    const current = getFeatures();
-    for (const key of ALL_FEATURE_KEYS) {
-      if (key in updates && typeof updates[key] === "boolean") {
-        current[key as FeatureKey] = updates[key];
-      }
-    }
-
-    saveFeatures(current);
-    return NextResponse.json({ features: current });
+    // Update per-user features in DB
+    const features = await setUserFeatures(userId, updates);
+    return NextResponse.json({ features });
   } catch (e) {
     console.error("PATCH /api/features error:", e);
     return NextResponse.json(

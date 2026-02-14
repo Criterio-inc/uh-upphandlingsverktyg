@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
+import { APP_KEYS } from "@/config/features";
 
 interface FeatureGateProps {
   featureKey: string;
@@ -12,8 +13,29 @@ interface FeatureGateProps {
 }
 
 /**
+ * Check if a feature is effectively enabled, considering cascade logic.
+ * If the parent app is disabled, all sub-features are disabled.
+ */
+function isEffectivelyEnabled(
+  features: Record<string, boolean>,
+  key: string,
+): boolean {
+  if (features[key] === false) return false;
+
+  for (const appKey of APP_KEYS) {
+    if (key !== appKey && key.startsWith(appKey + ".")) {
+      if (features[appKey] === false) return false;
+      break;
+    }
+  }
+
+  return true;
+}
+
+/**
  * Client-side gate that checks whether a feature is enabled.
  * Renders children if the feature is active, otherwise shows a fallback.
+ * Supports cascade logic: if the parent app is disabled, sub-features are too.
  */
 export function FeatureGate({ featureKey, children, fallback }: FeatureGateProps) {
   const [enabled, setEnabled] = useState<boolean | null>(null);
@@ -23,7 +45,7 @@ export function FeatureGate({ featureKey, children, fallback }: FeatureGateProps
       .then((r) => r.json())
       .then((data) => {
         const features: Record<string, boolean> = data.features ?? {};
-        setEnabled(features[featureKey] ?? true);
+        setEnabled(isEffectivelyEnabled(features, featureKey));
       })
       .catch(() => {
         // If we can't read features, allow access (fail-open)
@@ -55,11 +77,11 @@ export function FeatureGate({ featureKey, children, fallback }: FeatureGateProps
             för att aktivera den.
           </p>
           <Link
-            href="/cases"
+            href="/"
             className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
           >
             <Icon name="arrow-left" size={14} />
-            Tillbaka till upphandlingar
+            Tillbaka till startsidan
           </Link>
         </div>
       )

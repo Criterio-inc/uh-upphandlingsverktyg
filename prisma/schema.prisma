@@ -430,6 +430,95 @@ model UserFeature {
 }
 
 // ============================================================
+// ASSESSMENT TYPE - defines different assessment types
+// ============================================================
+model AssessmentType {
+  id          String   @id @default(cuid())
+  slug        String   @unique // "digital-mognad" | "ai-mognad"
+  name        String            // "Digital Mognadsmätning"
+  description String   @default("")
+  config      String   @default("{}") // JSON: questionCount, dimensions[], etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  projects AssessmentProject[]
+}
+
+// ============================================================
+// ASSESSMENT PROJECT - a project containing assessment sessions
+// ============================================================
+model AssessmentProject {
+  id               String   @id @default(cuid())
+  assessmentTypeId String
+  ownerId          String   // Clerk userId
+  name             String
+  description      String   @default("")
+  organizationName String   @default("")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  assessmentType AssessmentType    @relation(fields: [assessmentTypeId], references: [id])
+  sessions       AssessmentSession[]
+
+  @@index([ownerId])
+  @@index([assessmentTypeId])
+}
+
+// ============================================================
+// ASSESSMENT SESSION - one respondent's survey session
+// ============================================================
+model AssessmentSession {
+  id              String    @id @default(cuid())
+  projectId       String
+  shareToken      String    @unique @default(cuid())
+  status          String    @default("pending") // pending | in_progress | completed
+  respondentName  String    @default("")
+  respondentEmail String    @default("")
+  respondentRole  String    @default("")
+  completedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project   AssessmentProject  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  responses AssessmentResponse[]
+  result    AssessmentResult?
+
+  @@index([projectId])
+}
+
+// ============================================================
+// ASSESSMENT RESPONSE - one answer to one question
+// ============================================================
+model AssessmentResponse {
+  id         String   @id @default(cuid())
+  sessionId  String
+  questionId String   // refers to question ID in config
+  value      Int      // 1-5 answer
+  createdAt  DateTime @default(now())
+
+  session AssessmentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, questionId])
+  @@index([sessionId])
+}
+
+// ============================================================
+// ASSESSMENT RESULT - computed scores and AI insights
+// ============================================================
+model AssessmentResult {
+  id         String   @id @default(cuid())
+  sessionId  String   @unique
+  scores     String   @default("{}") // JSON: per-dimension scores
+  overall    Float    @default(0)
+  level      Int      @default(1) // 1-5 maturity level
+  aiInsights String   @default("") // AI-generated insights (markdown)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  session AssessmentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+// ============================================================
 // ID COUNTER - Sequential ID generation per entity prefix
 // ============================================================
 model IdCounter {

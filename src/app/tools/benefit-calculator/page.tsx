@@ -1577,7 +1577,7 @@ export default function BenefitCalculatorPage() {
   }, []);
 
   return (
-    <FeatureGate featureKey="tools.benefit-calculator">
+    <FeatureGate featureKey="verktyg.benefit-calculator">
     <div className="flex h-full flex-col">
       {/* Top header */}
       <header className="flex items-center gap-3 border-b border-border/60 px-6 py-4">

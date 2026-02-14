@@ -191,7 +191,7 @@ export default function SamtalPage() {
   const messages = activeConversation?.messages || [];
 
   return (
-    <FeatureGate featureKey="tools.kunskapsbank">
+    <FeatureGate featureKey="verktyg.kunskapsbank">
       <div className="flex h-screen">
         {/* Conversation sidebar */}
         {sidebarOpen && (

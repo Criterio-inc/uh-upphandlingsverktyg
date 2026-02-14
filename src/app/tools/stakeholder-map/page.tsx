@@ -1327,7 +1327,7 @@ export default function StakeholderMapPage() {
   }, [state.stakeholders]);
 
   return (
-    <FeatureGate featureKey="tools.stakeholder-map">
+    <FeatureGate featureKey="verktyg.stakeholder-map">
     <div className="flex h-full flex-col">
       {/* Header */}
       <header className="border-b border-border/60 px-6 py-4">
