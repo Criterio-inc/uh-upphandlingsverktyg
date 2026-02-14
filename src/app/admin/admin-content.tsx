@@ -88,16 +88,6 @@ const FEATURE_DEFS: FeatureDef[] = [
   { key: "verktyg.timeline-planner", label: "Tidslinjeplanerare", description: "Planering och visualisering av upphandlingstidslinje", icon: "clock", appKey: "verktyg" },
   { key: "verktyg.stakeholder-map", label: "Intressentanalys", description: "Kartläggning av intressenter och deras påverkan", icon: "users", appKey: "verktyg" },
   { key: "verktyg.kunskapsbank", label: "Kunskapsbank", description: "Domäner, resonemang och AI-samtalsstöd", icon: "book-open", appKey: "verktyg" },
-  // Mognadsmätning
-  { key: "mognadmatning.survey", label: "Enkät", description: "Digital mognadsmätning med 22 frågor", icon: "file-question", appKey: "mognadmatning" },
-  { key: "mognadmatning.results", label: "Resultat", description: "Visualisering av mätresultat och historik", icon: "bar-chart-3", appKey: "mognadmatning" },
-  { key: "mognadmatning.ai-insights", label: "AI-insikter", description: "AI-genererade rekommendationer och analys", icon: "sparkles", appKey: "mognadmatning" },
-  { key: "mognadmatning.consultant-dashboard", label: "Konsult-dashboard", description: "Översikt för konsulter med alla projekt", icon: "layout-dashboard", appKey: "mognadmatning" },
-  // AI-Mognadsmätning
-  { key: "ai-mognadmatning.survey", label: "Enkät", description: "AI-mognadsmätning med 32 frågor", icon: "file-question", appKey: "ai-mognadmatning" },
-  { key: "ai-mognadmatning.results", label: "Resultat", description: "Visualisering av AI-mognadsresultat", icon: "bar-chart-3", appKey: "ai-mognadmatning" },
-  { key: "ai-mognadmatning.ai-insights", label: "AI-insikter", description: "AI-genererade rekommendationer och analys", icon: "sparkles", appKey: "ai-mognadmatning" },
-  { key: "ai-mognadmatning.consultant-dashboard", label: "Konsult-dashboard", description: "Översikt för konsulter med alla AI-projekt", icon: "layout-dashboard", appKey: "ai-mognadmatning" },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -154,6 +144,7 @@ function ToggleSwitch({
 
 function isAppEnabled(appKey: string, featureMap: Record<string, boolean>): boolean {
   const appFeatures = FEATURE_DEFS.filter((f) => f.appKey === appKey);
+  // If no sub-features, use the app-level key directly
   if (appFeatures.length === 0) return featureMap[appKey] !== false;
   return appFeatures.every((f) => featureMap[f.key] !== false);
 }
@@ -552,7 +543,6 @@ export default function AdminContent() {
                         </p>
                         {APP_DEFS.map((app) => {
                           const appFeatures = FEATURE_DEFS.filter((f) => f.appKey === app.key);
-                          if (appFeatures.length === 0) return null;
                           const appEnabled = isAppEnabled(app.key, u.features);
                           const appPartial = isAppPartiallyEnabled(app.key, u.features);
 
@@ -589,13 +579,16 @@ export default function AdminContent() {
                                 <ToggleSwitch
                                   enabled={appEnabled}
                                   onToggle={() =>
-                                    toggleUserAppFeatures(u.id, app.key)
+                                    appFeatures.length > 0
+                                      ? toggleUserAppFeatures(u.id, app.key)
+                                      : toggleUserFeature(u.id, app.key)
                                   }
                                   disabled={saving}
                                   label={app.label}
                                 />
                               </div>
-                              {/* Sub-features */}
+                              {/* Sub-features (only if app has sub-features) */}
+                              {appFeatures.length > 0 && (
                               <div className={`ml-6 space-y-1 transition-opacity ${!appEnabled && !appPartial ? "opacity-40" : ""}`}>
                                 {appFeatures.map((feat) => {
                                   const enabled = u.features[feat.key] !== false;
@@ -642,6 +635,7 @@ export default function AdminContent() {
                                   );
                                 })}
                               </div>
+                              )}
                             </div>
                           );
                         })}
@@ -723,7 +717,6 @@ export default function AdminContent() {
           {/* App-grouped feature toggles */}
           {APP_DEFS.map((app) => {
             const appFeatures = FEATURE_DEFS.filter((f) => f.appKey === app.key);
-            if (appFeatures.length === 0) return null;
             const appEnabled = isAppEnabled(app.key, features);
             const appPartial = isAppPartiallyEnabled(app.key, features);
 
@@ -754,13 +747,14 @@ export default function AdminContent() {
                   </div>
                   <ToggleSwitch
                     enabled={appEnabled}
-                    onToggle={() => toggleAppFeatures(app.key)}
+                    onToggle={() => appFeatures.length > 0 ? toggleAppFeatures(app.key) : toggleFeature(app.key)}
                     disabled={!featuresLoaded}
                     label={app.label}
                   />
                 </div>
 
-                {/* Sub-features */}
+                {/* Sub-features (only if app has sub-features) */}
+                {appFeatures.length > 0 && (
                 <div className={`space-y-2 transition-opacity ${!appEnabled && !appPartial ? "opacity-40" : ""}`}>
                   {appFeatures.map((feat) => {
                     const enabled = features[feat.key] !== false;
@@ -804,6 +798,7 @@ export default function AdminContent() {
                     );
                   })}
                 </div>
+                )}
               </div>
             );
           })}

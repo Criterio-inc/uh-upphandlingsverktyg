@@ -13,31 +13,44 @@ export default function AppleIcon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#fb7232",
-          borderRadius: "36px",
+          background: "#1a1a2e",
+          borderRadius: "40px",
+          position: "relative",
         }}
       >
+        {/* Orange border */}
+        <div
+          style={{
+            position: "absolute",
+            top: 6,
+            left: 6,
+            right: 6,
+            bottom: 6,
+            borderRadius: "34px",
+            border: "8px solid #f97316",
+            display: "flex",
+          }}
+        />
+        {/* Trend line chart */}
         <svg
           width="120"
-          height="120"
-          viewBox="0 0 32 32"
+          height="90"
+          viewBox="0 0 120 90"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <g
-            stroke="#fff"
-            strokeWidth="2.2"
+          <polyline
+            points="10,70 40,45 65,55 110,15"
+            stroke="#f97316"
+            strokeWidth="10"
             strokeLinecap="round"
             strokeLinejoin="round"
             fill="none"
-          >
-            <line x1="5" y1="10" x2="27" y2="10" />
-            <line x1="16" y1="10" x2="16" y2="24" />
-            <line x1="11" y1="24" x2="21" y2="24" />
-            <line x1="8" y1="10" x2="8" y2="16" />
-            <line x1="24" y1="10" x2="24" y2="16" />
-          </g>
-          <circle cx="16" cy="8" r="2.2" fill="#fff" />
+          />
+          <circle cx="10" cy="70" r="8" fill="#f97316" />
+          <circle cx="40" cy="45" r="8" fill="#f97316" />
+          <circle cx="65" cy="55" r="8" fill="#f97316" />
+          <circle cx="110" cy="15" r="8" fill="#f97316" />
         </svg>
       </div>
     ),

@@ -18,7 +18,7 @@ interface Project {
 
 export default function AiMognadmatningProjektPage() {
   return (
-    <FeatureGate featureKey="ai-mognadmatning.results">
+    <FeatureGate featureKey="ai-mognadmatning">
       <ProjektListContent />
     </FeatureGate>
   );

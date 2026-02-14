@@ -11,7 +11,7 @@ const config = AI_MOGNAD_CONFIG;
 
 export default function AiMognadmatningPage() {
   return (
-    <FeatureGate featureKey="ai-mognadmatning.survey">
+    <FeatureGate featureKey="ai-mognadmatning">
       <AiMognadmatningContent />
     </FeatureGate>
   );

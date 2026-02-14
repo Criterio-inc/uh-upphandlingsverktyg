@@ -42,7 +42,7 @@ export default function AiMognadmatningProjektDetailPage({
   const { id } = use(params);
 
   return (
-    <FeatureGate featureKey="ai-mognadmatning.results">
+    <FeatureGate featureKey="ai-mognadmatning">
       <ProjektDetailContent projectId={id} />
     </FeatureGate>
   );

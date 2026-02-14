@@ -1,10 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
-  <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#6366f1"/>
-      <stop offset="100%" stop-color="#8b5cf6"/>
-    </linearGradient>
-  </defs>
-  <rect width="180" height="180" rx="40" fill="url(#bg)"/>
-  <text x="90" y="126" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="112" fill="#fff" letter-spacing="-3">C</text>
+  <rect width="180" height="180" rx="40" fill="#1a1a2e"/>
+  <rect x="6" y="6" width="168" height="168" rx="34" stroke="#f97316" stroke-width="8" fill="none"/>
+  <polyline points="40,125 73,95 100,107 140,55" fill="none" stroke="#f97316" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="40" cy="125" r="10" fill="#f97316"/>
+  <circle cx="73" cy="95" r="10" fill="#f97316"/>
+  <circle cx="100" cy="107" r="10" fill="#f97316"/>
+  <circle cx="140" cy="55" r="10" fill="#f97316"/>
 </svg>

@@ -11,7 +11,7 @@ const config = DIGITAL_MOGNAD_CONFIG;
 
 export default function MognadmatningPage() {
   return (
-    <FeatureGate featureKey="mognadmatning.survey">
+    <FeatureGate featureKey="mognadmatning">
       <MognadmatningContent />
     </FeatureGate>
   );

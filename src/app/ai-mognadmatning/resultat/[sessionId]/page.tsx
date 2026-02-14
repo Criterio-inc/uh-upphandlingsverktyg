@@ -38,7 +38,7 @@ export default function AiMognadmatningResultatPage({
   const { sessionId } = use(params);
 
   return (
-    <FeatureGate featureKey="ai-mognadmatning.results">
+    <FeatureGate featureKey="ai-mognadmatning">
       <ResultatContent sessionId={sessionId} />
     </FeatureGate>
   );

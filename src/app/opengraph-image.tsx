@@ -16,11 +16,11 @@ export default function OGImage() {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          background: "linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)",
+          background: "linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)",
           fontFamily: "system-ui, -apple-system, sans-serif",
         }}
       >
-        {/* Logo */}
+        {/* Logo — trend chart in rounded square */}
         <div
           style={{
             display: "flex",
@@ -29,14 +29,31 @@ export default function OGImage() {
             width: 100,
             height: 100,
             borderRadius: 24,
-            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+            background: "#1a1a2e",
+            border: "4px solid #f97316",
             marginBottom: 40,
-            boxShadow: "0 20px 60px rgba(99, 102, 241, 0.4)",
+            boxShadow: "0 20px 60px rgba(249, 115, 22, 0.3)",
           }}
         >
-          <span style={{ fontSize: 60, fontWeight: 700, color: "#fff", letterSpacing: -2 }}>
-            C
-          </span>
+          <svg
+            width="60"
+            height="45"
+            viewBox="0 0 120 90"
+            fill="none"
+          >
+            <polyline
+              points="10,70 40,45 65,55 110,15"
+              stroke="#f97316"
+              strokeWidth="10"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+            <circle cx="10" cy="70" r="8" fill="#f97316" />
+            <circle cx="40" cy="45" r="8" fill="#f97316" />
+            <circle cx="65" cy="55" r="8" fill="#f97316" />
+            <circle cx="110" cy="15" r="8" fill="#f97316" />
+          </svg>
         </div>
 
         {/* Title */}
@@ -61,7 +78,7 @@ export default function OGImage() {
             style={{
               fontSize: 48,
               fontWeight: 300,
-              color: "rgba(255,255,255,0.6)",
+              color: "rgba(249, 115, 22, 0.8)",
               letterSpacing: -1,
             }}
           >

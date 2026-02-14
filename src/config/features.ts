@@ -29,17 +29,7 @@ export type FeatureKey =
   | "verktyg.evaluation-model"
   | "verktyg.timeline-planner"
   | "verktyg.stakeholder-map"
-  | "verktyg.kunskapsbank"
-  // Mognadsmätning sub-features
-  | "mognadmatning.survey"
-  | "mognadmatning.results"
-  | "mognadmatning.ai-insights"
-  | "mognadmatning.consultant-dashboard"
-  // AI-Mognadsmätning sub-features
-  | "ai-mognadmatning.survey"
-  | "ai-mognadmatning.results"
-  | "ai-mognadmatning.ai-insights"
-  | "ai-mognadmatning.consultant-dashboard";
+  | "verktyg.kunskapsbank";
 
 /** Features that are always active and cannot be toggled off */
 export const ALWAYS_ON = ["cases", "library", "help"] as const;
@@ -57,14 +47,6 @@ export const FEATURE_LABELS: Record<FeatureKey, string> = {
   "verktyg.timeline-planner": "Tidslinjeplanerare",
   "verktyg.stakeholder-map": "Intressentanalys",
   "verktyg.kunskapsbank": "Kunskapsbank",
-  "mognadmatning.survey": "Enkät",
-  "mognadmatning.results": "Resultat",
-  "mognadmatning.ai-insights": "AI-insikter",
-  "mognadmatning.consultant-dashboard": "Konsult-dashboard",
-  "ai-mognadmatning.survey": "Enkät",
-  "ai-mognadmatning.results": "Resultat",
-  "ai-mognadmatning.ai-insights": "AI-insikter",
-  "ai-mognadmatning.consultant-dashboard": "Konsult-dashboard",
 };
 
 /** Icon names matching the sidebar icon for each feature */
@@ -80,14 +62,6 @@ export const FEATURE_ICONS: Record<FeatureKey, string> = {
   "verktyg.timeline-planner": "clock",
   "verktyg.stakeholder-map": "users",
   "verktyg.kunskapsbank": "book-open",
-  "mognadmatning.survey": "file-question",
-  "mognadmatning.results": "bar-chart-3",
-  "mognadmatning.ai-insights": "sparkles",
-  "mognadmatning.consultant-dashboard": "layout-dashboard",
-  "ai-mognadmatning.survey": "file-question",
-  "ai-mognadmatning.results": "bar-chart-3",
-  "ai-mognadmatning.ai-insights": "sparkles",
-  "ai-mognadmatning.consultant-dashboard": "layout-dashboard",
 };
 
 /** Ordered list of all feature keys for consistent UI rendering */
@@ -106,16 +80,6 @@ export const ALL_FEATURE_KEYS: FeatureKey[] = [
   "verktyg.timeline-planner",
   "verktyg.stakeholder-map",
   "verktyg.kunskapsbank",
-  // Mognadsmätning
-  "mognadmatning.survey",
-  "mognadmatning.results",
-  "mognadmatning.ai-insights",
-  "mognadmatning.consultant-dashboard",
-  // AI-Mognadsmätning
-  "ai-mognadmatning.survey",
-  "ai-mognadmatning.results",
-  "ai-mognadmatning.ai-insights",
-  "ai-mognadmatning.consultant-dashboard",
 ];
 
 /**
