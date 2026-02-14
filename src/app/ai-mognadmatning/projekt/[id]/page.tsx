@@ -59,7 +59,7 @@ function ProjektDetailContent({ projectId }: { projectId: string }) {
       const res = await fetch(`/api/assessments/${projectId}`);
       if (!res.ok) throw new Error();
       const data = await res.json();
-      setProject(data);
+      setProject(data.project);
     } catch {
       // ignore
     } finally {

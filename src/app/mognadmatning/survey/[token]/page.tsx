@@ -51,27 +51,36 @@ export default function MognadmatningSurveyPage({
     try {
       const res = await fetch(`/api/assessments/sessions/by-token/${token}`);
       if (!res.ok) throw new Error("Kunde inte ladda enkäten");
-      const data = await res.json();
-      setSession(data);
+      const json = await res.json();
+      // API returns { session: {..., responses: {questionId: value}}, project, config }
+      const s = json.session;
+      setSession({
+        id: s.id,
+        status: s.status,
+        respondentName: s.respondentName,
+        respondentEmail: s.respondentEmail,
+        respondentRole: s.respondentRole,
+        responses: [], // not used after initial load — answers state is used instead
+      });
 
-      // Pre-populate answers from existing responses
-      if (data.responses && data.responses.length > 0) {
+      // Pre-populate answers from existing responses (API returns a map)
+      if (s.responses && typeof s.responses === "object") {
         const existing: Record<string, number> = {};
-        for (const r of data.responses) {
-          existing[r.questionId] = r.value;
+        for (const [questionId, value] of Object.entries(s.responses)) {
+          existing[questionId] = value as number;
         }
         setAnswers(existing);
       }
 
       // Pre-populate respondent info
-      if (data.respondentName) setRespondentName(data.respondentName);
-      if (data.respondentEmail) setRespondentEmail(data.respondentEmail);
-      if (data.respondentRole) setRespondentRole(data.respondentRole);
+      if (s.respondentName) setRespondentName(s.respondentName);
+      if (s.respondentEmail) setRespondentEmail(s.respondentEmail);
+      if (s.respondentRole) setRespondentRole(s.respondentRole);
 
       // If already completed, go to completion screen
-      if (data.status === "completed") {
+      if (s.status === "completed") {
         setStep("complete");
-      } else if (data.status === "in_progress" && data.respondentName) {
+      } else if (s.status === "in_progress" && s.respondentName) {
         setStep("questions");
       }
     } catch (err) {

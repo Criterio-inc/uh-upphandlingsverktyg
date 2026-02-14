@@ -15,18 +15,18 @@ interface ResultData {
     id: string;
     respondentName: string;
     respondentRole: string;
-    completedAt: string;
-    project: {
-      id: string;
-      name: string;
-      organizationName: string;
-    };
+    completedAt: string | null;
+    result: {
+      overall: number;
+      level: number;
+      scores: Record<string, { average: number; questionCount: number; answeredCount: number }>;
+      aiInsights: string;
+    } | null;
   };
-  result: {
-    overall: number;
-    level: number;
-    scores: Record<string, number>;
-    aiInsights: string;
+  project: {
+    id: string;
+    name: string;
+    organizationName: string;
   };
 }
 
@@ -51,7 +51,7 @@ function ResultatContent({ sessionId }: { sessionId: string }) {
 
   const fetchResult = useCallback(async () => {
     try {
-      const res = await fetch(`/api/assessments/sessions/${sessionId}/results`);
+      const res = await fetch(`/api/assessments/sessions/${sessionId}`);
       if (!res.ok) throw new Error();
       const json = await res.json();
       setData(json);
@@ -102,7 +102,20 @@ function ResultatContent({ sessionId }: { sessionId: string }) {
     );
   }
 
-  const { session, result } = data;
+  const { session, project } = data;
+  const result = session.result;
+  if (!result) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] px-8 text-center">
+        <Icon name="alert-triangle" size={28} className="text-muted-foreground/50 mb-4" />
+        <h1 className="text-xl font-semibold text-foreground mb-2">Inga resultat ännu</h1>
+        <p className="text-sm text-muted-foreground mb-4">Sessionen är inte slutförd.</p>
+        <Link href="/mognadmatning/projekt" className="text-sm text-primary hover:underline">
+          Tillbaka till projekt
+        </Link>
+      </div>
+    );
+  }
   const maturityLevel = config.maturityLevels.find((m) => m.level === result.level);
 
   // Colors for different maturity levels
@@ -127,10 +140,10 @@ function ResultatContent({ sessionId }: { sessionId: string }) {
             </Link>
             <Icon name="arrow-right" size={12} />
             <Link
-              href={`/mognadmatning/projekt/${session.project.id}`}
+              href={`/mognadmatning/projekt/${project.id}`}
               className="hover:text-foreground transition-colors"
             >
-              {session.project.name}
+              {project.name}
             </Link>
             <Icon name="arrow-right" size={12} />
             <span className="text-foreground">Resultat</span>
@@ -140,7 +153,7 @@ function ResultatContent({ sessionId }: { sessionId: string }) {
           </h1>
           <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
             {session.respondentRole && <span>{session.respondentRole}</span>}
-            {session.project.organizationName && <span>{session.project.organizationName}</span>}
+            {project.organizationName && <span>{project.organizationName}</span>}
             {session.completedAt && (
               <span>Klar: {new Date(session.completedAt).toLocaleDateString("sv-SE")}</span>
             )}
@@ -178,7 +191,8 @@ function ResultatContent({ sessionId }: { sessionId: string }) {
           <h2 className="text-sm font-semibold text-foreground mb-4">Poäng per dimension</h2>
           <div className="space-y-4">
             {config.dimensions.map((dim) => {
-              const score = result.scores[dim] ?? 0;
+              const dimData = result.scores[dim];
+              const score = typeof dimData === "object" ? dimData.average : (dimData ?? 0);
               const percentage = (score / 5) * 100;
               return (
                 <div key={dim}>

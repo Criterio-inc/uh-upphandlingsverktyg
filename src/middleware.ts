@@ -17,6 +17,7 @@ const isPublicRoute = createRouteMatcher([
   "/api/webhooks(.*)",
   "/mognadmatning/survey/(.*)",
   "/ai-mognadmatning/survey/(.*)",
+  "/api/assessments/sessions/by-token/(.*)",
 ]);
 
 // When Clerk is not configured, allow all requests through

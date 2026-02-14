@@ -40,7 +40,7 @@ function MognadmatningContent() {
       });
       if (!res.ok) throw new Error("Kunde inte skapa projekt");
       const data = await res.json();
-      router.push(`/mognadmatning/projekt/${data.id}`);
+      router.push(`/mognadmatning/projekt/${data.project.id}`);
     } catch {
       setLoading(false);
     }
