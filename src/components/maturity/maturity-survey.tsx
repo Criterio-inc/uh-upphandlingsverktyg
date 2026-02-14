@@ -47,10 +47,10 @@ export function MaturitySurvey({
     setResponses((prev) => ({
       ...prev,
       [dimensionKey]: {
-        score: 0,
-        notes: "",
-        evidence: "",
         ...prev[dimensionKey],
+        score: prev[dimensionKey]?.score ?? 0,
+        notes: prev[dimensionKey]?.notes ?? "",
+        evidence: prev[dimensionKey]?.evidence ?? "",
         [field]: value,
       },
     }));

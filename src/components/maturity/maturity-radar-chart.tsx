@@ -85,7 +85,7 @@ export function MaturityRadarChart({
               borderRadius: "8px",
               padding: "12px",
             }}
-            formatter={(value: number) => [`${value.toFixed(1)} / ${maxScore}`, "Poäng"]}
+            formatter={(value: number | undefined) => value !== undefined ? [`${value.toFixed(1)} / ${maxScore}`, "Poäng"] : ["", ""]}
           />
         </RadarChart>
       </ResponsiveContainer>
