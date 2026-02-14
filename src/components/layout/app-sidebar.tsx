@@ -220,7 +220,7 @@ export function AppSidebar() {
     <aside className="flex h-screen w-56 flex-col border-r border-border/60 bg-card">
       <div className="flex h-14 items-center border-b border-border/60 px-5">
         <Link href="/" className="flex items-center gap-2.5 font-semibold text-foreground">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 text-[13px] font-bold text-white leading-none">C</span>
+          <img src="/criteo-logo.svg" alt="Critero Suite" className="h-7 w-7" />
           <div className="flex flex-col">
             <span className="text-sm font-semibold tracking-tight leading-tight">Critero</span>
             <span className="text-[9px] font-medium text-muted-foreground/60 tracking-wider uppercase leading-tight">Suite</span>
