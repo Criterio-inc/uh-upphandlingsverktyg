@@ -132,12 +132,21 @@ export default function AiMognadmatningSurveyPage({
       // Silently fail -- answer is saved locally
     }
 
-    // Auto-advance after a brief delay
-    setTimeout(() => {
-      if (currentQuestion < config.questions.length - 1) {
-        setCurrentQuestion((prev) => prev + 1);
-      }
-    }, 300);
+    // Auto-advance after a brief delay — but NOT on the last question
+    if (currentQuestion < config.questions.length - 1) {
+      setTimeout(() => {
+        setCurrentQuestion((prev) =>
+          prev < config.questions.length - 1 ? prev + 1 : prev,
+        );
+      }, 300);
+    }
+  }
+
+  // Check how many questions are actually answered (including the current click)
+  function getUnansweredQuestions(): number[] {
+    return config.questions
+      .map((q, i) => (answers[q.id] === undefined ? i : -1))
+      .filter((i) => i !== -1);
   }
 
   async function handleComplete() {
@@ -390,11 +399,24 @@ export default function AiMognadmatningSurveyPage({
             )}
           </div>
 
-          {/* Answer count */}
-          <div className="mt-4 text-center">
+          {/* Answer count + unanswered hint */}
+          <div className="mt-4 text-center space-y-1">
             <span className="text-xs text-muted-foreground">
               {answeredCount} av {config.questions.length} frågor besvarade
             </span>
+            {currentQuestion === config.questions.length - 1 && !allAnswered && (
+              <div className="pt-1">
+                <button
+                  onClick={() => {
+                    const unanswered = getUnansweredQuestions();
+                    if (unanswered.length > 0) setCurrentQuestion(unanswered[0]);
+                  }}
+                  className="text-xs text-violet-600 dark:text-violet-400 hover:underline"
+                >
+                  Gå till första obesvarade frågan ({config.questions.length - answeredCount} kvar)
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -53,6 +53,11 @@ function ProjektDetailContent({ projectId }: { projectId: string }) {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const [editingSession, setEditingSession] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editRole, setEditRole] = useState("");
+  const [deletingSession, setDeletingSession] = useState<string | null>(null);
 
   const fetchProject = useCallback(async () => {
     try {
@@ -92,6 +97,45 @@ function ProjektDetailContent({ projectId }: { projectId: string }) {
     navigator.clipboard.writeText(url);
     setCopied(token);
     setTimeout(() => setCopied(null), 2000);
+  }
+
+  function startEdit(session: Session) {
+    setEditingSession(session.id);
+    setEditName(session.respondentName);
+    setEditEmail(session.respondentEmail);
+    setEditRole(session.respondentRole);
+  }
+
+  async function saveEdit(sessionId: string) {
+    try {
+      const res = await fetch(`/api/assessments/sessions/${sessionId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          respondentName: editName.trim(),
+          respondentEmail: editEmail.trim(),
+          respondentRole: editRole.trim(),
+        }),
+      });
+      if (!res.ok) throw new Error();
+      setEditingSession(null);
+      await fetchProject();
+    } catch {
+      // ignore
+    }
+  }
+
+  async function deleteSession(sessionId: string) {
+    try {
+      const res = await fetch(`/api/assessments/sessions/${sessionId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error();
+      setDeletingSession(null);
+      await fetchProject();
+    } catch {
+      // ignore
+    }
   }
 
   if (loading) {
@@ -201,58 +245,145 @@ function ProjektDetailContent({ projectId }: { projectId: string }) {
           </div>
         ) : (
           <div className="space-y-3">
-            {project.sessions.map((session) => {
+            {project.sessions.map((session, index) => {
               const statusInfo = STATUS_MAP[session.status] ?? STATUS_MAP.pending;
+              const isEditing = editingSession === session.id;
+              const isDeleting = deletingSession === session.id;
+
               return (
                 <div
                   key={session.id}
                   className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted">
-                        <Icon name="user" size={16} className="text-muted-foreground" />
+                  {isEditing ? (
+                    /* Edit mode */
+                    <div className="space-y-3">
+                      <p className="text-xs font-semibold text-muted-foreground mb-2">Redigera session #{project.sessions.length - index}</p>
+                      <div className="grid gap-3 sm:grid-cols-3">
+                        <div>
+                          <label className="block text-[11px] text-muted-foreground mb-1">Namn / Löpnummer</label>
+                          <input
+                            type="text"
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            placeholder="t.ex. Respondent 1"
+                            className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring/40"
+                            autoFocus
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] text-muted-foreground mb-1">E-post</label>
+                          <input
+                            type="email"
+                            value={editEmail}
+                            onChange={(e) => setEditEmail(e.target.value)}
+                            placeholder="namn@org.se"
+                            className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring/40"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] text-muted-foreground mb-1">Roll</label>
+                          <input
+                            type="text"
+                            value={editRole}
+                            onChange={(e) => setEditRole(e.target.value)}
+                            placeholder="t.ex. IT-chef"
+                            className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring/40"
+                          />
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">
-                          {session.respondentName || "Anonym respondent"}
-                        </p>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          {session.respondentRole && (
-                            <span className="text-xs text-muted-foreground">{session.respondentRole}</span>
-                          )}
-                          {session.respondentEmail && (
-                            <span className="text-xs text-muted-foreground">{session.respondentEmail}</span>
+                      <div className="flex items-center gap-2 pt-1">
+                        <Button size="sm" onClick={() => saveEdit(session.id)} className="gap-1.5">
+                          <Icon name="check" size={12} />
+                          Spara
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => setEditingSession(null)}>
+                          Avbryt
+                        </Button>
+                      </div>
+                    </div>
+                  ) : isDeleting ? (
+                    /* Delete confirmation */
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-foreground">
+                        Radera session <strong>{session.respondentName || `#${project.sessions.length - index}`}</strong>? Alla svar tas bort.
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="destructive" onClick={() => deleteSession(session.id)} className="gap-1.5">
+                          <Icon name="trash-2" size={12} />
+                          Radera
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => setDeletingSession(null)}>
+                          Avbryt
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Normal view */
+                    <>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted">
+                            <span className="text-xs font-semibold text-muted-foreground">
+                              {project.sessions.length - index}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-foreground">
+                              {session.respondentName || "Anonym respondent"}
+                            </p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              {session.respondentRole && (
+                                <span className="text-xs text-muted-foreground">{session.respondentRole}</span>
+                              )}
+                              {session.respondentEmail && (
+                                <span className="text-xs text-muted-foreground">{session.respondentEmail}</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge className={statusInfo.className}>{statusInfo.label}</Badge>
+                          <button
+                            onClick={() => copyShareLink(session.shareToken)}
+                            className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                            title="Kopiera delningslänk"
+                          >
+                            <Icon name={copied === session.shareToken ? "check" : "link"} size={12} />
+                            {copied === session.shareToken ? "Kopierad!" : "Kopiera länk"}
+                          </button>
+                          <button
+                            onClick={() => startEdit(session)}
+                            className="flex items-center justify-center h-8 w-8 rounded-lg border border-border text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                            title="Redigera"
+                          >
+                            <Icon name="pencil" size={13} />
+                          </button>
+                          <button
+                            onClick={() => setDeletingSession(session.id)}
+                            className="flex items-center justify-center h-8 w-8 rounded-lg border border-border text-muted-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-colors"
+                            title="Radera"
+                          >
+                            <Icon name="trash-2" size={13} />
+                          </button>
+                          {session.status === "completed" && (
+                            <Link href={`/mognadmatning/resultat/${session.id}`}>
+                              <Button size="sm" variant="outline" className="gap-1.5">
+                                <Icon name="bar-chart-3" size={12} />
+                                Resultat
+                              </Button>
+                            </Link>
                           )}
                         </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Badge className={statusInfo.className}>{statusInfo.label}</Badge>
-                      <button
-                        onClick={() => copyShareLink(session.shareToken)}
-                        className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-                        title="Kopiera delningslänk"
-                      >
-                        <Icon name={copied === session.shareToken ? "check" : "link"} size={12} />
-                        {copied === session.shareToken ? "Kopierad!" : "Kopiera länk"}
-                      </button>
-                      {session.status === "completed" && (
-                        <Link href={`/mognadmatning/resultat/${session.id}`}>
-                          <Button size="sm" variant="outline" className="gap-1.5">
-                            <Icon name="bar-chart-3" size={12} />
-                            Resultat
-                          </Button>
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                  <div className="mt-2 flex items-center gap-4 text-[11px] text-muted-foreground/70">
-                    <span>Skapad: {new Date(session.createdAt).toLocaleDateString("sv-SE")}</span>
-                    {session.completedAt && (
-                      <span>Klar: {new Date(session.completedAt).toLocaleDateString("sv-SE")}</span>
-                    )}
-                  </div>
+                      <div className="mt-2 flex items-center gap-4 text-[11px] text-muted-foreground/70">
+                        <span>Skapad: {new Date(session.createdAt).toLocaleDateString("sv-SE")}</span>
+                        {session.completedAt && (
+                          <span>Klar: {new Date(session.completedAt).toLocaleDateString("sv-SE")}</span>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
               );
             })}

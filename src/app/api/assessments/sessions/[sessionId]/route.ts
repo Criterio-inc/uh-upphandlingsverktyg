@@ -128,3 +128,108 @@ export async function GET(
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
+
+/* ------------------------------------------------------------------ */
+/*  PATCH /api/assessments/sessions/[sessionId]                         */
+/*  Update session metadata (respondentName etc). Auth required.        */
+/* ------------------------------------------------------------------ */
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ sessionId: string }> },
+) {
+  try {
+    const userId = await getClerkUserId();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    await ensureTables();
+
+    const { sessionId } = await params;
+
+    const session = await prisma.assessmentSession.findUnique({
+      where: { id: sessionId },
+      include: { project: true },
+    });
+
+    if (!session) {
+      return NextResponse.json({ error: "Sessionen hittades inte" }, { status: 404 });
+    }
+    if (session.project.ownerId !== userId) {
+      return NextResponse.json({ error: "Ingen behörighet" }, { status: 403 });
+    }
+
+    const body = await request.json();
+    const updateData: Record<string, unknown> = {};
+    if (body.respondentName !== undefined) updateData.respondentName = body.respondentName;
+    if (body.respondentEmail !== undefined) updateData.respondentEmail = body.respondentEmail;
+    if (body.respondentRole !== undefined) updateData.respondentRole = body.respondentRole;
+
+    const updated = await prisma.assessmentSession.update({
+      where: { id: sessionId },
+      data: updateData,
+    });
+
+    return NextResponse.json({
+      session: {
+        id: updated.id,
+        shareToken: updated.shareToken,
+        status: updated.status,
+        respondentName: updated.respondentName,
+        respondentEmail: updated.respondentEmail,
+        respondentRole: updated.respondentRole,
+        completedAt: updated.completedAt?.toISOString() ?? null,
+        createdAt: updated.createdAt.toISOString(),
+      },
+    });
+  } catch (e) {
+    console.error("PATCH /api/assessments/sessions/[sessionId] error:", e);
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  DELETE /api/assessments/sessions/[sessionId]                        */
+/*  Delete a session and all its responses/results. Auth required.      */
+/* ------------------------------------------------------------------ */
+
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ sessionId: string }> },
+) {
+  try {
+    const userId = await getClerkUserId();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    await ensureTables();
+
+    const { sessionId } = await params;
+
+    const session = await prisma.assessmentSession.findUnique({
+      where: { id: sessionId },
+      include: { project: true },
+    });
+
+    if (!session) {
+      return NextResponse.json({ error: "Sessionen hittades inte" }, { status: 404 });
+    }
+    if (session.project.ownerId !== userId) {
+      return NextResponse.json({ error: "Ingen behörighet" }, { status: 403 });
+    }
+
+    // Cascading delete handles responses and results via FK onDelete: Cascade
+    await prisma.assessmentSession.delete({
+      where: { id: sessionId },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (e) {
+    console.error("DELETE /api/assessments/sessions/[sessionId] error:", e);
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
+}
