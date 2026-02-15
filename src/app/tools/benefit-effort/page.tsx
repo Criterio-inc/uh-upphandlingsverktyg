@@ -155,8 +155,8 @@ const QUADRANTS: Record<string, QuadrantDef> = {
   "quick-wins": {
     key: "quick-wins",
     label: "Snabba vinster",
-    strategy: "GOR FORST",
-    action: "Hog nytta, lag insats",
+    strategy: "GÖR FÖRST",
+    action: "Hög nytta, låg insats",
     bgClass: "bg-green-50/50 dark:bg-green-950/20",
     borderClass: "border-green-200/60 dark:border-green-800/40",
     textClass: "text-green-900 dark:text-green-400",
@@ -166,7 +166,7 @@ const QUADRANTS: Record<string, QuadrantDef> = {
     key: "strategic",
     label: "Stora projekt",
     strategy: "PLANERA",
-    action: "Hog nytta, hog insats",
+    action: "Hög nytta, hög insats",
     bgClass: "bg-blue-50/50 dark:bg-blue-950/20",
     borderClass: "border-blue-200/60 dark:border-blue-800/40",
     textClass: "text-blue-900 dark:text-blue-400",
@@ -175,8 +175,8 @@ const QUADRANTS: Record<string, QuadrantDef> = {
   "fill-in": {
     key: "fill-in",
     label: "Utfyllnadsprojekt",
-    strategy: "OVERV\u00C4G",
-    action: "Lag nytta, lag insats",
+    strategy: "ÖVERVÄG",
+    action: "Låg nytta, låg insats",
     bgClass: "bg-yellow-50/50 dark:bg-yellow-950/20",
     borderClass: "border-yellow-200/60 dark:border-yellow-800/40",
     textClass: "text-yellow-900 dark:text-yellow-400",
@@ -186,7 +186,7 @@ const QUADRANTS: Record<string, QuadrantDef> = {
     key: "avoid",
     label: "Tidsslukare",
     strategy: "UNDVIK",
-    action: "Lag nytta, hog insats",
+    action: "Låg nytta, hög insats",
     bgClass: "bg-red-50/50 dark:bg-red-950/20",
     borderClass: "border-red-200/60 dark:border-red-800/40",
     textClass: "text-red-900 dark:text-red-400",
@@ -218,18 +218,18 @@ function getQuadrantKey(initiative: Initiative): string {
 
 function getBenefitLabel(value: number): string {
   if (value <= 2) return "Minimal";
-  if (value <= 4) return "Lag";
-  if (value <= 6) return "Mattlig";
-  if (value <= 8) return "Hog";
+  if (value <= 4) return "Låg";
+  if (value <= 6) return "Måttlig";
+  if (value <= 8) return "Hög";
   return "Transformativ";
 }
 
 function getEffortLabel(value: number): string {
   if (value <= 2) return "Minimal";
-  if (value <= 4) return "Lag";
-  if (value <= 6) return "Mattlig";
-  if (value <= 8) return "Hog";
-  return "Mycket hog";
+  if (value <= 4) return "Låg";
+  if (value <= 6) return "Måttlig";
+  if (value <= 8) return "Hög";
+  return "Mycket hög";
 }
 
 function getEfficiencyScore(initiative: Initiative): number {
@@ -446,7 +446,7 @@ function MatrixVisualization({
                           left: `calc(${Math.min(Math.max(xPercent, 8), 92)}% - 14px)`,
                           top: `calc(${Math.min(Math.max(yPercent, 8), 92)}% - 14px)`,
                         }}
-                        title={initiative.title || "Namnlos initiativ"}
+                        title={initiative.title || "Namnlöst initiativ"}
                       >
                         <span className="text-[9px] font-bold text-white">
                           {initiative.title ? initiative.title.charAt(0).toUpperCase() : "?"}
@@ -506,7 +506,7 @@ function MatrixVisualization({
                           left: `calc(${Math.min(Math.max(xPercent, 8), 92)}% - 14px)`,
                           top: `calc(${Math.min(Math.max(yPercent, 8), 92)}% - 14px)`,
                         }}
-                        title={initiative.title || "Namnlos initiativ"}
+                        title={initiative.title || "Namnlöst initiativ"}
                       >
                         <span className="text-[9px] font-bold text-white">
                           {initiative.title ? initiative.title.charAt(0).toUpperCase() : "?"}
@@ -566,7 +566,7 @@ function MatrixVisualization({
                           left: `calc(${Math.min(Math.max(xPercent, 8), 92)}% - 14px)`,
                           top: `calc(${Math.min(Math.max(yPercent, 8), 92)}% - 14px)`,
                         }}
-                        title={initiative.title || "Namnlos initiativ"}
+                        title={initiative.title || "Namnlöst initiativ"}
                       >
                         <span className="text-[9px] font-bold text-white">
                           {initiative.title ? initiative.title.charAt(0).toUpperCase() : "?"}
@@ -626,7 +626,7 @@ function MatrixVisualization({
                           left: `calc(${Math.min(Math.max(xPercent, 8), 92)}% - 14px)`,
                           top: `calc(${Math.min(Math.max(yPercent, 8), 92)}% - 14px)`,
                         }}
-                        title={initiative.title || "Namnlos initiativ"}
+                        title={initiative.title || "Namnlöst initiativ"}
                       >
                         <span className="text-[9px] font-bold text-white">
                           {initiative.title ? initiative.title.charAt(0).toUpperCase() : "?"}
@@ -668,7 +668,7 @@ function MatrixVisualization({
             }}
           >
             <p className="text-sm font-medium truncate max-w-[180px]">
-              {hoveredInitiative.title || "Namnlos initiativ"}
+              {hoveredInitiative.title || "Namnlöst initiativ"}
             </p>
             <div className="mt-1 flex items-center gap-3 text-[11px] text-muted-foreground">
               <span>Nytta: {hoveredInitiative.benefit}/10</span>
@@ -764,7 +764,7 @@ function InitiativeForm({
 
         <Textarea
           label="Beskrivning"
-          placeholder="Beskriv initiativet och dess forvantade effekt..."
+          placeholder="Beskriv initiativet och dess förväntade effekt..."
           value={initiative.description}
           onChange={(e) =>
             dispatch({ type: "UPDATE_INITIATIVE", id: initiative.id, field: "description", value: e.target.value })
@@ -807,19 +807,19 @@ function InitiativeForm({
             className="w-full accent-primary h-2 rounded-lg appearance-none cursor-pointer bg-muted"
           />
           <div className="flex justify-between mt-1">
-            <span className="text-[10px] text-muted-foreground">1 - Lag</span>
+            <span className="text-[10px] text-muted-foreground">1 - Låg</span>
             <span className="text-[10px] text-muted-foreground">5 - Medel</span>
-            <span className="text-[10px] text-muted-foreground">10 - Hog</span>
+            <span className="text-[10px] text-muted-foreground">10 - Hög</span>
           </div>
           <ScoringHelper
-            label="Nyttovarde"
+            label="Nyttovärde"
             value={initiative.benefit}
             descriptions={[
-              { range: "1-2:", text: "Minimal forbattring" },
-              { range: "3-4:", text: "Liten forbattring" },
-              { range: "5-6:", text: "Markbar forbattring" },
-              { range: "7-8:", text: "Betydande forbattring" },
-              { range: "9-10:", text: "Transformativ paverkan" },
+              { range: "1-2:", text: "Minimal förbättring" },
+              { range: "3-4:", text: "Liten förbättring" },
+              { range: "5-6:", text: "Märkbar förbättring" },
+              { range: "7-8:", text: "Betydande förbättring" },
+              { range: "9-10:", text: "Transformativ påverkan" },
             ]}
           />
         </div>
@@ -841,18 +841,18 @@ function InitiativeForm({
             className="w-full accent-primary h-2 rounded-lg appearance-none cursor-pointer bg-muted"
           />
           <div className="flex justify-between mt-1">
-            <span className="text-[10px] text-muted-foreground">1 - Lag</span>
+            <span className="text-[10px] text-muted-foreground">1 - Låg</span>
             <span className="text-[10px] text-muted-foreground">5 - Medel</span>
-            <span className="text-[10px] text-muted-foreground">10 - Hog</span>
+            <span className="text-[10px] text-muted-foreground">10 - Hög</span>
           </div>
           <ScoringHelper
-            label="Insatsniva"
+            label="Insatsnivå"
             value={initiative.effort}
             descriptions={[
-              { range: "1-2:", text: "Minimal anstrangning" },
-              { range: "3-4:", text: "Lag anstrangning" },
-              { range: "5-6:", text: "Medelhog anstrangning" },
-              { range: "7-8:", text: "Hog anstrangning" },
+              { range: "1-2:", text: "Minimal ansträngning" },
+              { range: "3-4:", text: "Låg ansträngning" },
+              { range: "5-6:", text: "Medelhög ansträngning" },
+              { range: "7-8:", text: "Hög ansträngning" },
               { range: "9-10:", text: "Mycket omfattande" },
             ]}
           />
@@ -895,7 +895,7 @@ function InitiativeForm({
           />
           <Input
             label="Uppskattad tid"
-            placeholder="T.ex. 3 manader"
+            placeholder="T.ex. 3 månader"
             value={initiative.estimatedTime}
             onChange={(e) =>
               dispatch({ type: "UPDATE_INITIATIVE", id: initiative.id, field: "estimatedTime", value: e.target.value })
@@ -914,7 +914,7 @@ function InitiativeForm({
 
         <Textarea
           label="Anteckningar"
-          placeholder="Ovriga anteckningar, beroenden, risker..."
+          placeholder="Övriga anteckningar, beroenden, risker..."
           value={initiative.notes}
           onChange={(e) =>
             dispatch({ type: "UPDATE_INITIATIVE", id: initiative.id, field: "notes", value: e.target.value })
@@ -970,7 +970,7 @@ function InitiativeListItem({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <p className="text-sm font-semibold truncate">
-              {initiative.title || "Namnlost initiativ"}
+              {initiative.title || "Namnlöst initiativ"}
             </p>
             <span
               className={cn(
@@ -1065,7 +1065,7 @@ function InitiativeDetailPanel({
           </span>
           <div>
             <h3 className="text-base font-bold tracking-tight">
-              {initiative.title || "Namnlost initiativ"}
+              {initiative.title || "Namnlöst initiativ"}
             </h3>
             <div className="mt-1 flex flex-wrap items-center gap-2">
               <span
@@ -1518,9 +1518,9 @@ export default function BenefitEffortPage() {
 
     // Quadrant summary sheet
     const quadrantSummary: (string | number)[][] = [
-      ["Snabba vinster", state.initiatives.filter((i) => getQuadrantKey(i) === "quick-wins").length, "Gor forst"],
+      ["Snabba vinster", state.initiatives.filter((i) => getQuadrantKey(i) === "quick-wins").length, "Gör först"],
       ["Stora projekt", state.initiatives.filter((i) => getQuadrantKey(i) === "strategic").length, "Planera"],
-      ["Utfyllnadsprojekt", state.initiatives.filter((i) => getQuadrantKey(i) === "fill-in").length, "Overvag"],
+      ["Utfyllnadsprojekt", state.initiatives.filter((i) => getQuadrantKey(i) === "fill-in").length, "Överväg"],
       ["Tidsslukare", state.initiatives.filter((i) => getQuadrantKey(i) === "avoid").length, "Undvik"],
     ];
 
@@ -1545,13 +1545,13 @@ export default function BenefitEffortPage() {
 
     // Overview table
     sections.push({
-      title: "Initiativoversikt",
+      title: "Initiativöversikt",
       type: "table",
       headers: ["Titel", "Kategori", "Nytta", "Insats", "Effektivitet", "Kvadrant", "Prioritet", "Status"],
       rows: state.initiatives.map((i) => {
         const q = getQuadrant(i);
         return [
-          i.title || "(Namnlos)",
+          i.title || "(Namnlöst)",
           i.category,
           i.benefit,
           i.effort,
@@ -1569,7 +1569,7 @@ export default function BenefitEffortPage() {
       type: "keyvalue",
       pairs: [
         {
-          label: "Snabba vinster (Gor forst)",
+          label: "Snabba vinster (Gör först)",
           value: `${state.initiatives.filter((i) => getQuadrantKey(i) === "quick-wins").length} initiativ`,
         },
         {
@@ -1577,7 +1577,7 @@ export default function BenefitEffortPage() {
           value: `${state.initiatives.filter((i) => getQuadrantKey(i) === "strategic").length} initiativ`,
         },
         {
-          label: "Utfyllnadsprojekt (Overvag)",
+          label: "Utfyllnadsprojekt (Överväg)",
           value: `${state.initiatives.filter((i) => getQuadrantKey(i) === "fill-in").length} initiativ`,
         },
         {
@@ -1593,11 +1593,11 @@ export default function BenefitEffortPage() {
     );
     if (highPriority.length > 0) {
       sections.push({
-        title: "Hogprioriterade initiativ - Detaljer",
+        title: "Högprioriterade initiativ - Detaljer",
         type: "table",
         headers: ["Titel", "Beskrivning", "Kostnad", "Tid", "Ansvarig"],
         rows: highPriority.map((i) => [
-          i.title || "(Namnlos)",
+          i.title || "(Namnlöst)",
           i.description || "-",
           i.estimatedCost || "-",
           i.estimatedTime || "-",
@@ -1612,7 +1612,7 @@ export default function BenefitEffortPage() {
   const handleNewAnalysis = useCallback(() => {
     if (state.initiatives.length > 0) {
       const confirmed = window.confirm(
-        "Ar du saker pa att du vill borja om? All data raderas.",
+        "Är du säker på att du vill börja om? All data raderas.",
       );
       if (!confirmed) return;
     }
@@ -1638,7 +1638,7 @@ export default function BenefitEffortPage() {
             <div className="flex-1">
               <h1 className="text-lg font-bold tracking-tight">Nytto-insats-analys</h1>
               <p className="text-xs text-muted-foreground">
-                Prioritera initiativ baserat pa forvantad nytta och nodvandig insats
+                Prioritera initiativ baserat på förväntad nytta och nödvändig insats
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -1670,7 +1670,7 @@ export default function BenefitEffortPage() {
                 <Icon name="refresh-cw" size={14} /> Ny analys
               </Button>
               <Button size="sm" onClick={() => dispatch({ type: "ADD_INITIATIVE" })}>
-                <Icon name="plus" size={14} /> Lagg till initiativ
+                <Icon name="plus" size={14} /> Lägg till initiativ
               </Button>
             </div>
           </div>
@@ -1687,11 +1687,11 @@ export default function BenefitEffortPage() {
                     <Icon name="target" size={28} />
                   </span>
                 </div>
-                <h2 className="text-lg font-bold tracking-tight">Ingen analys annu</h2>
+                <h2 className="text-lg font-bold tracking-tight">Ingen analys ännu</h2>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Borja med att lagga till initiativ for att bygga din nytto-insats-matris.
-                  Bedom forvantad nytta och nodvandig insats for varje initiativ, och fa en
-                  tydlig bild av vad som bor prioriteras.
+                  Börja med att lägga till initiativ för att bygga din nytto-insats-matris.
+                  Bedöm förväntad nytta och nödvändig insats för varje initiativ, och få en
+                  tydlig bild av vad som bör prioriteras.
                 </p>
                 <div className="mt-4 grid grid-cols-2 gap-3 text-left">
                   {(["quick-wins", "strategic", "fill-in", "avoid"] as const).map((key) => {
@@ -1716,7 +1716,7 @@ export default function BenefitEffortPage() {
                 </div>
                 <div className="mt-6">
                   <Button onClick={() => dispatch({ type: "ADD_INITIATIVE" })}>
-                    <Icon name="plus" size={14} /> Lagg till forsta initiativet
+                    <Icon name="plus" size={14} /> Lägg till första initiativet
                   </Button>
                 </div>
               </Card>
@@ -1787,7 +1787,7 @@ export default function BenefitEffortPage() {
                         size="sm"
                         onClick={() => dispatch({ type: "ADD_INITIATIVE" })}
                       >
-                        <Icon name="plus" size={14} /> Lagg till
+                        <Icon name="plus" size={14} /> Lägg till
                       </Button>
                     </div>
 
@@ -1832,7 +1832,7 @@ export default function BenefitEffortPage() {
 
                     {state.initiatives.length === 0 ? (
                       <p className="text-sm text-muted-foreground">
-                        Inga initiativ tillagda annu.
+                        Inga initiativ tillagda ännu.
                       </p>
                     ) : filteredInitiatives.length === 0 ? (
                       <p className="text-sm text-muted-foreground">

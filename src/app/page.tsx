@@ -186,7 +186,7 @@ export default function PlatformDashboard() {
             <div className="flex-1">
               <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                 {org ? (
-                  <>Välkommen till <span className="text-primary">{org.name}</span></>
+                  <>Välkommen <span className="text-primary">{org.name}</span></>
                 ) : (
                   <>Critero <span className="font-light text-muted-foreground">Suite</span></>
                 )}
