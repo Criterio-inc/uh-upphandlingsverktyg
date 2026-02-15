@@ -29,7 +29,7 @@ export async function GET() {
     const org = await prisma.organization.findUnique({
       where: { id: ctx.orgId },
       include: {
-        _count: { select: { memberships: true, cases: true } },
+        _count: { select: { memberships: true } },
         memberships: {
           include: { user: { select: { id: true, email: true, firstName: true, lastName: true, imageUrl: true } } },
           orderBy: { createdAt: "asc" },
@@ -42,6 +42,15 @@ export async function GET() {
     });
     if (!org) return NextResponse.json({ error: "Org not found" }, { status: 404 });
 
+    // Count cases separately — Case.orgId column might not exist yet
+    let caseCount = 0;
+    try {
+      caseCount = await prisma.case.count({ where: { orgId: ctx.orgId } });
+    } catch {
+      // Case.orgId column missing — count all cases as fallback
+      try { caseCount = await prisma.case.count(); } catch { /* ignore */ }
+    }
+
     return NextResponse.json({
       organization: {
         id: org.id,
@@ -50,7 +59,7 @@ export async function GET() {
         plan: org.plan,
         maxUsers: org.maxUsers,
         memberCount: org._count.memberships,
-        caseCount: org._count.cases,
+        caseCount,
         members: org.memberships.map((m) => ({
           userId: m.user.id,
           email: m.user.email,

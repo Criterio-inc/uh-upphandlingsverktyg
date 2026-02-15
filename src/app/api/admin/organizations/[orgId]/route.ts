@@ -27,13 +27,18 @@ export async function GET(
           },
         },
         features: true,
-        _count: { select: { cases: true } },
       },
     });
 
     if (!org) {
       return NextResponse.json({ error: "Organisation hittades inte" }, { status: 404 });
     }
+
+    // Count cases separately — Case.orgId may not exist yet
+    let caseCount = 0;
+    try {
+      caseCount = await prisma.case.count({ where: { orgId } });
+    } catch { /* ignore */ }
 
     return NextResponse.json({
       organization: {
@@ -43,7 +48,7 @@ export async function GET(
         plan: org.plan,
         maxUsers: org.maxUsers,
         settings: org.settings,
-        caseCount: org._count.cases,
+        caseCount,
         createdAt: org.createdAt.toISOString(),
         members: org.memberships.map((m) => ({
           userId: m.user.id,

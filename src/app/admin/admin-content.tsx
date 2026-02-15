@@ -522,15 +522,27 @@ export default function AdminContent() {
       .catch(() => setIsAdminVerified(false));
   }, [user?.id]);
 
+  // Orgs error
+  const [orgsError, setOrgsError] = useState("");
+
   // Fetch organizations
   const fetchOrgs = useCallback(() => {
+    setOrgsError("");
     fetch("/api/admin/organizations")
-      .then((r) => r.json())
-      .then((data) => {
-        setOrgs(data.organizations ?? []);
+      .then(async (r) => {
+        const data = await r.json();
+        if (!r.ok || data.error) {
+          setOrgsError(data.error ?? `HTTP ${r.status}`);
+          setOrgs([]);
+        } else {
+          setOrgs(data.organizations ?? []);
+        }
         setOrgsLoaded(true);
       })
-      .catch(() => setOrgsLoaded(true));
+      .catch((e) => {
+        setOrgsError(`Nätverksfel: ${e.message}`);
+        setOrgsLoaded(true);
+      });
   }, []);
 
   useEffect(() => {
@@ -789,6 +801,13 @@ export default function AdminContent() {
               }}
               onCancel={() => setShowNewOrgForm(false)}
             />
+          )}
+
+          {orgsError && (
+            <div className="rounded-xl border border-red-500/30 bg-red-50/50 dark:bg-red-950/20 px-4 py-3 text-sm text-red-700 dark:text-red-400 flex items-center gap-2">
+              <Icon name="alert-triangle" size={14} className="flex-shrink-0" />
+              <span>Kunde inte ladda organisationer: {orgsError}</span>
+            </div>
           )}
 
           {!orgsLoaded ? (
