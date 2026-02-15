@@ -13,6 +13,7 @@ export async function DELETE(
     await requireCaseAccess(caseId, ctx);
 
     await prisma.traceLink.delete({ where: { id: linkId } });
+    await logAudit(ctx, "delete", "trace-link", linkId);
     return NextResponse.json({ ok: true });
   } catch (e) {
     if (e instanceof ApiError) return e.toResponse();

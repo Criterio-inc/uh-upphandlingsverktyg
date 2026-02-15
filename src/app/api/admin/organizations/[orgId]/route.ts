@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { requireAuth, requirePlatformAdmin, ApiError } from "@/lib/auth-guard";
+import { requireAuth, requirePlatformAdmin, ApiError, logAudit } from "@/lib/auth-guard";
+import { validateBody, updateOrgSchema } from "@/lib/api-validation";
 
 export const dynamic = "force-dynamic";
 
@@ -77,7 +78,11 @@ export async function PATCH(
     requirePlatformAdmin(ctx);
     const { orgId } = await params;
 
-    const body = await req.json();
+    const rawBody = await req.json();
+    const validated = validateBody(updateOrgSchema, rawBody);
+    if (!validated.success) return validated.response;
+    const body = validated.data;
+
     const data: Record<string, unknown> = {};
     if (body.name !== undefined) data.name = body.name;
     if (body.plan !== undefined) data.plan = body.plan;
@@ -99,8 +104,10 @@ export async function PATCH(
     // Handle feature overrides via setOrgFeatures
     if (body.features && typeof body.features === "object") {
       const { setOrgFeatures } = await import("@/lib/org-features");
-      await setOrgFeatures(orgId, body.features);
+      await setOrgFeatures(orgId, body.features as Record<string, boolean>);
     }
+
+    await logAudit(ctx, "update", "organization", orgId);
 
     // Re-fetch the updated org to return
     const updated = await prisma.organization.findUnique({
@@ -137,6 +144,7 @@ export async function DELETE(
     requirePlatformAdmin(ctx);
     const { orgId } = await params;
 
+    await logAudit(ctx, "delete", "organization", orgId);
     await prisma.organization.delete({ where: { id: orgId } });
     return NextResponse.json({ ok: true });
   } catch (e) {

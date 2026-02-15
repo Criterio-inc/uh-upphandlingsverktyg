@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { ALL_FEATURE_KEYS, type FeatureKey } from "@/config/features";
-import { requireAuth, requireOrgAdmin, ApiError } from "@/lib/auth-guard";
+import { requireAuth, requireOrgAdmin, ApiError, logAudit } from "@/lib/auth-guard";
 import { resolveOrgFeatures, setOrgFeatures } from "@/lib/org-features";
+import { validateBody, updateFeaturesSchema } from "@/lib/api-validation";
 
 export const dynamic = "force-dynamic";
 
@@ -51,14 +52,15 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Ingen organisation vald" }, { status: 400 });
     }
 
-    const body = await req.json();
-    const updates: Record<string, boolean> = body.features;
+    const rawBody = await req.json();
+    const validated = validateBody(updateFeaturesSchema, rawBody);
+    if (!validated.success) return validated.response;
+    const data = validated.data;
 
-    if (!updates || typeof updates !== "object") {
-      return NextResponse.json({ error: "Ogiltig payload" }, { status: 400 });
-    }
+    const { features } = await setOrgFeatures(ctx.orgId, data.features as Record<string, boolean>);
 
-    const { features } = await setOrgFeatures(ctx.orgId, updates);
+    await logAudit(ctx, "update", "features", ctx.orgId);
+
     return NextResponse.json({ features });
   } catch (e) {
     if (e instanceof ApiError) return e.toResponse();

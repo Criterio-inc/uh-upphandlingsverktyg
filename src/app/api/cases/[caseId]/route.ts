@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAuth, requireCaseAccess, requireWriteAccess, logAudit, ApiError } from "@/lib/auth-guard";
+import { validateBody, updateCaseSchema } from "@/lib/api-validation";
 
 export async function GET(
   _req: NextRequest,
@@ -30,10 +31,12 @@ export async function PATCH(
     const { caseId } = await params;
     await requireCaseAccess(caseId, ctx);
 
-    const body = await req.json();
+    const rawBody = await req.json();
+    const v = validateBody(updateCaseSchema, rawBody);
+    if (!v.success) return v.response;
 
     // Serialize JSON fields if present
-    const data: Record<string, unknown> = { ...body };
+    const data: Record<string, unknown> = { ...v.data };
     for (const key of ["timeline", "goals", "scopeIn", "scopeOut", "dependencies", "governance"]) {
       if (data[key] !== undefined && typeof data[key] !== "string") {
         data[key] = JSON.stringify(data[key]);

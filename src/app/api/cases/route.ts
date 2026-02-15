@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { generateId } from "@/lib/id-generator";
 import { requireAuth, requireWriteAccess, logAudit, ApiError } from "@/lib/auth-guard";
+import { validateBody, createCaseSchema } from "@/lib/api-validation";
 
 export async function GET() {
   try {
@@ -29,7 +30,11 @@ export async function POST(req: NextRequest) {
     const ctx = await requireAuth();
     requireWriteAccess(ctx);
 
-    const body = await req.json();
+    const rawBody = await req.json();
+    const v = validateBody(createCaseSchema, rawBody);
+    if (!v.success) return v.response;
+    const body = v.data;
+
     const id = await generateId("case");
 
     const created = await prisma.case.create({

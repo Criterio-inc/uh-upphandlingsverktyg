@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { ensureTables } from "@/lib/ensure-tables";
 import { getAssessmentConfig } from "@/config/assessments";
 import { requireAuth, ApiError } from "@/lib/auth-guard";
+import { validateBody, createAssessmentSchema } from "@/lib/api-validation";
 
 export const dynamic = "force-dynamic";
 
@@ -87,15 +88,10 @@ export async function POST(request: NextRequest) {
 
     await ensureTables();
 
-    const body = await request.json();
-    const { assessmentTypeSlug, name, description, organizationName } = body;
-
-    if (!assessmentTypeSlug || !name) {
-      return NextResponse.json(
-        { error: "assessmentTypeSlug och name krävs" },
-        { status: 400 },
-      );
-    }
+    const rawBody = await request.json();
+    const validated = validateBody(createAssessmentSchema, rawBody);
+    if (!validated.success) return validated.response;
+    const { assessmentTypeSlug, name, description, organizationName } = validated.data;
 
     // Get config for this assessment type
     const config = getAssessmentConfig(assessmentTypeSlug);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { generateId } from "@/lib/id-generator";
 import { requireAuth, requireCaseAccess, requireWriteAccess, logAudit, ApiError } from "@/lib/auth-guard";
+import { validateBody, importCaseSchema } from "@/lib/api-validation";
 
 /**
  * Import a full JSON backup into a case (restore).
@@ -18,7 +19,10 @@ export async function POST(
     await requireCaseAccess(caseId, ctx);
     await requireWriteAccess(ctx);
 
-    const body = await req.json();
+    const rawBody = await req.json();
+    const v = validateBody(importCaseSchema, rawBody);
+    if (!v.success) return v.response;
+    const body = v.data;
 
     const c = await prisma.case.findUnique({ where: { id: caseId } });
     if (!c) return NextResponse.json({ error: "Case not found" }, { status: 404 });

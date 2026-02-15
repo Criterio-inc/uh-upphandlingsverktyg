@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { requireAuth, requirePlatformAdmin, ApiError } from "@/lib/auth-guard";
+import { requireAuth, requirePlatformAdmin, ApiError, logAudit } from "@/lib/auth-guard";
+import { validateBody, createOrgSchema } from "@/lib/api-validation";
 
 export const dynamic = "force-dynamic";
 
@@ -58,15 +59,10 @@ export async function POST(req: NextRequest) {
     const ctx = await requireAuth();
     requirePlatformAdmin(ctx);
 
-    const body = await req.json();
-    const { name, slug, plan, maxUsers } = body;
-
-    if (!name || !slug) {
-      return NextResponse.json(
-        { error: "Namn och slug krävs" },
-        { status: 400 },
-      );
-    }
+    const rawBody = await req.json();
+    const validated = validateBody(createOrgSchema, rawBody);
+    if (!validated.success) return validated.response;
+    const { name, slug, plan, maxUsers } = validated.data;
 
     // Check slug uniqueness
     const existing = await prisma.organization.findUnique({
@@ -87,6 +83,8 @@ export async function POST(req: NextRequest) {
         maxUsers: maxUsers ?? 5,
       },
     });
+
+    await logAudit(ctx, "create", "organization", org.id);
 
     return NextResponse.json({ organization: org }, { status: 201 });
   } catch (e) {

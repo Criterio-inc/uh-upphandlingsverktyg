@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAuth, requireCaseAccess, requireWriteAccess, logAudit, ApiError } from "@/lib/auth-guard";
+import { validateBody, createTraceLinkSchema } from "@/lib/api-validation";
 
 export async function GET(
   req: NextRequest,
@@ -49,7 +50,10 @@ export async function POST(
     const { caseId } = await params;
     await requireCaseAccess(caseId, ctx);
 
-    const body = await req.json();
+    const rawBody = await req.json();
+    const validation = validateBody(createTraceLinkSchema, rawBody);
+    if (!validation.success) return validation.response;
+    const body = validation.data;
 
     const link = await prisma.traceLink.create({
       data: {
@@ -62,6 +66,8 @@ export async function POST(
         note: body.note ?? "",
       },
     });
+
+    await logAudit(ctx, "create", "trace-link", link.id);
 
     return NextResponse.json(link, { status: 201 });
   } catch (e) {
