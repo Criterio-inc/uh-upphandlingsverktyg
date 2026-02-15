@@ -222,6 +222,19 @@ export async function ensureTables(): Promise<void> {
       // ignore
     }
 
+    // Add orgId column to Case if missing (safe idempotent migration)
+    try {
+      await prisma.$executeRawUnsafe(`ALTER TABLE "Case" ADD COLUMN "orgId" TEXT`);
+    } catch {
+      // Column already exists — ignore
+    }
+
+    try {
+      await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "Case_orgId_idx" ON "Case"("orgId")`);
+    } catch {
+      // ignore
+    }
+
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "AssessmentSession" (
         "id" TEXT NOT NULL PRIMARY KEY,

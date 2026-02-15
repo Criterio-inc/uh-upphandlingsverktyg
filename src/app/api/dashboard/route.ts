@@ -21,39 +21,62 @@ export async function GET() {
       }
     }
 
-    // Cases stats
-    const caseWhere: Record<string, unknown> = ctx.orgId
-      ? { OR: [{ orgId: ctx.orgId }, { orgId: null }] }
-      : {};
-    const [totalCases, draftCases, activeCases] = await Promise.all([
-      prisma.case.count({ where: caseWhere }),
-      prisma.case.count({ where: { ...caseWhere, status: "draft" } }),
-      prisma.case.count({ where: { ...caseWhere, status: "active" } }),
-    ]);
+    // Cases stats — defensive: Case.orgId column may not exist yet
+    let totalCases = 0, draftCases = 0, activeCases = 0;
+    let recentCasesRaw: { id: string; name: string; status: string; currentPhase: string; updatedAt: Date }[] = [];
+    try {
+      const caseWhere: Record<string, unknown> = ctx.orgId
+        ? { OR: [{ orgId: ctx.orgId }, { orgId: null }] }
+        : {};
+      [totalCases, draftCases, activeCases] = await Promise.all([
+        prisma.case.count({ where: caseWhere }),
+        prisma.case.count({ where: { ...caseWhere, status: "draft" } }),
+        prisma.case.count({ where: { ...caseWhere, status: "active" } }),
+      ]);
+      recentCasesRaw = await prisma.case.findMany({
+        where: caseWhere,
+        select: { id: true, name: true, status: true, currentPhase: true, updatedAt: true },
+        orderBy: { updatedAt: "desc" },
+        take: 5,
+      });
+    } catch {
+      // Case.orgId column missing — query without org filter
+      try {
+        [totalCases, draftCases, activeCases] = await Promise.all([
+          prisma.case.count(),
+          prisma.case.count({ where: { status: "draft" } }),
+          prisma.case.count({ where: { status: "active" } }),
+        ]);
+        recentCasesRaw = await prisma.case.findMany({
+          select: { id: true, name: true, status: true, currentPhase: true, updatedAt: true },
+          orderBy: { updatedAt: "desc" },
+          take: 5,
+        });
+      } catch { /* ignore */ }
+    }
 
-    // Recent cases
-    const recentCases = await prisma.case.findMany({
-      where: caseWhere,
-      select: { id: true, name: true, status: true, currentPhase: true, updatedAt: true },
-      orderBy: { updatedAt: "desc" },
-      take: 5,
-    });
-
-    // Assessment stats
-    const assessmentWhere: Record<string, unknown> = ctx.orgId
-      ? { orgId: ctx.orgId }
-      : { ownerId: ctx.userId };
-    const totalProjects = await prisma.assessmentProject.count({ where: assessmentWhere });
+    // Assessment stats — defensive: orgId column may not exist
+    let totalProjects = 0;
+    try {
+      const assessmentWhere: Record<string, unknown> = ctx.orgId
+        ? { orgId: ctx.orgId }
+        : { ownerId: ctx.userId };
+      totalProjects = await prisma.assessmentProject.count({ where: assessmentWhere });
+    } catch {
+      try { totalProjects = await prisma.assessmentProject.count(); } catch { /* ignore */ }
+    }
 
     // Recent audit log
     let recentActivity: { action: string; entityType: string; entityId: string; createdAt: Date }[] = [];
     if (ctx.orgId) {
-      recentActivity = await prisma.auditLog.findMany({
-        where: { orgId: ctx.orgId },
-        select: { action: true, entityType: true, entityId: true, createdAt: true },
-        orderBy: { createdAt: "desc" },
-        take: 10,
-      });
+      try {
+        recentActivity = await prisma.auditLog.findMany({
+          where: { orgId: ctx.orgId },
+          select: { action: true, entityType: true, entityId: true, createdAt: true },
+          orderBy: { createdAt: "desc" },
+          take: 10,
+        });
+      } catch { /* AuditLog table may not exist */ }
     }
 
     return NextResponse.json({
@@ -64,7 +87,7 @@ export async function GET() {
         activeCases,
         totalProjects,
       },
-      recentCases: recentCases.map((c) => ({
+      recentCases: recentCasesRaw.map((c) => ({
         id: c.id,
         name: c.name,
         status: c.status,

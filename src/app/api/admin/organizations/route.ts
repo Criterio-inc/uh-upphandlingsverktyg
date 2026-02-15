@@ -14,18 +14,28 @@ export async function GET() {
     const ctx = await requireAuth();
     requirePlatformAdmin(ctx);
 
+    // Query orgs with memberships + features count (NOT cases — Case.orgId may not exist yet)
     const organizations = await prisma.organization.findMany({
       include: {
         _count: {
           select: {
             memberships: true,
-            cases: true,
             features: true,
           },
         },
       },
       orderBy: { createdAt: "desc" },
     });
+
+    // Count cases per org separately — defensive against missing Case.orgId
+    const caseCounts: Record<string, number> = {};
+    for (const org of organizations) {
+      try {
+        caseCounts[org.id] = await prisma.case.count({ where: { orgId: org.id } });
+      } catch {
+        caseCounts[org.id] = 0;
+      }
+    }
 
     const result = organizations.map((org) => ({
       id: org.id,
@@ -34,7 +44,7 @@ export async function GET() {
       plan: org.plan,
       maxUsers: org.maxUsers,
       memberCount: org._count.memberships,
-      caseCount: org._count.cases,
+      caseCount: caseCounts[org.id] ?? 0,
       featureOverrideCount: org._count.features,
       createdAt: org.createdAt.toISOString(),
     }));
