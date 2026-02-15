@@ -79,6 +79,8 @@ export async function GET() {
       })),
       userRole: ctx.role,
       plan: ctx.orgPlan,
+      isPlatformAdmin: ctx.isPlatformAdmin,
+      hasOrg: !!ctx.orgId,
     });
   } catch (e) {
     if (e instanceof ApiError) return e.toResponse();

@@ -24,6 +24,8 @@ interface DashboardData {
   recentActivity: { action: string; entityType: string; entityId: string; createdAt: string }[];
   userRole: string;
   plan: string;
+  isPlatformAdmin: boolean;
+  hasOrg: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -92,6 +94,46 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 /* ------------------------------------------------------------------ */
+/*  Onboarding step config                                             */
+/* ------------------------------------------------------------------ */
+
+interface OnboardingStep {
+  key: string;
+  label: string;
+  description: string;
+  icon: string;
+  href: string;
+  done: (d: DashboardData) => boolean;
+}
+
+const ONBOARDING_STEPS: OnboardingStep[] = [
+  {
+    key: "org",
+    label: "Skapa organisation",
+    description: "Konfigurera din organisation med namn och plan",
+    icon: "building-2",
+    href: "/org",
+    done: (d) => d.hasOrg,
+  },
+  {
+    key: "team",
+    label: "Bjud in ditt team",
+    description: "Lägg till kollegor så ni kan samarbeta",
+    icon: "users",
+    href: "/org",
+    done: (d) => (d.org?.memberCount ?? 0) > 1,
+  },
+  {
+    key: "case",
+    label: "Skapa första upphandlingen",
+    description: "Starta ett upphandlingsärende eller en mognadsmatning",
+    icon: "clipboard-list",
+    href: "/cases/new",
+    done: (d) => d.stats.totalCases > 0 || d.stats.totalProjects > 0,
+  },
+];
+
+/* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -123,6 +165,14 @@ export default function PlatformDashboard() {
 
   const org = dashboard?.org;
   const stats = dashboard?.stats;
+  const isPlatformAdmin = dashboard?.isPlatformAdmin ?? false;
+
+  // Calculate onboarding progress
+  const completedSteps = dashboard
+    ? ONBOARDING_STEPS.filter((s) => s.done(dashboard)).length
+    : 0;
+  const allStepsDone = completedSteps === ONBOARDING_STEPS.length;
+  const showOnboarding = dashboard && isPlatformAdmin && !allStepsDone;
 
   return (
     <div className="min-h-screen">
@@ -159,6 +209,97 @@ export default function PlatformDashboard() {
       </div>
 
       <div className="px-8 py-8 max-w-5xl space-y-8">
+        {/* ============================================================ */}
+        {/*  Onboarding checklist (admin without complete setup)          */}
+        {/* ============================================================ */}
+        {showOnboarding && (
+          <section className="rounded-2xl border border-dashed border-primary/30 bg-gradient-to-br from-primary/5 to-violet-500/5 p-6 space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10">
+                <Icon name="rocket" size={20} className="text-primary" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-base font-semibold text-foreground">Kom igång med Critero Suite</h2>
+                <p className="text-xs text-muted-foreground">
+                  {completedSteps} av {ONBOARDING_STEPS.length} steg klara
+                </p>
+              </div>
+              {/* Progress bar */}
+              <div className="hidden sm:flex items-center gap-2 w-32">
+                <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all duration-500"
+                    style={{ width: `${(completedSteps / ONBOARDING_STEPS.length) * 100}%` }}
+                  />
+                </div>
+                <span className="text-[10px] font-medium text-muted-foreground">
+                  {Math.round((completedSteps / ONBOARDING_STEPS.length) * 100)}%
+                </span>
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              {ONBOARDING_STEPS.map((step, i) => {
+                const isDone = dashboard ? step.done(dashboard) : false;
+                const isNext = !isDone && (i === 0 || ONBOARDING_STEPS[i - 1].done(dashboard!));
+
+                return (
+                  <Link
+                    key={step.key}
+                    href={step.href}
+                    className={`group relative rounded-xl border p-4 transition-all ${
+                      isDone
+                        ? "border-green-500/30 bg-green-500/5"
+                        : isNext
+                          ? "border-primary/40 bg-card shadow-sm hover:border-primary/60 hover:shadow-md"
+                          : "border-border/40 bg-card/50 opacity-60"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${
+                        isDone
+                          ? "bg-green-500/10"
+                          : isNext
+                            ? "bg-primary/10 group-hover:bg-primary/20"
+                            : "bg-muted/50"
+                      }`}>
+                        {isDone ? (
+                          <Icon name="check" size={16} className="text-green-500" />
+                        ) : (
+                          <Icon name={step.icon} size={16} className={isNext ? "text-primary" : "text-muted-foreground/40"} />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className={`text-sm font-semibold ${isDone ? "text-green-700 dark:text-green-400" : "text-foreground"}`}>
+                            {step.label}
+                          </p>
+                          {isNext && (
+                            <Icon name="arrow-right" size={12} className="text-primary/50 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                          )}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+                          {isDone ? "Klart!" : step.description}
+                        </p>
+                      </div>
+                    </div>
+                    {/* Step number badge */}
+                    <div className={`absolute -top-2 -left-2 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
+                      isDone
+                        ? "bg-green-500 text-white"
+                        : isNext
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
+                    }`}>
+                      {isDone ? "\u2713" : i + 1}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         {/* Stats row */}
         {stats && (stats.totalCases > 0 || stats.totalProjects > 0) && (
           <div className="grid gap-4 sm:grid-cols-4">
@@ -303,8 +444,8 @@ export default function PlatformDashboard() {
           </div>
         )}
 
-        {/* Quick-start for empty state */}
-        {stats && stats.totalCases === 0 && stats.totalProjects === 0 && enabledApps.length > 0 && (
+        {/* Quick-start for empty state (non-admin users or admin with all setup done) */}
+        {stats && stats.totalCases === 0 && stats.totalProjects === 0 && !showOnboarding && enabledApps.length > 0 && (
           <section className="rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-8 text-center space-y-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 mx-auto">
               <Icon name="rocket" size={24} className="text-primary" />
