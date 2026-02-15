@@ -4,6 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/ui/icon";
 
+/* ------------------------------------------------------------------ */
+/*  Types                                                              */
+/* ------------------------------------------------------------------ */
+
 interface AppCard {
   appKey: string;
   title: string;
@@ -12,6 +16,19 @@ interface AppCard {
   href: string;
   color: string;
 }
+
+interface DashboardData {
+  org: { name: string; slug: string; plan: string; maxUsers: number; memberCount: number } | null;
+  stats: { totalCases: number; draftCases: number; activeCases: number; totalProjects: number };
+  recentCases: { id: string; name: string; status: string; currentPhase: string; updatedAt: string }[];
+  recentActivity: { action: string; entityType: string; entityId: string; createdAt: string }[];
+  userRole: string;
+  plan: string;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Constants                                                          */
+/* ------------------------------------------------------------------ */
 
 const APP_CARDS: AppCard[] = [
   {
@@ -48,14 +65,50 @@ const APP_CARDS: AppCard[] = [
   },
 ];
 
+const PLAN_LABELS: Record<string, string> = {
+  trial: "Trial", starter: "Starter", professional: "Professional", enterprise: "Enterprise",
+};
+const PLAN_COLORS: Record<string, string> = {
+  trial: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+  starter: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
+  professional: "bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300",
+  enterprise: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300",
+};
+const ACTION_LABELS: Record<string, string> = {
+  create: "Skapade", update: "Uppdaterade", delete: "Raderade", import: "Importerade",
+};
+const ENTITY_LABELS: Record<string, string> = {
+  case: "upphandling", need: "behov", requirement: "krav", risk: "risk",
+  criterion: "kriterium", stakeholder: "intressent", workshop: "workshop",
+  evidence: "evidens", bid: "anbud", decision: "beslut", document: "dokument",
+  "trace-link": "spårlänk", organization: "organisation", features: "funktioner",
+  invitation: "inbjudan", member: "medlem",
+};
+const STATUS_COLORS: Record<string, string> = {
+  draft: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
+  active: "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300",
+  completed: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
+  archived: "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300",
+};
+
+/* ------------------------------------------------------------------ */
+/*  Component                                                          */
+/* ------------------------------------------------------------------ */
+
 export default function PlatformDashboard() {
   const [features, setFeatures] = useState<Record<string, boolean> | null>(null);
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
 
   useEffect(() => {
     fetch("/api/features")
       .then((r) => r.json())
       .then((data) => setFeatures(data.features ?? {}))
       .catch(() => setFeatures(null));
+
+    fetch("/api/dashboard")
+      .then((r) => r.json())
+      .then((data) => setDashboard(data))
+      .catch(() => {});
   }, []);
 
   const enabledApps = APP_CARDS.filter((app) => {
@@ -63,93 +116,246 @@ export default function PlatformDashboard() {
     return features[app.appKey] !== false;
   });
 
+  const org = dashboard?.org;
+  const stats = dashboard?.stats;
+
   return (
     <div className="min-h-screen">
+      {/* Header */}
       <div className="border-b border-border/60 bg-card/60">
         <div className="px-8 py-8">
           <div className="flex items-center gap-3 mb-2">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 text-lg font-bold text-white">
               C
             </div>
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-                Critero <span className="font-light text-muted-foreground">Suite</span>
+                {org ? (
+                  <>Välkommen till <span className="text-primary">{org.name}</span></>
+                ) : (
+                  <>Critero <span className="font-light text-muted-foreground">Suite</span></>
+                )}
               </h1>
-              <p className="text-sm text-muted-foreground">
-                Upphandling &middot; Verktyg &middot; Mognadsmätning
-              </p>
+              <div className="flex items-center gap-2 mt-0.5">
+                {org && (
+                  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${PLAN_COLORS[org.plan] ?? PLAN_COLORS.trial}`}>
+                    {PLAN_LABELS[org.plan] ?? org.plan}
+                  </span>
+                )}
+                <p className="text-sm text-muted-foreground">
+                  {org
+                    ? `${org.memberCount} medlem${org.memberCount !== 1 ? "mar" : ""}`
+                    : "Upphandling \u00b7 Verktyg \u00b7 Mognadsmätning"}
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="px-8 py-8 max-w-4xl">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50 mb-4">
-          Applikationer
-        </p>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          {enabledApps.map((app) => (
-            <Link
-              key={app.appKey}
-              href={app.href}
-              className="group rounded-2xl border border-border/60 bg-card p-6 shadow-sm hover:border-primary/30 hover:shadow-md transition-all"
-            >
-              <div className="flex items-start gap-4">
-                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${app.color} transition-colors`}>
-                  <Icon name={app.icon} size={22} />
+      <div className="px-8 py-8 max-w-5xl space-y-8">
+        {/* Stats row */}
+        {stats && (stats.totalCases > 0 || stats.totalProjects > 0) && (
+          <div className="grid gap-4 sm:grid-cols-4">
+            {[
+              { label: "Upphandlingar", value: stats.totalCases, icon: "clipboard-list", href: "/cases" },
+              { label: "Utkast", value: stats.draftCases, icon: "file-edit", href: "/cases" },
+              { label: "Aktiva", value: stats.activeCases, icon: "activity", href: "/cases" },
+              { label: "Mätningsprojekt", value: stats.totalProjects, icon: "bar-chart-3", href: "/mognadmatning/projekt" },
+            ].map((s) => (
+              <Link
+                key={s.label}
+                href={s.href}
+                className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm hover:border-primary/30 hover:shadow-md transition-all group"
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <Icon name={s.icon} size={14} className="text-muted-foreground/50" />
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">{s.label}</p>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors">
-                      {app.title}
-                    </h2>
-                    <Icon
-                      name="arrow-right"
-                      size={14}
-                      className="text-muted-foreground/30 group-hover:text-primary/50 group-hover:translate-x-0.5 transition-all"
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                    {app.description}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {features && enabledApps.length === 0 && (
-          <div className="rounded-2xl border border-border/60 bg-card p-8 text-center space-y-3">
-            <Icon name="lock" size={24} className="text-muted-foreground/40 mx-auto" />
-            <p className="text-sm text-muted-foreground">
-              Inga applikationer är aktiverade. Kontakta din administratör.
-            </p>
+                <p className="text-2xl font-semibold text-foreground group-hover:text-primary transition-colors">{s.value}</p>
+              </Link>
+            ))}
           </div>
         )}
 
-        {enabledApps.length > 0 && (
-          <div className="mt-8 rounded-2xl border border-border/40 bg-card/50 p-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50 mb-3">
-              Snabbinfo
-            </p>
-            <div className="grid gap-4 sm:grid-cols-3 text-xs">
-              <div className="space-y-1">
-                <p className="font-semibold text-foreground">Aktiva appar</p>
-                <p className="text-muted-foreground">{enabledApps.length} av {APP_CARDS.length}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="font-semibold text-foreground">Plattform</p>
-                <p className="text-muted-foreground">Critero Suite v2.0</p>
-              </div>
-              <div className="space-y-1">
-                <p className="font-semibold text-foreground">Support</p>
-                <p className="text-muted-foreground">kontakt@criteroconsulting.se</p>
-              </div>
+        {/* Apps section */}
+        <section>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50 mb-4">
+            Applikationer
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {enabledApps.map((app) => (
+              <Link
+                key={app.appKey}
+                href={app.href}
+                className="group rounded-2xl border border-border/60 bg-card p-6 shadow-sm hover:border-primary/30 hover:shadow-md transition-all"
+              >
+                <div className="flex items-start gap-4">
+                  <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${app.color} transition-colors`}>
+                    <Icon name={app.icon} size={22} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors">
+                        {app.title}
+                      </h2>
+                      <Icon
+                        name="arrow-right"
+                        size={14}
+                        className="text-muted-foreground/30 group-hover:text-primary/50 group-hover:translate-x-0.5 transition-all"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                      {app.description}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {features && enabledApps.length === 0 && (
+            <div className="rounded-2xl border border-border/60 bg-card p-8 text-center space-y-3">
+              <Icon name="lock" size={24} className="text-muted-foreground/40 mx-auto" />
+              <p className="text-sm text-muted-foreground">
+                Inga applikationer är aktiverade. Kontakta din administratör.
+              </p>
+            </div>
+          )}
+        </section>
+
+        {/* Recent cases + Activity in two columns */}
+        {dashboard && (dashboard.recentCases.length > 0 || dashboard.recentActivity.length > 0) && (
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Recent cases */}
+            {dashboard.recentCases.length > 0 && (
+              <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">
+                    Senaste upphandlingar
+                  </p>
+                  <Link href="/cases" className="text-xs text-primary hover:text-primary/80 transition-colors">
+                    Visa alla
+                  </Link>
+                </div>
+                <div className="space-y-2">
+                  {dashboard.recentCases.map((c) => (
+                    <Link
+                      key={c.id}
+                      href={`/cases/${c.id}`}
+                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-accent/50 transition-colors group"
+                    >
+                      <Icon name="folder" size={14} className="text-muted-foreground/40 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
+                          {c.name}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">
+                          Uppdaterad {new Date(c.updatedAt).toLocaleDateString("sv-SE")}
+                        </p>
+                      </div>
+                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${STATUS_COLORS[c.status] ?? STATUS_COLORS.draft}`}>
+                        {c.status === "draft" ? "Utkast" : c.status === "active" ? "Aktiv" : c.status}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Recent activity */}
+            {dashboard.recentActivity.length > 0 && (
+              <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50 mb-4">
+                  Senaste aktivitet
+                </p>
+                <div className="space-y-2">
+                  {dashboard.recentActivity.map((a, i) => (
+                    <div key={i} className="flex items-center gap-3 rounded-xl px-3 py-2.5">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                        <Icon
+                          name={a.action === "create" ? "plus" : a.action === "delete" ? "trash-2" : "pencil"}
+                          size={12}
+                          className="text-primary"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-foreground">
+                          {ACTION_LABELS[a.action] ?? a.action}{" "}
+                          <span className="text-muted-foreground">
+                            {ENTITY_LABELS[a.entityType] ?? a.entityType}
+                          </span>
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {timeAgo(a.createdAt)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+        )}
+
+        {/* Quick-start for empty state */}
+        {stats && stats.totalCases === 0 && stats.totalProjects === 0 && enabledApps.length > 0 && (
+          <section className="rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-8 text-center space-y-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 mx-auto">
+              <Icon name="rocket" size={24} className="text-primary" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">Kom igång!</h3>
+              <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
+                Välkommen till Critero Suite. Välj en applikation ovan för att börja, eller skapa din första upphandling.
+              </p>
+            </div>
+            {features?.upphandling !== false && (
+              <Link
+                href="/cases/new"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+              >
+                <Icon name="plus" size={16} />
+                Skapa upphandling
+              </Link>
+            )}
+          </section>
+        )}
+
+        {/* Footer info */}
+        <div className="rounded-2xl border border-border/40 bg-card/50 p-5">
+          <div className="grid gap-4 sm:grid-cols-3 text-xs">
+            <div className="space-y-1">
+              <p className="font-semibold text-foreground">Aktiva appar</p>
+              <p className="text-muted-foreground">{enabledApps.length} av {APP_CARDS.length}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="font-semibold text-foreground">Plattform</p>
+              <p className="text-muted-foreground">Critero Suite v2.0</p>
+            </div>
+            <div className="space-y-1">
+              <p className="font-semibold text-foreground">Support</p>
+              <p className="text-muted-foreground">kontakt@criteroconsulting.se</p>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Helpers                                                            */
+/* ------------------------------------------------------------------ */
+
+function timeAgo(isoDate: string): string {
+  const diff = Date.now() - new Date(isoDate).getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return "Just nu";
+  if (minutes < 60) return `${minutes} min sedan`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} tim sedan`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days} dag${days > 1 ? "ar" : ""} sedan`;
+  return new Date(isoDate).toLocaleDateString("sv-SE");
 }

@@ -1,20 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma as db } from "@/lib/db";
 import { getDimensionsByType } from "@/config/maturity-dimensions";
+import { requireAuth, requireCaseAccess, requireWriteAccess, logAudit, ApiError } from "@/lib/auth-guard";
 
 // GET /api/cases/[caseId]/maturity/aggregate - Get aggregated maturity data
 export async function GET(
   req: NextRequest,
   props: { params: Promise<{ caseId: string }> }
 ) {
-  const params = await props.params;
-  const { caseId } = params;
-  const { searchParams } = new URL(req.url);
-  const sessionType = (searchParams.get("type") || "general") as
-    | "general"
-    | "ai_maturity";
-
   try {
+    const ctx = await requireAuth();
+    const params = await props.params;
+    const { caseId } = params;
+    await requireCaseAccess(caseId, ctx);
+
+    const { searchParams } = new URL(req.url);
+    const sessionType = (searchParams.get("type") || "general") as
+      | "general"
+      | "ai_maturity";
+
     // Get all completed sessions of the specified type
     const sessions = await db.maturitySession.findMany({
       where: {
@@ -99,11 +103,8 @@ export async function GET(
       dimensions: aggregatedDimensions,
       sessionType,
     });
-  } catch (error) {
-    console.error("Error aggregating maturity data:", error);
-    return NextResponse.json(
-      { error: "Failed to aggregate data" },
-      { status: 500 }
-    );
+  } catch (e) {
+    if (e instanceof ApiError) return e.toResponse();
+    throw e;
   }
 }

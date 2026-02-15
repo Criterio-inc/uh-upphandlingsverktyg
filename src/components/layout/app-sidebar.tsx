@@ -30,16 +30,19 @@ const isClerkEnabled =
   !!clerkKey &&
   /^pk_(test|live)_[A-Za-z0-9]{20,}/.test(clerkKey);
 
-const ADMIN_EMAIL = "par.levander@criteroconsulting.se";
-
 // Lazy-load admin check so useUser only runs inside ClerkProvider
 const AdminNavLink = dynamic(
   () => import("@clerk/nextjs").then((mod) => {
     function AdminLink({ pathname }: { pathname: string }) {
       const { user } = mod.useUser();
-      const isAdmin = user?.emailAddresses?.some(
-        (e) => e.emailAddress === ADMIN_EMAIL
-      );
+      // Check admin via fetched features context (role-based, not email-based)
+      const [isAdmin, setIsAdmin] = useState(false);
+      useEffect(() => {
+        if (!user?.id) return;
+        fetch("/api/admin/users")
+          .then((r) => { if (r.ok) setIsAdmin(true); })
+          .catch(() => {});
+      }, [user?.id]);
       if (!isAdmin) return null;
       return (
         <>
@@ -98,8 +101,8 @@ const NAV_SECTIONS: NavSection[] = [
     appKey: "upphandling",
     collapsible: true,
     items: [
-      { href: "/cases", label: "Upphandlingar", icon: "clipboard-list" },
-      { href: "/library", label: "Bibliotek", icon: "library" },
+      { href: "/cases", label: "Upphandlingar", icon: "clipboard-list", featureKey: "upphandling.cases" },
+      { href: "/library", label: "Bibliotek", icon: "library", featureKey: "upphandling.library" },
       { href: "/training", label: "Utbildning", icon: "graduation-cap", featureKey: "upphandling.training" },
       { href: "/help", label: "Hjälpcenter", icon: "help-circle", featureKey: "upphandling.help" },
     ],
@@ -291,6 +294,21 @@ export function AppSidebar() {
             </div>
           );
         })}
+
+        {/* Org settings link */}
+        <div className="my-2 border-t border-border/30" />
+        <Link
+          href="/org"
+          className={cn(
+            "flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-150",
+            pathname.startsWith("/org")
+              ? "bg-primary/10 text-primary shadow-sm"
+              : "text-muted-foreground hover:bg-accent hover:text-foreground"
+          )}
+        >
+          <Icon name="building-2" size={16} />
+          <span>Organisation</span>
+        </Link>
 
         {/* Admin link — only visible to admin */}
         {isClerkEnabled && <AdminNavLink pathname={pathname} />}

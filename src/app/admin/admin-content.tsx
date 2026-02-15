@@ -6,7 +6,9 @@ import { useUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 import { Icon } from "@/components/ui/icon";
 
-const ADMIN_EMAIL = "par.levander@criteroconsulting.se";
+/* ------------------------------------------------------------------ */
+/*  Quick links & admin tips                                           */
+/* ------------------------------------------------------------------ */
 
 const QUICK_LINKS = [
   {
@@ -37,29 +39,33 @@ const QUICK_LINKS = [
 
 const ADMIN_TIPS = [
   {
-    title: "Skapa ny användare",
-    description: "Gå till Clerk Dashboard \u2192 Users \u2192 + Create user. Ange e-post och ett tillfälligt lösenord. Klicka sedan \"Synka från Clerk\" här i admin-panelen.",
-    icon: "user-plus",
+    title: "Skapa ny organisation",
+    description:
+      "Klicka \"+ Ny organisation\" i organisationssektionen. Ange namn, slug och välj plan. Bjud sedan in medlemmar via Clerk.",
+    icon: "building",
   },
   {
-    title: "Ta bort användare",
-    description: "Clerk Dashboard \u2192 Users \u2192 klicka på användaren \u2192 Delete user. Synka sedan här för att uppdatera listan.",
-    icon: "x",
+    title: "Hantera funktioner per org",
+    description:
+      "Expandera en organisation och använd toggles för att slå på/av funktioner. Planen ger basutbudet; overrides kan lägga till eller ta bort.",
+    icon: "settings",
   },
   {
     title: "Exportera upphandlingsdata",
-    description: "Öppna en upphandling \u2192 Exportera (XLSX/JSON/CSV). JSON-export kan återställas via import.",
+    description:
+      "Öppna en upphandling \u2192 Exportera (XLSX/JSON/CSV). JSON-export kan återställas via import.",
     icon: "file-text",
   },
   {
     title: "Se aktiva sessioner",
-    description: "Clerk Dashboard \u2192 Users \u2192 klicka på en användare \u2192 Sessions. Se var och när de senast var inloggade.",
+    description:
+      "Clerk Dashboard \u2192 Users \u2192 klicka på en användare \u2192 Sessions. Se var och när de senast var inloggade.",
     icon: "activity",
   },
 ];
 
 /* ------------------------------------------------------------------ */
-/*  Feature toggle config — labels, icons, app groups                  */
+/*  Feature toggle config — mirrors config/features.ts                 */
 /* ------------------------------------------------------------------ */
 
 interface FeatureDef {
@@ -70,17 +76,39 @@ interface FeatureDef {
   appKey: "upphandling" | "verktyg" | "mognadmatning" | "ai-mognadmatning";
 }
 
-// App master toggles info
 const APP_DEFS = [
-  { key: "upphandling", label: "Upphandling", description: "LOU-stöd med ärendehantering och bibliotek", icon: "clipboard-list" },
-  { key: "verktyg", label: "Verktyg", description: "Analysverktyg och kunskapsbank", icon: "wrench" },
-  { key: "mognadmatning", label: "Digital Mognadsmätning", description: "22 frågor, 4 dimensioner, 5 mognadsnivåer", icon: "bar-chart-3" },
-  { key: "ai-mognadmatning", label: "AI-Mognadsmätning", description: "32 frågor, 8 dimensioner, AI-fokus", icon: "brain" },
+  {
+    key: "upphandling",
+    label: "Upphandling",
+    description: "LOU-stöd med ärendehantering och bibliotek",
+    icon: "clipboard-list",
+  },
+  {
+    key: "verktyg",
+    label: "Verktyg",
+    description: "Analysverktyg och kunskapsbank",
+    icon: "wrench",
+  },
+  {
+    key: "mognadmatning",
+    label: "Digital Mognadsmätning",
+    description: "22 frågor, 4 dimensioner, 5 mognadsnivåer",
+    icon: "bar-chart-3",
+  },
+  {
+    key: "ai-mognadmatning",
+    label: "AI-Mognadsmätning",
+    description: "32 frågor, 8 dimensioner, AI-fokus",
+    icon: "brain",
+  },
 ];
 
 const FEATURE_DEFS: FeatureDef[] = [
   // Upphandling
+  { key: "upphandling.cases", label: "Upphandlingsärenden", description: "Skapa och hantera upphandlingsärenden", icon: "clipboard-list", appKey: "upphandling" },
+  { key: "upphandling.library", label: "Bibliotek", description: "Delat bibliotek med mallar och referensmaterial", icon: "library", appKey: "upphandling" },
   { key: "upphandling.training", label: "Utbildning", description: "Upphandlingsakademin med kurser, quiz och scenarion", icon: "graduation-cap", appKey: "upphandling" },
+  { key: "upphandling.help", label: "Hjälpcenter", description: "Hjälpsidor och dokumentation", icon: "help-circle", appKey: "upphandling" },
   // Verktyg
   { key: "verktyg.benefit-calculator", label: "Nyttokalkyl", description: "Kalkylverktyg för kostnads- och nyttoanalys", icon: "calculator", appKey: "verktyg" },
   { key: "verktyg.risk-matrix", label: "Riskmatris", description: "Riskbedömning med sannolikhet och konsekvens", icon: "shield-alert", appKey: "verktyg" },
@@ -88,11 +116,66 @@ const FEATURE_DEFS: FeatureDef[] = [
   { key: "verktyg.timeline-planner", label: "Tidslinjeplanerare", description: "Planering och visualisering av upphandlingstidslinje", icon: "clock", appKey: "verktyg" },
   { key: "verktyg.stakeholder-map", label: "Intressentanalys", description: "Kartläggning av intressenter och deras påverkan", icon: "users", appKey: "verktyg" },
   { key: "verktyg.kunskapsbank", label: "Kunskapsbank", description: "Domäner, resonemang och AI-samtalsstöd", icon: "book-open", appKey: "verktyg" },
+  // Mognadsmätning
+  { key: "mognadmatning.survey", label: "Ny mätning", description: "Starta en ny digital mognadsmätning", icon: "plus-circle", appKey: "mognadmatning" },
+  { key: "mognadmatning.results", label: "Projekt & resultat", description: "Visa och jämför mätresultat", icon: "folder", appKey: "mognadmatning" },
+  // AI-Mognadsmätning
+  { key: "ai-mognadmatning.survey", label: "Ny AI-mätning", description: "Starta en ny AI-mognadsmätning", icon: "plus-circle", appKey: "ai-mognadmatning" },
+  { key: "ai-mognadmatning.results", label: "Projekt & resultat", description: "Visa och jämför AI-mätresultat", icon: "folder", appKey: "ai-mognadmatning" },
 ];
 
 /* ------------------------------------------------------------------ */
-/*  User type from admin API                                           */
+/*  Plan labels                                                        */
 /* ------------------------------------------------------------------ */
+
+const PLAN_LABELS: Record<string, string> = {
+  trial: "Trial",
+  starter: "Starter",
+  professional: "Professional",
+  enterprise: "Enterprise",
+};
+
+const PLAN_COLORS: Record<string, string> = {
+  trial: "bg-zinc-500/10 text-zinc-600 dark:text-zinc-400",
+  starter: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+  professional: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+  enterprise: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+};
+
+/* ------------------------------------------------------------------ */
+/*  Types                                                              */
+/* ------------------------------------------------------------------ */
+
+interface AdminOrg {
+  id: string;
+  name: string;
+  slug: string;
+  plan: string;
+  maxUsers: number;
+  memberCount: number;
+  caseCount: number;
+  featureOverrideCount: number;
+  createdAt: string;
+}
+
+interface OrgDetail {
+  id: string;
+  name: string;
+  slug: string;
+  plan: string;
+  maxUsers: number;
+  caseCount: number;
+  members: {
+    userId: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    imageUrl: string;
+    role: string;
+    joinedAt: string;
+  }[];
+  features: Record<string, boolean>;
+}
 
 interface AdminUser {
   id: string;
@@ -103,10 +186,17 @@ interface AdminUser {
   isAdmin: boolean;
   createdAt: string;
   features: Record<string, boolean>;
+  memberships: {
+    orgId: string;
+    orgName: string;
+    orgSlug: string;
+    orgPlan: string;
+    role: string;
+  }[];
 }
 
 /* ------------------------------------------------------------------ */
-/*  Toggle button component (reused for both global and per-user)       */
+/*  Toggle button component                                            */
 /* ------------------------------------------------------------------ */
 
 function ToggleSwitch({
@@ -139,21 +229,157 @@ function ToggleSwitch({
 }
 
 /* ------------------------------------------------------------------ */
-/*  Helper: check if all sub-features of an app are enabled             */
+/*  Helpers: check if all sub-features of an app are enabled           */
 /* ------------------------------------------------------------------ */
 
-function isAppEnabled(appKey: string, featureMap: Record<string, boolean>): boolean {
+function isAppEnabled(
+  appKey: string,
+  featureMap: Record<string, boolean>,
+): boolean {
   const appFeatures = FEATURE_DEFS.filter((f) => f.appKey === appKey);
-  // If no sub-features, use the app-level key directly
   if (appFeatures.length === 0) return featureMap[appKey] !== false;
   return appFeatures.every((f) => featureMap[f.key] !== false);
 }
 
-function isAppPartiallyEnabled(appKey: string, featureMap: Record<string, boolean>): boolean {
+function isAppPartiallyEnabled(
+  appKey: string,
+  featureMap: Record<string, boolean>,
+): boolean {
   const appFeatures = FEATURE_DEFS.filter((f) => f.appKey === appKey);
   if (appFeatures.length === 0) return false;
-  const enabledCount = appFeatures.filter((f) => featureMap[f.key] !== false).length;
+  const enabledCount = appFeatures.filter(
+    (f) => featureMap[f.key] !== false,
+  ).length;
   return enabledCount > 0 && enabledCount < appFeatures.length;
+}
+
+/* ------------------------------------------------------------------ */
+/*  New organization form (inline)                                     */
+/* ------------------------------------------------------------------ */
+
+function NewOrgForm({
+  onCreated,
+  onCancel,
+}: {
+  onCreated: () => void;
+  onCancel: () => void;
+}) {
+  const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+  const [plan, setPlan] = useState("trial");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const autoSlug = (v: string) =>
+    v
+      .toLowerCase()
+      .replace(/[åä]/g, "a")
+      .replace(/ö/g, "o")
+      .replace(/[^a-z0-9-]/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+
+  const handleNameChange = (v: string) => {
+    setName(v);
+    if (!slug || slug === autoSlug(name)) {
+      setSlug(autoSlug(v));
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!name.trim() || !slug.trim()) {
+      setError("Namn och slug krävs");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      const res = await fetch("/api/admin/organizations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), slug: slug.trim(), plan }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Kunde inte skapa organisation");
+        return;
+      }
+      onCreated();
+    } catch {
+      setError("Nätverksfel. Försök igen.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="rounded-2xl border border-primary/30 bg-card p-5 shadow-sm space-y-4">
+      <p className="text-sm font-semibold text-foreground">
+        Ny organisation
+      </p>
+      {error && (
+        <div className="rounded-xl border border-red-500/30 bg-red-50/50 dark:bg-red-950/20 px-3 py-2 text-sm text-red-700 dark:text-red-400">
+          {error}
+        </div>
+      )}
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-muted-foreground">
+            Namn
+          </label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => handleNameChange(e.target.value)}
+            placeholder="Acme AB"
+            className="w-full rounded-lg border border-border/60 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-muted-foreground">
+            Slug
+          </label>
+          <input
+            type="text"
+            value={slug}
+            onChange={(e) => setSlug(e.target.value)}
+            placeholder="acme-ab"
+            className="w-full rounded-lg border border-border/60 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-muted-foreground">
+            Plan
+          </label>
+          <select
+            value={plan}
+            onChange={(e) => setPlan(e.target.value)}
+            className="w-full rounded-lg border border-border/60 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+          >
+            <option value="trial">Trial</option>
+            <option value="starter">Starter</option>
+            <option value="professional">Professional</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 justify-end">
+        <button
+          onClick={onCancel}
+          className="rounded-xl border border-border/60 px-4 py-2 text-sm text-muted-foreground hover:bg-muted/30 transition-colors cursor-pointer"
+        >
+          Avbryt
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={saving}
+          className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 cursor-pointer"
+        >
+          {saving ? "Skapar..." : "Skapa"}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -163,10 +389,17 @@ function isAppPartiallyEnabled(appKey: string, featureMap: Record<string, boolea
 export default function AdminContent() {
   const { user, isLoaded } = useUser();
 
-  // Global features (for "default new user" settings)
-  const [features, setFeatures] = useState<Record<string, boolean>>({});
-  const [featuresSaving, setFeaturesSaving] = useState(false);
-  const [featuresLoaded, setFeaturesLoaded] = useState(false);
+  // Admin check via API
+  const [isAdminVerified, setIsAdminVerified] = useState<boolean | null>(null);
+
+  // Organizations
+  const [orgs, setOrgs] = useState<AdminOrg[]>([]);
+  const [orgsLoaded, setOrgsLoaded] = useState(false);
+  const [expandedOrgId, setExpandedOrgId] = useState<string | null>(null);
+  const [orgDetails, setOrgDetails] = useState<Record<string, OrgDetail>>({});
+  const [orgDetailLoading, setOrgDetailLoading] = useState<string | null>(null);
+  const [orgFeatureSaving, setOrgFeatureSaving] = useState<string | null>(null);
+  const [showNewOrgForm, setShowNewOrgForm] = useState(false);
 
   // Users
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -174,19 +407,150 @@ export default function AdminContent() {
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState("");
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
-  const [userSaving, setUserSaving] = useState<string | null>(null);
   const [usersError, setUsersError] = useState("");
 
-  // Fetch current global features
+  // Verify admin status via API
   useEffect(() => {
-    fetch("/api/features")
+    if (!user?.id) return;
+    fetch("/api/admin/users")
+      .then((r) => setIsAdminVerified(r.ok))
+      .catch(() => setIsAdminVerified(false));
+  }, [user?.id]);
+
+  // Fetch organizations
+  const fetchOrgs = useCallback(() => {
+    fetch("/api/admin/organizations")
       .then((r) => r.json())
       .then((data) => {
-        setFeatures(data.features ?? {});
-        setFeaturesLoaded(true);
+        setOrgs(data.organizations ?? []);
+        setOrgsLoaded(true);
       })
-      .catch(() => setFeaturesLoaded(true));
+      .catch(() => setOrgsLoaded(true));
   }, []);
+
+  useEffect(() => {
+    if (isAdminVerified) fetchOrgs();
+  }, [isAdminVerified, fetchOrgs]);
+
+  // Fetch org detail when expanding
+  const fetchOrgDetail = useCallback(async (orgId: string) => {
+    if (orgDetails[orgId]) return; // already cached
+    setOrgDetailLoading(orgId);
+    try {
+      const res = await fetch(`/api/admin/organizations/${orgId}`);
+      const data = await res.json();
+      if (data.organization) {
+        setOrgDetails((prev) => ({ ...prev, [orgId]: data.organization }));
+      }
+    } catch (e) {
+      console.error("Failed to fetch org detail:", e);
+    } finally {
+      setOrgDetailLoading(null);
+    }
+  }, [orgDetails]);
+
+  // Toggle org expand
+  const handleOrgExpand = useCallback(
+    (orgId: string) => {
+      if (expandedOrgId === orgId) {
+        setExpandedOrgId(null);
+      } else {
+        setExpandedOrgId(orgId);
+        fetchOrgDetail(orgId);
+      }
+    },
+    [expandedOrgId, fetchOrgDetail],
+  );
+
+  // Toggle org feature
+  const toggleOrgFeature = useCallback(
+    async (orgId: string, featureKey: string) => {
+      const detail = orgDetails[orgId];
+      if (!detail) return;
+
+      const currentVal = detail.features[featureKey] !== false;
+      const newVal = !currentVal;
+
+      // Optimistic update
+      setOrgDetails((prev) => ({
+        ...prev,
+        [orgId]: {
+          ...prev[orgId],
+          features: { ...prev[orgId].features, [featureKey]: newVal },
+        },
+      }));
+      setOrgFeatureSaving(orgId);
+
+      try {
+        await fetch(`/api/admin/organizations/${orgId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ features: { [featureKey]: newVal } }),
+        });
+      } catch (e) {
+        // Revert on error
+        setOrgDetails((prev) => ({
+          ...prev,
+          [orgId]: {
+            ...prev[orgId],
+            features: { ...prev[orgId].features, [featureKey]: currentVal },
+          },
+        }));
+        console.error("Failed to toggle org feature:", e);
+      } finally {
+        setOrgFeatureSaving(null);
+      }
+    },
+    [orgDetails],
+  );
+
+  // Toggle all features for an app (org-level)
+  const toggleOrgAppFeatures = useCallback(
+    async (orgId: string, appKey: string) => {
+      const detail = orgDetails[orgId];
+      if (!detail) return;
+
+      const appFeatures = FEATURE_DEFS.filter((f) => f.appKey === appKey);
+      const allEnabled = isAppEnabled(appKey, detail.features);
+      const updates: Record<string, boolean> = {};
+
+      // Also toggle the master app key
+      updates[appKey] = !allEnabled;
+      for (const f of appFeatures) {
+        updates[f.key] = !allEnabled;
+      }
+
+      // Optimistic update
+      setOrgDetails((prev) => ({
+        ...prev,
+        [orgId]: {
+          ...prev[orgId],
+          features: { ...prev[orgId].features, ...updates },
+        },
+      }));
+      setOrgFeatureSaving(orgId);
+
+      try {
+        await fetch(`/api/admin/organizations/${orgId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ features: updates }),
+        });
+      } catch (e) {
+        // Revert: re-fetch the org detail
+        setOrgDetails((prev) => {
+          const copy = { ...prev };
+          delete copy[orgId];
+          return copy;
+        });
+        fetchOrgDetail(orgId);
+        console.error("Failed to toggle org app features:", e);
+      } finally {
+        setOrgFeatureSaving(null);
+      }
+    },
+    [orgDetails, fetchOrgDetail],
+  );
 
   // Fetch users
   const fetchUsers = useCallback(() => {
@@ -203,134 +567,16 @@ export default function AdminContent() {
         setUsersLoaded(true);
       })
       .catch(() => {
-        setUsersError("Kunde inte hämta användare. Kontrollera att databasen är uppdaterad.");
+        setUsersError(
+          "Kunde inte hämta användare. Kontrollera att databasen är uppdaterad.",
+        );
         setUsersLoaded(true);
       });
   }, []);
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
-
-  // Toggle global feature (default for new users)
-  const toggleFeature = useCallback(
-    async (key: string) => {
-      const updated = { ...features, [key]: !features[key] };
-      setFeatures(updated);
-      setFeaturesSaving(true);
-      try {
-        await fetch("/api/features", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ features: updated }),
-        });
-      } catch (e) {
-        setFeatures(features);
-        console.error("Failed to save features:", e);
-      } finally {
-        setFeaturesSaving(false);
-      }
-    },
-    [features],
-  );
-
-  // Toggle all features for an app (global defaults)
-  const toggleAppFeatures = useCallback(
-    async (appKey: string) => {
-      const appFeatures = FEATURE_DEFS.filter((f) => f.appKey === appKey);
-      const allEnabled = isAppEnabled(appKey, features);
-      const updated = { ...features };
-      for (const f of appFeatures) {
-        updated[f.key] = !allEnabled;
-      }
-      setFeatures(updated);
-      setFeaturesSaving(true);
-      try {
-        await fetch("/api/features", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ features: updated }),
-        });
-      } catch (e) {
-        setFeatures(features);
-        console.error("Failed to save features:", e);
-      } finally {
-        setFeaturesSaving(false);
-      }
-    },
-    [features],
-  );
-
-  // Toggle per-user feature
-  const toggleUserFeature = useCallback(
-    async (userId: string, key: string) => {
-      // Optimistic update
-      setUsers((prev) =>
-        prev.map((u) =>
-          u.id === userId
-            ? { ...u, features: { ...u.features, [key]: !u.features[key] } }
-            : u,
-        ),
-      );
-      setUserSaving(userId);
-
-      try {
-        const userObj = users.find((u) => u.id === userId);
-        const currentVal = userObj?.features[key] ?? true;
-        await fetch(`/api/admin/users/${userId}/features`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ features: { [key]: !currentVal } }),
-        });
-      } catch (e) {
-        // Revert on error
-        fetchUsers();
-        console.error("Failed to save user feature:", e);
-      } finally {
-        setUserSaving(null);
-      }
-    },
-    [users, fetchUsers],
-  );
-
-  // Toggle all features for an app (per-user)
-  const toggleUserAppFeatures = useCallback(
-    async (userId: string, appKey: string) => {
-      const userObj = users.find((u) => u.id === userId);
-      if (!userObj) return;
-
-      const appFeatures = FEATURE_DEFS.filter((f) => f.appKey === appKey);
-      const allEnabled = isAppEnabled(appKey, userObj.features);
-      const updatedFeatures: Record<string, boolean> = {};
-      for (const f of appFeatures) {
-        updatedFeatures[f.key] = !allEnabled;
-      }
-
-      // Optimistic update
-      setUsers((prev) =>
-        prev.map((u) =>
-          u.id === userId
-            ? { ...u, features: { ...u.features, ...updatedFeatures } }
-            : u,
-        ),
-      );
-      setUserSaving(userId);
-
-      try {
-        await fetch(`/api/admin/users/${userId}/features`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ features: updatedFeatures }),
-        });
-      } catch (e) {
-        fetchUsers();
-        console.error("Failed to save user features:", e);
-      } finally {
-        setUserSaving(null);
-      }
-    },
-    [users, fetchUsers],
-  );
+    if (isAdminVerified) fetchUsers();
+  }, [isAdminVerified, fetchUsers]);
 
   // Sync users from Clerk
   const syncUsers = useCallback(async () => {
@@ -353,6 +599,7 @@ export default function AdminContent() {
     }
   }, [fetchUsers]);
 
+  // Loading states
   if (!isLoaded) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -361,16 +608,23 @@ export default function AdminContent() {
     );
   }
 
-  const isAdmin = user?.emailAddresses?.some(
-    (e) => e.emailAddress === ADMIN_EMAIL,
-  );
+  if (isAdminVerified === null) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <p className="text-sm text-muted-foreground">
+          Kontrollerar behörighet...
+        </p>
+      </div>
+    );
+  }
 
-  if (!isAdmin) {
+  if (!isAdminVerified) {
     redirect("/");
   }
 
   return (
     <div className="min-h-screen">
+      {/* Header */}
       <div className="border-b border-border/60 bg-card/60">
         <div className="px-8 py-8">
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
@@ -392,7 +646,7 @@ export default function AdminContent() {
                 Administration
               </h1>
               <p className="text-sm text-muted-foreground">
-                Hantera användare, funktioner och tjänster
+                Hantera organisationer, funktioner och användare
               </p>
             </div>
           </div>
@@ -401,7 +655,345 @@ export default function AdminContent() {
 
       <div className="px-8 py-8 max-w-4xl space-y-8">
         {/* ============================================================ */}
-        {/*  ANVÄNDARE — per-user feature toggles                         */}
+        {/*  ORGANISATIONER                                               */}
+        {/* ============================================================ */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">
+                Organisationer
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Hantera organisationer och deras funktioner
+              </p>
+            </div>
+            <button
+              onClick={() => setShowNewOrgForm((v) => !v)}
+              className="inline-flex items-center gap-2 rounded-xl border border-border/60 bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-muted/30 transition-colors cursor-pointer"
+            >
+              <Icon name={showNewOrgForm ? "x" : "plus"} size={14} />
+              {showNewOrgForm ? "Avbryt" : "+ Ny organisation"}
+            </button>
+          </div>
+
+          {showNewOrgForm && (
+            <NewOrgForm
+              onCreated={() => {
+                setShowNewOrgForm(false);
+                fetchOrgs();
+              }}
+              onCancel={() => setShowNewOrgForm(false)}
+            />
+          )}
+
+          {!orgsLoaded ? (
+            <div className="rounded-2xl border border-border/60 bg-card p-8 text-center">
+              <p className="text-sm text-muted-foreground animate-pulse">
+                Laddar organisationer...
+              </p>
+            </div>
+          ) : orgs.length === 0 ? (
+            <div className="rounded-2xl border border-border/60 bg-card p-8 text-center space-y-3">
+              <Icon
+                name="building"
+                size={24}
+                className="text-muted-foreground/40 mx-auto"
+              />
+              <p className="text-sm text-muted-foreground">
+                Inga organisationer skapade ännu.
+              </p>
+              <p className="text-xs text-muted-foreground/70">
+                Klicka &quot;+ Ny organisation&quot; för att skapa den
+                första.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {orgs.map((org) => {
+                const isExpanded = expandedOrgId === org.id;
+                const detail = orgDetails[org.id];
+                const isDetailLoading = orgDetailLoading === org.id;
+                const saving = orgFeatureSaving === org.id;
+
+                return (
+                  <div
+                    key={org.id}
+                    className="rounded-2xl border border-border/60 bg-card shadow-sm overflow-hidden"
+                  >
+                    {/* Org header row */}
+                    <button
+                      onClick={() => handleOrgExpand(org.id)}
+                      className="flex items-center gap-3 w-full px-5 py-4 text-left hover:bg-muted/20 transition-colors cursor-pointer"
+                    >
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-semibold">
+                        {org.name[0]?.toUpperCase() ?? "?"}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-semibold text-foreground truncate">
+                            {org.name}
+                          </p>
+                          <span
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                              PLAN_COLORS[org.plan] ?? PLAN_COLORS.trial
+                            }`}
+                          >
+                            {PLAN_LABELS[org.plan] ?? org.plan}
+                          </span>
+                          {saving && (
+                            <span className="text-[10px] text-muted-foreground animate-pulse">
+                              Sparar...
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {org.slug}
+                        </p>
+                      </div>
+
+                      {/* Summary stats */}
+                      <div className="hidden sm:flex items-center gap-4 text-xs text-muted-foreground">
+                        <span className="inline-flex items-center gap-1">
+                          <Icon name="users" size={12} />
+                          {org.memberCount}
+                        </span>
+                        <span className="inline-flex items-center gap-1">
+                          <Icon name="clipboard-list" size={12} />
+                          {org.caseCount}
+                        </span>
+                        {org.featureOverrideCount > 0 && (
+                          <span className="inline-flex items-center gap-1">
+                            <Icon name="settings" size={12} />
+                            {org.featureOverrideCount} overrides
+                          </span>
+                        )}
+                      </div>
+
+                      <Icon
+                        name={isExpanded ? "chevron-up" : "chevron-down"}
+                        size={16}
+                        className="text-muted-foreground/50"
+                      />
+                    </button>
+
+                    {/* Expanded: org details + feature toggles */}
+                    {isExpanded && (
+                      <div className="border-t border-border/40 px-5 py-4 space-y-5 bg-muted/10">
+                        {isDetailLoading && !detail ? (
+                          <p className="text-sm text-muted-foreground animate-pulse text-center py-4">
+                            Laddar detaljer...
+                          </p>
+                        ) : detail ? (
+                          <>
+                            {/* Feature toggles */}
+                            <div className="space-y-3">
+                              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
+                                Funktioner
+                              </p>
+                              {APP_DEFS.map((app) => {
+                                const appFeatures = FEATURE_DEFS.filter(
+                                  (f) => f.appKey === app.key,
+                                );
+                                const appEnabled = isAppEnabled(
+                                  app.key,
+                                  detail.features,
+                                );
+                                const appPartial = isAppPartiallyEnabled(
+                                  app.key,
+                                  detail.features,
+                                );
+
+                                return (
+                                  <div key={app.key} className="space-y-1">
+                                    {/* App master toggle */}
+                                    <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-muted/20 transition-colors">
+                                      <div
+                                        className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors ${
+                                          appEnabled || appPartial
+                                            ? "bg-primary/10"
+                                            : "bg-muted/50"
+                                        }`}
+                                      >
+                                        <Icon
+                                          name={app.icon}
+                                          size={14}
+                                          className={
+                                            appEnabled || appPartial
+                                              ? "text-primary"
+                                              : "text-muted-foreground/40"
+                                          }
+                                        />
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p
+                                          className={`text-sm font-semibold transition-colors ${
+                                            appEnabled || appPartial
+                                              ? "text-foreground"
+                                              : "text-muted-foreground"
+                                          }`}
+                                        >
+                                          {app.label}
+                                        </p>
+                                        <p className="text-[11px] text-muted-foreground">
+                                          {app.description}
+                                        </p>
+                                      </div>
+                                      <ToggleSwitch
+                                        enabled={appEnabled}
+                                        onToggle={() =>
+                                          appFeatures.length > 0
+                                            ? toggleOrgAppFeatures(
+                                                org.id,
+                                                app.key,
+                                              )
+                                            : toggleOrgFeature(
+                                                org.id,
+                                                app.key,
+                                              )
+                                        }
+                                        disabled={saving}
+                                        label={app.label}
+                                      />
+                                    </div>
+
+                                    {/* Sub-features */}
+                                    {appFeatures.length > 0 && (
+                                      <div
+                                        className={`ml-6 space-y-1 transition-opacity ${
+                                          !appEnabled && !appPartial
+                                            ? "opacity-40"
+                                            : ""
+                                        }`}
+                                      >
+                                        {appFeatures.map((feat) => {
+                                          const enabled =
+                                            detail.features[feat.key] !== false;
+                                          return (
+                                            <div
+                                              key={feat.key}
+                                              className="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-muted/20 transition-colors"
+                                            >
+                                              <div
+                                                className={`flex h-6 w-6 items-center justify-center rounded-md transition-colors ${
+                                                  enabled
+                                                    ? "bg-primary/10"
+                                                    : "bg-muted/50"
+                                                }`}
+                                              >
+                                                <Icon
+                                                  name={feat.icon}
+                                                  size={12}
+                                                  className={
+                                                    enabled
+                                                      ? "text-primary"
+                                                      : "text-muted-foreground/40"
+                                                  }
+                                                />
+                                              </div>
+                                              <div className="flex-1 min-w-0">
+                                                <p
+                                                  className={`text-sm transition-colors ${
+                                                    enabled
+                                                      ? "text-foreground"
+                                                      : "text-muted-foreground"
+                                                  }`}
+                                                >
+                                                  {feat.label}
+                                                </p>
+                                                <p className="text-[11px] text-muted-foreground">
+                                                  {feat.description}
+                                                </p>
+                                              </div>
+                                              <ToggleSwitch
+                                                enabled={enabled}
+                                                onToggle={() =>
+                                                  toggleOrgFeature(
+                                                    org.id,
+                                                    feat.key,
+                                                  )
+                                                }
+                                                disabled={saving}
+                                                label={feat.label}
+                                              />
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+
+                            {/* Members list */}
+                            <div className="space-y-2">
+                              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
+                                Medlemmar ({detail.members.length})
+                              </p>
+                              {detail.members.length === 0 ? (
+                                <p className="text-xs text-muted-foreground/70 px-3 py-2">
+                                  Inga medlemmar ännu. Bjud in via Clerk
+                                  Dashboard.
+                                </p>
+                              ) : (
+                                <div className="space-y-1">
+                                  {detail.members.map((m) => {
+                                    const memberName =
+                                      [m.firstName, m.lastName]
+                                        .filter(Boolean)
+                                        .join(" ") || m.email;
+                                    return (
+                                      <div
+                                        key={m.userId}
+                                        className="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-muted/20 transition-colors"
+                                      >
+                                        {m.imageUrl ? (
+                                          <img
+                                            src={m.imageUrl}
+                                            alt=""
+                                            className="h-7 w-7 rounded-full object-cover"
+                                          />
+                                        ) : (
+                                          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                                            {(m.firstName || m.email)[0]
+                                              ?.toUpperCase() ?? "?"}
+                                          </div>
+                                        )}
+                                        <div className="flex-1 min-w-0">
+                                          <p className="text-sm text-foreground truncate">
+                                            {memberName}
+                                          </p>
+                                          <p className="text-[11px] text-muted-foreground truncate">
+                                            {m.email}
+                                          </p>
+                                        </div>
+                                        <span className="text-[10px] font-medium text-muted-foreground bg-muted/50 rounded-full px-2 py-0.5">
+                                          {m.role}
+                                        </span>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        ) : (
+                          <p className="text-sm text-muted-foreground text-center py-4">
+                            Kunde inte ladda detaljer.
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        {/* ============================================================ */}
+        {/*  ANVÄNDARE                                                    */}
         {/* ============================================================ */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
@@ -410,7 +1002,7 @@ export default function AdminContent() {
                 Användare
               </h2>
               <p className="text-sm text-muted-foreground">
-                Styr vilka funktioner varje kund har tillgång till
+                Alla registrerade användare med organisationstillhörighet
               </p>
             </div>
             <button
@@ -435,7 +1027,11 @@ export default function AdminContent() {
 
           {usersError && (
             <div className="rounded-xl border border-amber-500/30 bg-amber-50/50 dark:bg-amber-950/20 px-4 py-3 text-sm text-amber-700 dark:text-amber-400 flex items-center gap-2">
-              <Icon name="alert-triangle" size={14} className="flex-shrink-0" />
+              <Icon
+                name="alert-triangle"
+                size={14}
+                className="flex-shrink-0"
+              />
               {usersError}
             </div>
           )}
@@ -468,7 +1064,6 @@ export default function AdminContent() {
                 const displayName =
                   [u.firstName, u.lastName].filter(Boolean).join(" ") ||
                   u.email;
-                const saving = userSaving === u.id;
 
                 return (
                   <div
@@ -482,7 +1077,6 @@ export default function AdminContent() {
                       }
                       className="flex items-center gap-3 w-full px-5 py-4 text-left hover:bg-muted/20 transition-colors cursor-pointer"
                     >
-                      {/* Avatar */}
                       {u.imageUrl ? (
                         <img
                           src={u.imageUrl}
@@ -506,26 +1100,31 @@ export default function AdminContent() {
                               Admin
                             </span>
                           )}
-                          {saving && (
-                            <span className="text-[10px] text-muted-foreground animate-pulse">
-                              Sparar...
-                            </span>
-                          )}
                         </div>
                         <p className="text-xs text-muted-foreground truncate">
                           {u.email}
                         </p>
                       </div>
 
-                      {/* Feature summary — count of enabled */}
-                      <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <span>
-                          {
-                            Object.values(u.features).filter(Boolean)
-                              .length
-                          }
-                          /{FEATURE_DEFS.length} aktiva
-                        </span>
+                      {/* Org membership badges */}
+                      <div className="hidden sm:flex items-center gap-1.5 flex-wrap justify-end">
+                        {u.memberships && u.memberships.length > 0 ? (
+                          u.memberships.map((m) => (
+                            <span
+                              key={m.orgId}
+                              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                                PLAN_COLORS[m.orgPlan] ?? PLAN_COLORS.trial
+                              }`}
+                            >
+                              <Icon name="building" size={10} />
+                              {m.orgName}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-[10px] text-muted-foreground/50">
+                            Ingen org
+                          </span>
+                        )}
                       </div>
 
                       <Icon
@@ -535,110 +1134,81 @@ export default function AdminContent() {
                       />
                     </button>
 
-                    {/* Expanded: feature toggles grouped by app */}
+                    {/* Expanded: user details */}
                     {isExpanded && (
-                      <div className="border-t border-border/40 px-5 py-4 space-y-4 bg-muted/10">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-3">
-                          Funktioner
-                        </p>
-                        {APP_DEFS.map((app) => {
-                          const appFeatures = FEATURE_DEFS.filter((f) => f.appKey === app.key);
-                          const appEnabled = isAppEnabled(app.key, u.features);
-                          const appPartial = isAppPartiallyEnabled(app.key, u.features);
-
-                          return (
-                            <div key={app.key} className="space-y-1">
-                              {/* App master toggle */}
-                              <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-muted/20 transition-colors">
+                      <div className="border-t border-border/40 px-5 py-4 space-y-3 bg-muted/10">
+                        {/* Org memberships */}
+                        <div className="space-y-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
+                            Organisationsmedlemskap
+                          </p>
+                          {u.memberships && u.memberships.length > 0 ? (
+                            <div className="space-y-1">
+                              {u.memberships.map((m) => (
                                 <div
-                                  className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors ${
-                                    appEnabled || appPartial ? "bg-primary/10" : "bg-muted/50"
-                                  }`}
+                                  key={m.orgId}
+                                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 bg-muted/20"
                                 >
-                                  <Icon
-                                    name={app.icon}
-                                    size={14}
-                                    className={
-                                      appEnabled || appPartial
-                                        ? "text-primary"
-                                        : "text-muted-foreground/40"
-                                    }
-                                  />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p
-                                    className={`text-sm font-semibold transition-colors ${
-                                      appEnabled || appPartial
-                                        ? "text-foreground"
-                                        : "text-muted-foreground"
+                                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                                    <Icon
+                                      name="building"
+                                      size={14}
+                                      className="text-primary"
+                                    />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-foreground">
+                                      {m.orgName}
+                                    </p>
+                                    <p className="text-[11px] text-muted-foreground">
+                                      {m.orgSlug}
+                                    </p>
+                                  </div>
+                                  <span
+                                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                                      PLAN_COLORS[m.orgPlan] ??
+                                      PLAN_COLORS.trial
                                     }`}
                                   >
-                                    {app.label}
-                                  </p>
+                                    {PLAN_LABELS[m.orgPlan] ?? m.orgPlan}
+                                  </span>
+                                  <span className="text-[10px] font-medium text-muted-foreground bg-muted/50 rounded-full px-2 py-0.5">
+                                    {m.role}
+                                  </span>
                                 </div>
-                                <ToggleSwitch
-                                  enabled={appEnabled}
-                                  onToggle={() =>
-                                    appFeatures.length > 0
-                                      ? toggleUserAppFeatures(u.id, app.key)
-                                      : toggleUserFeature(u.id, app.key)
-                                  }
-                                  disabled={saving}
-                                  label={app.label}
-                                />
-                              </div>
-                              {/* Sub-features (only if app has sub-features) */}
-                              {appFeatures.length > 0 && (
-                              <div className={`ml-6 space-y-1 transition-opacity ${!appEnabled && !appPartial ? "opacity-40" : ""}`}>
-                                {appFeatures.map((feat) => {
-                                  const enabled = u.features[feat.key] !== false;
-                                  return (
-                                    <div
-                                      key={feat.key}
-                                      className="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-muted/20 transition-colors"
-                                    >
-                                      <div
-                                        className={`flex h-6 w-6 items-center justify-center rounded-md transition-colors ${
-                                          enabled ? "bg-primary/10" : "bg-muted/50"
-                                        }`}
-                                      >
-                                        <Icon
-                                          name={feat.icon}
-                                          size={12}
-                                          className={
-                                            enabled
-                                              ? "text-primary"
-                                              : "text-muted-foreground/40"
-                                          }
-                                        />
-                                      </div>
-                                      <div className="flex-1 min-w-0">
-                                        <p
-                                          className={`text-sm transition-colors ${
-                                            enabled
-                                              ? "text-foreground"
-                                              : "text-muted-foreground"
-                                          }`}
-                                        >
-                                          {feat.label}
-                                        </p>
-                                      </div>
-                                      <ToggleSwitch
-                                        enabled={enabled}
-                                        onToggle={() =>
-                                          toggleUserFeature(u.id, feat.key)
-                                        }
-                                        disabled={saving}
-                                        label={feat.label}
-                                      />
-                                    </div>
-                                  );
-                                })}
-                              </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-muted-foreground/70 px-3 py-2">
+                              Användaren tillhör ingen organisation.
+                            </p>
+                          )}
+                        </div>
+
+                        {/* User info */}
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
+                            Information
+                          </p>
+                          <div className="grid gap-2 sm:grid-cols-2 text-xs text-muted-foreground px-3">
+                            <div>
+                              <span className="font-medium text-foreground">
+                                Skapad:
+                              </span>{" "}
+                              {new Date(u.createdAt).toLocaleDateString(
+                                "sv-SE",
                               )}
                             </div>
-                          );
-                        })}
+                            <div>
+                              <span className="font-medium text-foreground">
+                                ID:
+                              </span>{" "}
+                              <span className="font-mono text-[11px]">
+                                {u.id.slice(0, 16)}...
+                              </span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -649,162 +1219,8 @@ export default function AdminContent() {
         </section>
 
         {/* ============================================================ */}
-        {/*  STANDARDINSTÄLLNINGAR — global defaults for new users         */}
+        {/*  SNABBLÄNKAR                                                  */}
         {/* ============================================================ */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-foreground">
-                Standardinställningar
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Grundinställningar som gäller i dev-läge och för nya användare
-                innan de synkats
-              </p>
-            </div>
-            {featuresSaving && (
-              <span className="text-xs text-muted-foreground animate-pulse">
-                Sparar...
-              </span>
-            )}
-          </div>
-
-          {/* Always-on features */}
-          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">
-              Alltid inkluderat
-            </p>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {[
-                {
-                  label: "Upphandlingar",
-                  icon: "clipboard-list",
-                  description: "Upphandlingsärenden med LOU-stöd",
-                },
-                {
-                  label: "Bibliotek",
-                  icon: "library",
-                  description: "Återanvändbara mallar och kravblock",
-                },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="flex items-center gap-3 rounded-xl bg-muted/30 px-4 py-3"
-                >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                    <Icon
-                      name={item.icon}
-                      size={16}
-                      className="text-primary"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground">
-                      {item.label}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground">
-                      {item.description}
-                    </p>
-                  </div>
-                  <div className="flex h-5 w-9 items-center rounded-full bg-green-500/20 px-0.5">
-                    <div className="h-4 w-4 rounded-full bg-green-500 ml-auto" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* App-grouped feature toggles */}
-          {APP_DEFS.map((app) => {
-            const appFeatures = FEATURE_DEFS.filter((f) => f.appKey === app.key);
-            const appEnabled = isAppEnabled(app.key, features);
-            const appPartial = isAppPartiallyEnabled(app.key, features);
-
-            return (
-              <div key={app.key} className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-3">
-                {/* App header with master toggle */}
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
-                      appEnabled || appPartial ? "bg-primary/10" : "bg-muted/50"
-                    }`}
-                  >
-                    <Icon
-                      name={app.icon}
-                      size={16}
-                      className={
-                        appEnabled || appPartial ? "text-primary" : "text-muted-foreground/50"
-                      }
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">
-                      {app.label}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground">
-                      {app.description}
-                    </p>
-                  </div>
-                  <ToggleSwitch
-                    enabled={appEnabled}
-                    onToggle={() => appFeatures.length > 0 ? toggleAppFeatures(app.key) : toggleFeature(app.key)}
-                    disabled={!featuresLoaded}
-                    label={app.label}
-                  />
-                </div>
-
-                {/* Sub-features (only if app has sub-features) */}
-                {appFeatures.length > 0 && (
-                <div className={`space-y-2 transition-opacity ${!appEnabled && !appPartial ? "opacity-40" : ""}`}>
-                  {appFeatures.map((feat) => {
-                    const enabled = features[feat.key] !== false;
-                    return (
-                      <div
-                        key={feat.key}
-                        className="flex items-center gap-3 rounded-xl px-4 py-3 hover:bg-muted/20 transition-colors"
-                      >
-                        <div
-                          className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
-                            enabled ? "bg-primary/10" : "bg-muted/50"
-                          }`}
-                        >
-                          <Icon
-                            name={feat.icon}
-                            size={16}
-                            className={
-                              enabled ? "text-primary" : "text-muted-foreground/50"
-                            }
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p
-                            className={`text-sm font-medium transition-colors ${
-                              enabled ? "text-foreground" : "text-muted-foreground"
-                            }`}
-                          >
-                            {feat.label}
-                          </p>
-                          <p className="text-[11px] text-muted-foreground">
-                            {feat.description}
-                          </p>
-                        </div>
-                        <ToggleSwitch
-                          enabled={enabled}
-                          onToggle={() => toggleFeature(feat.key)}
-                          disabled={!featuresLoaded}
-                          label={feat.label}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-                )}
-              </div>
-            );
-          })}
-        </section>
-
-        {/* Snabblänkar */}
         <section className="space-y-4">
           <h2 className="text-lg font-semibold text-foreground">
             Snabblänkar
@@ -847,10 +1263,12 @@ export default function AdminContent() {
           </div>
         </section>
 
-        {/* Användarhantering — snabbguide */}
+        {/* ============================================================ */}
+        {/*  ADMIN TIPS                                                   */}
+        {/* ============================================================ */}
         <section className="space-y-4">
           <h2 className="text-lg font-semibold text-foreground">
-            Användarhantering — snabbguide
+            Administrationstips
           </h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {ADMIN_TIPS.map((tip) => (
@@ -878,7 +1296,9 @@ export default function AdminContent() {
           </div>
         </section>
 
-        {/* Systeminformation */}
+        {/* ============================================================ */}
+        {/*  SYSTEMINFORMATION                                            */}
+        {/* ============================================================ */}
         <section className="space-y-4">
           <h2 className="text-lg font-semibold text-foreground">
             Systeminformation

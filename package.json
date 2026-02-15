@@ -19,7 +19,7 @@
     "@prisma/adapter-libsql": "^7.3.0",
     "@prisma/client": "^7.3.0",
     "@prisma/extension-accelerate": "^3.0.1",
-    "dotenv": "^17.2.4",
+    "dotenv": "^17.3.1",
     "exceljs": "^4.4.0",
     "jspdf": "^4.1.0",
     "jspdf-autotable": "^5.0.7",
@@ -30,7 +30,8 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "recharts": "^3.7.0",
-    "svix": "^1.85.0"
+    "svix": "^1.85.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

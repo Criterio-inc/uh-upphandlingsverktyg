@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { requireAuth, requireCaseAccess, requireWriteAccess, logAudit, ApiError } from "@/lib/auth-guard";
 
 const ENTITY_MAP: Record<string, string> = {
   stakeholders: "stakeholder",
@@ -47,59 +48,87 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ caseId: string; entityType: string; entityId: string }> }
 ) {
-  const { entityType, entityId } = await params;
-  const modelName = ENTITY_MAP[entityType];
-  if (!modelName) return NextResponse.json({ error: "Unknown entity type" }, { status: 400 });
+  try {
+    const ctx = await requireAuth();
+    const { caseId, entityType, entityId } = await params;
+    await requireCaseAccess(caseId, ctx);
 
-  const model = getModel(modelName);
-  const item = await model.findUnique({ where: { id: entityId } });
-  if (!item) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const modelName = ENTITY_MAP[entityType];
+    if (!modelName) return NextResponse.json({ error: "Unknown entity type" }, { status: 400 });
 
-  return NextResponse.json(item);
+    const model = getModel(modelName);
+    const item = await model.findUnique({ where: { id: entityId } });
+    if (!item) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    return NextResponse.json(item);
+  } catch (e) {
+    if (e instanceof ApiError) return e.toResponse();
+    throw e;
+  }
 }
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ caseId: string; entityType: string; entityId: string }> }
 ) {
-  const { entityType, entityId } = await params;
-  const modelName = ENTITY_MAP[entityType];
-  if (!modelName) return NextResponse.json({ error: "Unknown entity type" }, { status: 400 });
+  try {
+    const ctx = await requireAuth();
+    requireWriteAccess(ctx);
+    const { caseId, entityType, entityId } = await params;
+    await requireCaseAccess(caseId, ctx);
 
-  const body = await req.json();
-  const model = getModel(modelName);
+    const modelName = ENTITY_MAP[entityType];
+    if (!modelName) return NextResponse.json({ error: "Unknown entity type" }, { status: 400 });
 
-  // Auto-calculate risk score
-  if (modelName === "risk") {
-    if (body.likelihood !== undefined || body.impact !== undefined) {
-      const current = await model.findUnique({ where: { id: entityId } });
-      const likelihood = body.likelihood ?? current.likelihood;
-      const impact = body.impact ?? current.impact;
-      body.score = likelihood * impact;
+    const body = await req.json();
+    const model = getModel(modelName);
+
+    // Auto-calculate risk score
+    if (modelName === "risk") {
+      if (body.likelihood !== undefined || body.impact !== undefined) {
+        const current = await model.findUnique({ where: { id: entityId } });
+        const likelihood = body.likelihood ?? current.likelihood;
+        const impact = body.impact ?? current.impact;
+        body.score = likelihood * impact;
+      }
     }
+
+    // Increment version
+    body.version = { increment: 1 };
+
+    const data = serializeJsonFields(modelName, body);
+
+    const updated = await model.update({
+      where: { id: entityId },
+      data,
+    });
+    await logAudit(ctx, "update", entityType, entityId);
+    return NextResponse.json(updated);
+  } catch (e) {
+    if (e instanceof ApiError) return e.toResponse();
+    throw e;
   }
-
-  // Increment version
-  body.version = { increment: 1 };
-
-  const data = serializeJsonFields(modelName, body);
-
-  const updated = await model.update({
-    where: { id: entityId },
-    data,
-  });
-  return NextResponse.json(updated);
 }
 
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ caseId: string; entityType: string; entityId: string }> }
 ) {
-  const { entityType, entityId } = await params;
-  const modelName = ENTITY_MAP[entityType];
-  if (!modelName) return NextResponse.json({ error: "Unknown entity type" }, { status: 400 });
+  try {
+    const ctx = await requireAuth();
+    requireWriteAccess(ctx);
+    const { caseId, entityType, entityId } = await params;
+    await requireCaseAccess(caseId, ctx);
 
-  const model = getModel(modelName);
-  await model.delete({ where: { id: entityId } });
-  return NextResponse.json({ ok: true });
+    const modelName = ENTITY_MAP[entityType];
+    if (!modelName) return NextResponse.json({ error: "Unknown entity type" }, { status: 400 });
+
+    const model = getModel(modelName);
+    await model.delete({ where: { id: entityId } });
+    await logAudit(ctx, "delete", entityType, entityId);
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    if (e instanceof ApiError) return e.toResponse();
+    throw e;
+  }
 }

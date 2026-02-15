@@ -96,20 +96,22 @@ export async function isUserAdmin(userId: string): Promise<boolean> {
   }
 }
 
-const ADMIN_EMAIL = "par.levander@criteroconsulting.se";
+/** Comma-separated platform admin emails from env, with default fallback */
+const PLATFORM_ADMIN_EMAILS = (
+  process.env.PLATFORM_ADMIN_EMAILS ?? "par.levander@criteroconsulting.se"
+).split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
 
 /**
  * Admin access check with Clerk email fallback.
  * 1. Checks DB (fast path — works after user is synced)
- * 2. Always falls back to Clerk email check if DB says not admin
+ * 2. Falls back to Clerk email check against PLATFORM_ADMIN_EMAILS env var
  */
 export async function checkAdminAccess(userId: string): Promise<boolean> {
   // 1. Fast path: check DB
   const dbAdmin = await isUserAdmin(userId);
   if (dbAdmin) return true;
 
-  // 2. Fallback: always check Clerk email directly
-  //    Handles: empty table, partial sync, user not yet in DB
+  // 2. Fallback: check Clerk email against env-configured admins
   try {
     const { clerkClient } = await import("@clerk/nextjs/server");
     const client = await clerkClient();
@@ -117,7 +119,7 @@ export async function checkAdminAccess(userId: string): Promise<boolean> {
     const email = clerkUser.emailAddresses.find(
       (e) => e.id === clerkUser.primaryEmailAddressId,
     )?.emailAddress;
-    return email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+    return !!email && PLATFORM_ADMIN_EMAILS.includes(email.toLowerCase());
   } catch {
     // Clerk not available or API error — fail closed
     return false;
