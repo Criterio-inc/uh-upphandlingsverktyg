@@ -33,6 +33,11 @@ export type FeatureKey =
   | "verktyg.timeline-planner"
   | "verktyg.stakeholder-map"
   | "verktyg.kunskapsbank"
+  | "verktyg.root-cause"
+  | "verktyg.benefit-effort"
+  | "verktyg.process-flow"
+  | "verktyg.adkar"
+  | "verktyg.force-field"
   // Mognadsmätning sub-features
   | "mognadmatning.survey"
   | "mognadmatning.results"
@@ -63,6 +68,11 @@ export const FEATURE_LABELS: Record<FeatureKey, string> = {
   "verktyg.timeline-planner": "Tidslinjeplanerare",
   "verktyg.stakeholder-map": "Intressentanalys",
   "verktyg.kunskapsbank": "Kunskapsbank",
+  "verktyg.root-cause": "Orsaksanalys",
+  "verktyg.benefit-effort": "Nytto-insats",
+  "verktyg.process-flow": "Processflöde",
+  "verktyg.adkar": "ADKAR Förändring",
+  "verktyg.force-field": "Kraftfältsanalys",
   "mognadmatning.survey": "Ny mätning",
   "mognadmatning.results": "Projekt & resultat",
   "ai-mognadmatning.survey": "Ny AI-mätning",
@@ -85,6 +95,11 @@ export const FEATURE_ICONS: Record<FeatureKey, string> = {
   "verktyg.timeline-planner": "clock",
   "verktyg.stakeholder-map": "users",
   "verktyg.kunskapsbank": "book-open",
+  "verktyg.root-cause": "search",
+  "verktyg.benefit-effort": "target",
+  "verktyg.process-flow": "git-branch",
+  "verktyg.adkar": "refresh-cw",
+  "verktyg.force-field": "git-merge",
   "mognadmatning.survey": "plus-circle",
   "mognadmatning.results": "folder",
   "ai-mognadmatning.survey": "plus-circle",
@@ -110,6 +125,11 @@ export const ALL_FEATURE_KEYS: FeatureKey[] = [
   "verktyg.timeline-planner",
   "verktyg.stakeholder-map",
   "verktyg.kunskapsbank",
+  "verktyg.root-cause",
+  "verktyg.benefit-effort",
+  "verktyg.process-flow",
+  "verktyg.adkar",
+  "verktyg.force-field",
   // Mognadsmätning
   "mognadmatning.survey",
   "mognadmatning.results",
@@ -162,6 +182,11 @@ export function routeToFeatureKey(pathname: string): FeatureKey | undefined {
   if (pathname.startsWith("/tools/timeline-planner")) return "verktyg.timeline-planner";
   if (pathname.startsWith("/tools/stakeholder-map")) return "verktyg.stakeholder-map";
   if (pathname.startsWith("/tools/kunskapsbank")) return "verktyg.kunskapsbank";
+  if (pathname.startsWith("/tools/root-cause")) return "verktyg.root-cause";
+  if (pathname.startsWith("/tools/benefit-effort")) return "verktyg.benefit-effort";
+  if (pathname.startsWith("/tools/process-flow")) return "verktyg.process-flow";
+  if (pathname.startsWith("/tools/adkar")) return "verktyg.adkar";
+  if (pathname.startsWith("/tools/force-field")) return "verktyg.force-field";
   // Upphandling
   if (pathname.startsWith("/training")) return "upphandling.training";
   if (pathname.startsWith("/cases")) return "upphandling.cases";

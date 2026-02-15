@@ -15,6 +15,7 @@ import {
   Library,
   HelpCircle,
   GitBranch,
+  GitMerge,
   Settings,
   BarChart3,
   Target,
@@ -67,6 +68,12 @@ import {
   Trash2,
   Folder,
   PlusCircle,
+  Play,
+  Square,
+  Cog,
+  ArrowDown,
+  ArrowUp,
+  Download,
   type LucideProps,
 } from "lucide-react";
 
@@ -85,6 +92,7 @@ const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
   library: Library,
   "help-circle": HelpCircle,
   "git-branch": GitBranch,
+  "git-merge": GitMerge,
   settings: Settings,
   "bar-chart-3": BarChart3,
   target: Target,
@@ -137,6 +145,12 @@ const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
   "trash-2": Trash2,
   folder: Folder,
   "plus-circle": PlusCircle,
+  play: Play,
+  square: Square,
+  cog: Cog,
+  "arrow-down": ArrowDown,
+  "arrow-up": ArrowUp,
+  download: Download,
 };
 
 interface IconProps extends Omit<LucideProps, "ref"> {
