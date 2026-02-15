@@ -93,8 +93,19 @@ Nås via `/org`. Alla organisationsmedlemmar kan se sidan, men bara admins kan u
 
 1. Admin fyller i email + väljer roll (admin/member/viewer).
 2. En inbjudan skapas med 7 dagars utgångsdatum och unik token.
-3. Användaren accepterar via inbjudningslänk.
-4. Inbjudan markeras som använd och användaren läggs till i organisationen.
+3. Systemet visar en **kopibar inbjudningslänk** (`/invite/[token]`).
+4. Användaren accepterar på ett av tre sätt (se nedan).
+5. Inbjudan markeras som använd och användaren läggs till i organisationen.
+
+### Tre vägar att acceptera en inbjudan
+
+| Väg | Hur det fungerar | Kräver manuell åtgärd? |
+|-----|------------------|------------------------|
+| **A. Clerk-konto skapas med samma e-post** | Clerk-webhooken matchar automatiskt e-post mot väntande inbjudningar och skapar membership | Nej — helt automatiskt |
+| **B. Användaren loggar in** | `requireAuth()` kontrollerar vid inloggning om det finns en väntande inbjudan för användarens e-post och accepterar automatiskt | Nej — helt automatiskt |
+| **C. Inbjudningslänk** | Användaren öppnar `/invite/[token]`, ser inbjudningsdetaljer och klickar "Acceptera" | Ja — användaren klickar en knapp |
+
+> **Best practice:** Använd väg A eller B. Skapa inbjudan först, sedan Clerk-konto med samma e-post → allt sker automatiskt.
 
 ---
 
@@ -144,7 +155,41 @@ Om en master-app (t.ex. `upphandling`) stängs av → alla dess sub-features (`u
 
 ## 7. Vanliga arbetsflöden steg-för-steg
 
-### 7.1 Skapa ny organisation
+### 7.1 Onboarding av ny kund (komplett flöde)
+
+Detta är det vanligaste flödet som plattformsadmin:
+
+1. **Skapa organisationen**
+   - Gå till `/admin` → Klicka **"+ Ny organisation"**
+   - Fyll i namn (t.ex. "Kundens AB"), välj plan (t.ex. Starter)
+   - Klicka **Skapa** — du läggs automatiskt till som admin-medlem
+
+2. **Konfigurera features**
+   - Expandera organisationskortet i `/admin`
+   - Aktivera/avaktivera features efter kundens plan och avtal
+
+3. **Bjud in kundansvarig**
+   - Gå till `/org` (eller byt till kundens org om du tillhör flera)
+   - Fyll i kundansvarigs e-post + välj roll **Administratör**
+   - Klicka **Bjud in** — en inbjudningslänk visas
+
+4. **Skapa kundkonto i Clerk**
+   - Gå till Clerk Dashboard → Users → Create user
+   - Ange **samma e-post** som inbjudan
+   - Sätt tillfälligt lösenord
+   - **Automatik:** Clerk-webhooken matchar e-post → kunden kopplas direkt till organisationen
+
+5. **Meddela kunden**
+   - Skicka: inloggningslänk + e-post + tillfälligt lösenord
+   - Kunden loggar in → ser sin organisations dashboard direkt
+   - Clerk uppmanar om lösenordsbyte vid behov
+
+6. **Kunden tar över**
+   - Kunden (org-admin) kan själv bjuda in teammedlemmar via `/org`
+   - Kunden ser kopierbara inbjudningslänkar att skicka vidare
+   - Teammedlemmar loggar in → auto-matchas mot inbjudan → klar
+
+### 7.2 Skapa ny organisation (enbart)
 
 1. Gå till `/admin`
 2. Klicka **"+ Ny organisation"**
@@ -153,22 +198,24 @@ Om en master-app (t.ex. `upphandling`) stängs av → alla dess sub-features (`u
 5. Klicka **Skapa**
 6. Expandera kortet → aktivera/avaktivera features vid behov
 
-### 7.2 Bjuda in en användare
+### 7.3 Bjuda in en användare
 
 1. Gå till `/org`
 2. Under **Inbjudningar**, fyll i email
 3. Välj roll: admin, member eller viewer
 4. Klicka **Bjud in**
-5. Inbjudan gäller i 7 dagar
+5. **Kopiera inbjudningslänken** som visas (eller använd "Kopiera länk"-knappen)
+6. Inbjudan gäller i 7 dagar
+7. Om användaren redan har ett Clerk-konto med samma e-post matchas hen automatiskt vid nästa inloggning
 
-### 7.3 Ta bort en medlem
+### 7.4 Ta bort en medlem
 
 1. Gå till `/org`
 2. Hitta medlemmen i listan
 3. Klicka **X** (visas bara om du är admin)
 4. Medlemmen förlorar åtkomst till organisationens case
 
-### 7.4 Synka användare från Clerk
+### 7.5 Synka användare från Clerk
 
 1. Gå till `/admin`
 2. Klicka **"Synka från Clerk"**
@@ -176,14 +223,14 @@ Om en master-app (t.ex. `upphandling`) stängs av → alla dess sub-features (`u
 4. Nya användare får default-features (alla aktiverade)
 5. Admin-status sätts baserat på email-matchning
 
-### 7.5 Ändra en organisations plan
+### 7.6 Ändra en organisations plan
 
 1. Gå till `/admin`
 2. Expandera organisationens kort
 3. Ändra plan via PATCH-anropet (eller via framtida UI)
 4. Features justeras automatiskt efter den nya planen
 
-### 7.6 Stänga av en feature för en organisation
+### 7.7 Stänga av en feature för en organisation
 
 1. Gå till `/admin`
 2. Expandera organisationens kort
@@ -213,10 +260,17 @@ Om en master-app (t.ex. `upphandling`) stängs av → alla dess sub-features (`u
 
 | Metod | Endpoint | Beskrivning |
 |-------|----------|-------------|
-| `GET` | `/api/org` | Hämta org-info, medlemmar, inbjudningar |
-| `POST` | `/api/org/invitations` | Skapa inbjudan (email + roll) |
+| `GET` | `/api/org` | Hämta org-info, medlemmar, inbjudningar (inkl. tokens) |
+| `POST` | `/api/org/invitations` | Skapa inbjudan (email + roll) → returnerar `inviteLink` |
 | `DELETE` | `/api/org/invitations` | Återkalla inbjudan |
 | `DELETE` | `/api/org/members` | Ta bort medlem |
+
+### Inbjudnings-endpoints (publika)
+
+| Metod | Endpoint | Beskrivning |
+|-------|----------|-------------|
+| `GET` | `/api/invite/[token]` | Validera inbjudningstoken (visar org-namn, roll, utgångsdatum) |
+| `POST` | `/api/invite/[token]` | Acceptera inbjudan (kräver inloggad användare) |
 
 ### Feature-endpoints (alla autentiserade)
 
@@ -279,6 +333,9 @@ NEXT_PUBLIC_APP_URL=https://...
 | Kan inte nå `/admin` | Inte plattformsadmin | Kontrollera `isAdmin` i User-tabellen |
 | "Synka från Clerk" misslyckas | `CLERK_SECRET_KEY` saknas | Lägg till i `.env` |
 | Inbjudan har gått ut | 7-dagars TTL | Återkalla och skicka ny |
+| Användare kopplas inte till org | E-post i Clerk matchar inte inbjudan | Kontrollera att exakt samma e-post används |
+| Inbjudningslänk fungerar inte | Token ogiltigt/utgånget | Skapa ny inbjudan via `/org` |
+| Kund kan inte bjuda in | Inte org-admin | Kontrollera att kunden har rollen `admin` i organisationen |
 | Features uppdateras inte i sidebar | Cache | Ladda om sidan (sidebar hämtar `/api/features`) |
 | Viewer kan inte redigera | Korrekt beteende | Byt roll till member eller admin |
 | "403 Forbidden" på org-endpoints | Inte medlem i organisationen | Kontrollera OrgMembership |
