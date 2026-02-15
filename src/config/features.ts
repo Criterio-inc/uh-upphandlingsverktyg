@@ -22,17 +22,30 @@ export type FeatureKey =
   | "mognadmatning"
   | "ai-mognadmatning"
   // Upphandling sub-features
+  | "upphandling.cases"
+  | "upphandling.library"
   | "upphandling.training"
+  | "upphandling.help"
   // Verktyg sub-features
   | "verktyg.benefit-calculator"
   | "verktyg.risk-matrix"
   | "verktyg.evaluation-model"
   | "verktyg.timeline-planner"
   | "verktyg.stakeholder-map"
-  | "verktyg.kunskapsbank";
+  | "verktyg.kunskapsbank"
+  // Mognadsmätning sub-features
+  | "mognadmatning.survey"
+  | "mognadmatning.results"
+  // AI-Mognadsmätning sub-features
+  | "ai-mognadmatning.survey"
+  | "ai-mognadmatning.results";
 
-/** Features that are always active and cannot be toggled off */
-export const ALWAYS_ON = ["cases", "library", "help"] as const;
+/**
+ * No features are "always on" anymore.
+ * Everything is controlled by organization plan + org-level overrides.
+ * @deprecated — kept temporarily for backwards compat; will be removed
+ */
+export const ALWAYS_ON: readonly string[] = [];
 
 /** Human-readable labels for each toggleable feature */
 export const FEATURE_LABELS: Record<FeatureKey, string> = {
@@ -40,13 +53,20 @@ export const FEATURE_LABELS: Record<FeatureKey, string> = {
   verktyg: "Verktyg",
   mognadmatning: "Digital Mognadsmätning",
   "ai-mognadmatning": "AI-Mognadsmätning",
+  "upphandling.cases": "Upphandlingsärenden",
+  "upphandling.library": "Bibliotek",
   "upphandling.training": "Utbildning",
+  "upphandling.help": "Hjälpcenter",
   "verktyg.benefit-calculator": "Nyttokalkyl",
   "verktyg.risk-matrix": "Riskmatris",
   "verktyg.evaluation-model": "Utvärderingsmodell",
   "verktyg.timeline-planner": "Tidslinjeplanerare",
   "verktyg.stakeholder-map": "Intressentanalys",
   "verktyg.kunskapsbank": "Kunskapsbank",
+  "mognadmatning.survey": "Ny mätning",
+  "mognadmatning.results": "Projekt & resultat",
+  "ai-mognadmatning.survey": "Ny AI-mätning",
+  "ai-mognadmatning.results": "Projekt & resultat",
 };
 
 /** Icon names matching the sidebar icon for each feature */
@@ -55,13 +75,20 @@ export const FEATURE_ICONS: Record<FeatureKey, string> = {
   verktyg: "wrench",
   mognadmatning: "bar-chart-3",
   "ai-mognadmatning": "brain",
+  "upphandling.cases": "clipboard-list",
+  "upphandling.library": "library",
   "upphandling.training": "graduation-cap",
+  "upphandling.help": "help-circle",
   "verktyg.benefit-calculator": "calculator",
   "verktyg.risk-matrix": "shield-alert",
   "verktyg.evaluation-model": "scale",
   "verktyg.timeline-planner": "clock",
   "verktyg.stakeholder-map": "users",
   "verktyg.kunskapsbank": "book-open",
+  "mognadmatning.survey": "plus-circle",
+  "mognadmatning.results": "folder",
+  "ai-mognadmatning.survey": "plus-circle",
+  "ai-mognadmatning.results": "folder",
 };
 
 /** Ordered list of all feature keys for consistent UI rendering */
@@ -72,7 +99,10 @@ export const ALL_FEATURE_KEYS: FeatureKey[] = [
   "mognadmatning",
   "ai-mognadmatning",
   // Upphandling
+  "upphandling.cases",
+  "upphandling.library",
   "upphandling.training",
+  "upphandling.help",
   // Verktyg
   "verktyg.benefit-calculator",
   "verktyg.risk-matrix",
@@ -80,6 +110,12 @@ export const ALL_FEATURE_KEYS: FeatureKey[] = [
   "verktyg.timeline-planner",
   "verktyg.stakeholder-map",
   "verktyg.kunskapsbank",
+  // Mognadsmätning
+  "mognadmatning.survey",
+  "mognadmatning.results",
+  // AI-Mognadsmätning
+  "ai-mognadmatning.survey",
+  "ai-mognadmatning.results",
 ];
 
 /**
@@ -114,10 +150,10 @@ export function isEffectivelyEnabled(
 }
 
 /* ------------------------------------------------------------------ */
-/*  Server-side helpers (read/write feature-config.json)               */
+/*  Route → Feature mapping                                            */
 /* ------------------------------------------------------------------ */
 
-/** Map a route path to its feature key (if any). Returns undefined for always-on routes. */
+/** Map a route path to its feature key. Returns undefined for public routes. */
 export function routeToFeatureKey(pathname: string): FeatureKey | undefined {
   // Verktyg
   if (pathname.startsWith("/tools/benefit-calculator")) return "verktyg.benefit-calculator";
@@ -128,8 +164,9 @@ export function routeToFeatureKey(pathname: string): FeatureKey | undefined {
   if (pathname.startsWith("/tools/kunskapsbank")) return "verktyg.kunskapsbank";
   // Upphandling
   if (pathname.startsWith("/training")) return "upphandling.training";
-  if (pathname.startsWith("/cases")) return "upphandling";
-  if (pathname.startsWith("/library")) return "upphandling";
+  if (pathname.startsWith("/cases")) return "upphandling.cases";
+  if (pathname.startsWith("/library")) return "upphandling.library";
+  if (pathname.startsWith("/help")) return "upphandling.help";
   // Mognadsmätning
   if (pathname.startsWith("/mognadmatning")) return "mognadmatning";
   // AI-Mognadsmätning

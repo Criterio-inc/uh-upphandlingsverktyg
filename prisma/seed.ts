@@ -32,7 +32,26 @@ async function main() {
   await prisma.case.deleteMany();
   await prisma.libraryItem.deleteMany();
   await prisma.idCounter.deleteMany();
+  await prisma.auditLog.deleteMany();
+  await prisma.invitation.deleteMany();
+  await prisma.orgFeature.deleteMany();
+  await prisma.orgMembership.deleteMany();
+  await prisma.organization.deleteMany();
   console.log("  ✓ Cleared existing data");
+
+  // ============================================================
+  // Default organization for seeded data
+  // ============================================================
+  const defaultOrg = await prisma.organization.create({
+    data: {
+      id: "seed-org",
+      name: "Demo Organisation",
+      slug: "demo",
+      plan: "enterprise",
+      maxUsers: 999,
+    },
+  });
+  console.log("  ✓ Created default organization: " + defaultOrg.name);
 
   // ============================================================
   // Library content — ~100+ items
@@ -2069,6 +2088,7 @@ async function main() {
   await prisma.case.create({
     data: {
       id: case1Id,
+      orgId: defaultOrg.id,
       name: "Nytt avfallssystem 2026",
       domainProfile: "avfall_nyanskaffning",
       orgName: "Sundsvalls kommun",
@@ -2239,6 +2259,7 @@ async function main() {
   await prisma.case.create({
     data: {
       id: case2Id,
+      orgId: defaultOrg.id,
       name: "Byte av socialtjänstsystem",
       domainProfile: "socialtjanst_byte",
       orgName: "Helsingborgs stad",

@@ -2,22 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { ensureTables } from "@/lib/ensure-tables";
 import { getAssessmentConfig } from "@/config/assessments";
+import { requireAuth, ApiError } from "@/lib/auth-guard";
 
 export const dynamic = "force-dynamic";
-
-/* ------------------------------------------------------------------ */
-/*  Clerk auth helper                                                   */
-/* ------------------------------------------------------------------ */
-
-async function getClerkUserId(): Promise<string | null> {
-  try {
-    const { auth } = await import("@clerk/nextjs/server");
-    const { userId } = await auth();
-    return userId;
-  } catch {
-    return null;
-  }
-}
 
 /* ------------------------------------------------------------------ */
 /*  GET /api/assessments — list all projects for current user           */
@@ -25,18 +12,17 @@ async function getClerkUserId(): Promise<string | null> {
 
 export async function GET(request: NextRequest) {
   try {
-    const userId = await getClerkUserId();
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const ctx = await requireAuth();
 
     await ensureTables();
 
     const { searchParams } = new URL(request.url);
     const typeSlug = searchParams.get("type");
 
-    // Build where clause
-    const where: Record<string, unknown> = { ownerId: userId };
+    // Build where clause — filter by org if available, otherwise by user
+    const where: Record<string, unknown> = ctx.orgId
+      ? { orgId: ctx.orgId }
+      : { ownerId: ctx.userId };
     if (typeSlug) {
       // Find the assessment type by slug first
       const assessmentType = await prisma.assessmentType.findUnique({
@@ -97,10 +83,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const userId = await getClerkUserId();
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const ctx = await requireAuth();
 
     await ensureTables();
 
@@ -143,7 +126,8 @@ export async function POST(request: NextRequest) {
     const project = await prisma.assessmentProject.create({
       data: {
         assessmentTypeId: assessmentType.id,
-        ownerId: userId,
+        ownerId: ctx.userId,
+        orgId: ctx.orgId || null,
         name,
         description: description ?? "",
         organizationName: organizationName ?? "",

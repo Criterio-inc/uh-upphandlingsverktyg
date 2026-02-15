@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { generateId } from "@/lib/id-generator";
+import { requireAuth, requireCaseAccess, requireWriteAccess, logAudit, ApiError } from "@/lib/auth-guard";
 
 // Map URL segments to Prisma model names and ID generator keys
 const ENTITY_MAP: Record<string, { model: string; idType: string }> = {
@@ -50,60 +51,78 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ caseId: string; entityType: string }> }
 ) {
-  const { caseId, entityType } = await params;
-  const config = ENTITY_MAP[entityType];
-  if (!config) return NextResponse.json({ error: "Unknown entity type" }, { status: 400 });
+  try {
+    const ctx = await requireAuth();
+    const { caseId, entityType } = await params;
+    await requireCaseAccess(caseId, ctx);
 
-  const model = getModel(config.model);
-  const searchParams = req.nextUrl.searchParams;
+    const config = ENTITY_MAP[entityType];
+    if (!config) return NextResponse.json({ error: "Unknown entity type" }, { status: 400 });
 
-  const where: Record<string, unknown> = { caseId };
+    const model = getModel(config.model);
+    const searchParams = req.nextUrl.searchParams;
 
-  // Apply filters
-  for (const [key, value] of searchParams.entries()) {
-    if (key === "status" && value) where.status = value;
-    if (key === "priority" && value) where.priority = value;
-    if (key === "cluster" && value) where.cluster = value;
-    if (key === "reqType" && value) where.reqType = value;
-    if (key === "level" && value) where.level = value;
-    if (key === "category" && value) where.category = value;
-    if (key === "decisionType" && value) where.decisionType = value;
-    if (key === "docType" && value) where.docType = value;
+    const where: Record<string, unknown> = { caseId };
+
+    // Apply filters
+    for (const [key, value] of searchParams.entries()) {
+      if (key === "status" && value) where.status = value;
+      if (key === "priority" && value) where.priority = value;
+      if (key === "cluster" && value) where.cluster = value;
+      if (key === "reqType" && value) where.reqType = value;
+      if (key === "level" && value) where.level = value;
+      if (key === "category" && value) where.category = value;
+      if (key === "decisionType" && value) where.decisionType = value;
+      if (key === "docType" && value) where.docType = value;
+    }
+
+    const items = await model.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+    });
+
+    return NextResponse.json(items);
+  } catch (e) {
+    if (e instanceof ApiError) return e.toResponse();
+    throw e;
   }
-
-  const items = await model.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-  });
-
-  return NextResponse.json(items);
 }
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ caseId: string; entityType: string }> }
 ) {
-  const { caseId, entityType } = await params;
-  const config = ENTITY_MAP[entityType];
-  if (!config) return NextResponse.json({ error: "Unknown entity type" }, { status: 400 });
+  try {
+    const ctx = await requireAuth();
+    requireWriteAccess(ctx);
+    const { caseId, entityType } = await params;
+    await requireCaseAccess(caseId, ctx);
 
-  const body = await req.json();
-  const id = await generateId(config.idType);
-  const model = getModel(config.model);
+    const config = ENTITY_MAP[entityType];
+    if (!config) return NextResponse.json({ error: "Unknown entity type" }, { status: 400 });
 
-  // Auto-calculate risk score
-  if (config.model === "risk") {
-    const likelihood = body.likelihood ?? 3;
-    const impact = body.impact ?? 3;
-    body.score = likelihood * impact;
+    const body = await req.json();
+    const id = await generateId(config.idType);
+    const model = getModel(config.model);
+
+    // Auto-calculate risk score
+    if (config.model === "risk") {
+      const likelihood = body.likelihood ?? 3;
+      const impact = body.impact ?? 3;
+      body.score = likelihood * impact;
+    }
+
+    const data = serializeJsonFields(config.model, {
+      id,
+      caseId,
+      ...body,
+    });
+
+    const created = await model.create({ data });
+    await logAudit(ctx, "create", entityType, id);
+    return NextResponse.json(created, { status: 201 });
+  } catch (e) {
+    if (e instanceof ApiError) return e.toResponse();
+    throw e;
   }
-
-  const data = serializeJsonFields(config.model, {
-    id,
-    caseId,
-    ...body,
-  });
-
-  const created = await model.create({ data });
-  return NextResponse.json(created, { status: 201 });
 }

@@ -6,7 +6,7 @@ import { useUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 import { Icon } from "@/components/ui/icon";
 
-const ADMIN_EMAIL = "par.levander@criteroconsulting.se";
+// Admin check now uses platform admin role via API (see useEffect below)
 
 const QUICK_LINKS = [
   {
@@ -361,11 +361,24 @@ export default function AdminContent() {
     );
   }
 
-  const isAdmin = user?.emailAddresses?.some(
-    (e) => e.emailAddress === ADMIN_EMAIL,
-  );
+  // Check admin access via API (role-based, not email-based)
+  const [isAdminVerified, setIsAdminVerified] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!user?.id) return;
+    fetch("/api/admin/users")
+      .then((r) => setIsAdminVerified(r.ok))
+      .catch(() => setIsAdminVerified(false));
+  }, [user?.id]);
 
-  if (!isAdmin) {
+  if (isAdminVerified === null) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <p className="text-sm text-muted-foreground">Kontrollerar behörighet...</p>
+      </div>
+    );
+  }
+
+  if (!isAdminVerified) {
     redirect("/");
   }
 
@@ -669,22 +682,22 @@ export default function AdminContent() {
             )}
           </div>
 
-          {/* Always-on features */}
+          {/* Info about plan-based features */}
           <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-3">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">
-              Alltid inkluderat
+              Organisationsplan
             </p>
             <div className="grid gap-2 sm:grid-cols-2">
               {[
                 {
-                  label: "Upphandlingar",
-                  icon: "clipboard-list",
-                  description: "Upphandlingsärenden med LOU-stöd",
+                  label: "Alla moduler styrbara",
+                  icon: "settings",
+                  description: "Upphandling, Bibliotek och alla andra moduler kan nu slås på/av per organisation",
                 },
                 {
-                  label: "Bibliotek",
-                  icon: "library",
-                  description: "Återanvändbara mallar och kravblock",
+                  label: "Planbaserat",
+                  icon: "credit-card",
+                  description: "Trial, Starter, Professional och Enterprise bestämmer basutbudet",
                 },
               ].map((item) => (
                 <div

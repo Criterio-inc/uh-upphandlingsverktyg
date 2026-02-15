@@ -1,15 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma as db } from "@/lib/db";
+import { requireAuth, requireCaseAccess, requireWriteAccess, logAudit, ApiError } from "@/lib/auth-guard";
 
 // POST /api/cases/[caseId]/maturity/[sessionId]/responses - Submit responses
 export async function POST(
   req: NextRequest,
   props: { params: Promise<{ caseId: string; sessionId: string }> }
 ) {
-  const params = await props.params;
-  const { sessionId } = params;
-
   try {
+    const ctx = await requireAuth();
+    requireWriteAccess(ctx);
+    const params = await props.params;
+    const { caseId, sessionId } = params;
+    await requireCaseAccess(caseId, ctx);
+
     const body = await req.json();
     const { responses } = body; // Array of { dimensionKey, score, notes, evidence }
 
@@ -64,11 +68,8 @@ export async function POST(
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Error submitting maturity responses:", error);
-    return NextResponse.json(
-      { error: "Failed to submit responses" },
-      { status: 500 }
-    );
+  } catch (e) {
+    if (e instanceof ApiError) return e.toResponse();
+    throw e;
   }
 }

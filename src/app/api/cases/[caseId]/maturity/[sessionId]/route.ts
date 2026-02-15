@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma as db } from "@/lib/db";
+import { requireAuth, requireCaseAccess, requireWriteAccess, logAudit, ApiError } from "@/lib/auth-guard";
 
 // GET /api/cases/[caseId]/maturity/[sessionId] - Get session with responses
 export async function GET(
   req: NextRequest,
   props: { params: Promise<{ caseId: string; sessionId: string }> }
 ) {
-  const params = await props.params;
-  const { sessionId } = params;
-
   try {
+    const ctx = await requireAuth();
+    const params = await props.params;
+    const { caseId, sessionId } = params;
+    await requireCaseAccess(caseId, ctx);
+
     const session = await db.maturitySession.findUnique({
       where: { id: sessionId },
       include: {
@@ -22,12 +25,9 @@ export async function GET(
     }
 
     return NextResponse.json(session);
-  } catch (error) {
-    console.error("Error fetching maturity session:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch session" },
-      { status: 500 }
-    );
+  } catch (e) {
+    if (e instanceof ApiError) return e.toResponse();
+    throw e;
   }
 }
 
@@ -36,10 +36,13 @@ export async function PATCH(
   req: NextRequest,
   props: { params: Promise<{ caseId: string; sessionId: string }> }
 ) {
-  const params = await props.params;
-  const { sessionId } = params;
-
   try {
+    const ctx = await requireAuth();
+    requireWriteAccess(ctx);
+    const params = await props.params;
+    const { caseId, sessionId } = params;
+    await requireCaseAccess(caseId, ctx);
+
     const body = await req.json();
 
     const session = await db.maturitySession.update({
@@ -51,12 +54,9 @@ export async function PATCH(
     });
 
     return NextResponse.json(session);
-  } catch (error) {
-    console.error("Error updating maturity session:", error);
-    return NextResponse.json(
-      { error: "Failed to update session" },
-      { status: 500 }
-    );
+  } catch (e) {
+    if (e instanceof ApiError) return e.toResponse();
+    throw e;
   }
 }
 
@@ -65,20 +65,20 @@ export async function DELETE(
   req: NextRequest,
   props: { params: Promise<{ caseId: string; sessionId: string }> }
 ) {
-  const params = await props.params;
-  const { sessionId } = params;
-
   try {
+    const ctx = await requireAuth();
+    requireWriteAccess(ctx);
+    const params = await props.params;
+    const { caseId, sessionId } = params;
+    await requireCaseAccess(caseId, ctx);
+
     await db.maturitySession.delete({
       where: { id: sessionId },
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Error deleting maturity session:", error);
-    return NextResponse.json(
-      { error: "Failed to delete session" },
-      { status: 500 }
-    );
+  } catch (e) {
+    if (e instanceof ApiError) return e.toResponse();
+    throw e;
   }
 }

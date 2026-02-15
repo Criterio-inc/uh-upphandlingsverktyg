@@ -30,16 +30,19 @@ const isClerkEnabled =
   !!clerkKey &&
   /^pk_(test|live)_[A-Za-z0-9]{20,}/.test(clerkKey);
 
-const ADMIN_EMAIL = "par.levander@criteroconsulting.se";
-
 // Lazy-load admin check so useUser only runs inside ClerkProvider
 const AdminNavLink = dynamic(
   () => import("@clerk/nextjs").then((mod) => {
     function AdminLink({ pathname }: { pathname: string }) {
       const { user } = mod.useUser();
-      const isAdmin = user?.emailAddresses?.some(
-        (e) => e.emailAddress === ADMIN_EMAIL
-      );
+      // Check admin via fetched features context (role-based, not email-based)
+      const [isAdmin, setIsAdmin] = useState(false);
+      useEffect(() => {
+        if (!user?.id) return;
+        fetch("/api/admin/users")
+          .then((r) => { if (r.ok) setIsAdmin(true); })
+          .catch(() => {});
+      }, [user?.id]);
       if (!isAdmin) return null;
       return (
         <>
@@ -98,8 +101,8 @@ const NAV_SECTIONS: NavSection[] = [
     appKey: "upphandling",
     collapsible: true,
     items: [
-      { href: "/cases", label: "Upphandlingar", icon: "clipboard-list" },
-      { href: "/library", label: "Bibliotek", icon: "library" },
+      { href: "/cases", label: "Upphandlingar", icon: "clipboard-list", featureKey: "upphandling.cases" },
+      { href: "/library", label: "Bibliotek", icon: "library", featureKey: "upphandling.library" },
       { href: "/training", label: "Utbildning", icon: "graduation-cap", featureKey: "upphandling.training" },
       { href: "/help", label: "Hjälpcenter", icon: "help-circle", featureKey: "upphandling.help" },
     ],

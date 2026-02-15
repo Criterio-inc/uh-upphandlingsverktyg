@@ -1,41 +1,30 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { checkAdminAccess } from "@/lib/user-features";
 import { ensureTables } from "@/lib/ensure-tables";
+import { requireAuth, requirePlatformAdmin, ApiError } from "@/lib/auth-guard";
 
 export const dynamic = "force-dynamic";
 
 /* ------------------------------------------------------------------ */
-/*  Clerk auth helper                                                   */
-/* ------------------------------------------------------------------ */
-
-async function getClerkUserId(): Promise<string | null> {
-  try {
-    const { auth } = await import("@clerk/nextjs/server");
-    const { userId } = await auth();
-    return userId;
-  } catch {
-    return null;
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/*  GET /api/admin/users — list all users with features                 */
+/*  GET /api/admin/users — list all users with memberships & features   */
 /* ------------------------------------------------------------------ */
 
 export async function GET() {
   try {
-    const userId = await getClerkUserId();
-
-    // Require admin (with bootstrap fallback for first-time setup)
-    if (!userId || !(await checkAdminAccess(userId))) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-    }
+    const ctx = await requireAuth();
+    requirePlatformAdmin(ctx);
 
     await ensureTables();
 
     const users = await prisma.user.findMany({
-      include: { features: true },
+      include: {
+        features: true,
+        memberships: {
+          include: {
+            org: { select: { id: true, name: true, slug: true, plan: true } },
+          },
+        },
+      },
       orderBy: [{ isAdmin: "desc" }, { email: "asc" }],
     });
 
@@ -51,13 +40,20 @@ export async function GET() {
       features: Object.fromEntries(
         u.features.map((f) => [f.featureKey, f.enabled]),
       ),
+      memberships: u.memberships.map((m) => ({
+        orgId: m.org.id,
+        orgName: m.org.name,
+        orgSlug: m.org.slug,
+        orgPlan: m.org.plan,
+        role: m.role,
+      })),
     }));
 
     return NextResponse.json({ users: result });
   } catch (e) {
+    if (e instanceof ApiError) return e.toResponse();
     console.error("GET /api/admin/users error:", e);
 
-    // Graceful handling if User table doesn't exist yet (migration not applied)
     const msg = e instanceof Error ? e.message : "Unknown error";
     if (msg.includes("no such table")) {
       return NextResponse.json({

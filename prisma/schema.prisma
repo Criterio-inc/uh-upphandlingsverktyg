@@ -7,10 +7,108 @@ datasource db {
 }
 
 // ============================================================
+// ORGANIZATION - tenant for multi-tenancy
+// ============================================================
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique   // URL-friendly name
+  plan      String   @default("trial") // trial | starter | professional | enterprise
+  maxUsers  Int      @default(5)
+  settings  String   @default("{}") // JSON: branding, defaults, etc.
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships OrgMembership[]
+  cases       Case[]
+  features    OrgFeature[]
+  invitations Invitation[]
+  assessmentProjects AssessmentProject[]
+  auditLogs   AuditLog[]
+}
+
+// ============================================================
+// ORG MEMBERSHIP - links users to organizations with roles
+// ============================================================
+model OrgMembership {
+  id        String   @id @default(cuid())
+  orgId     String
+  userId    String
+  role      String   @default("member") // admin | member | viewer
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  org  Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, userId])
+  @@index([orgId])
+  @@index([userId])
+}
+
+// ============================================================
+// ORG FEATURE - per-organization feature toggle
+// ============================================================
+model OrgFeature {
+  id         String   @id @default(cuid())
+  orgId      String
+  featureKey String
+  enabled    Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, featureKey])
+  @@index([orgId])
+}
+
+// ============================================================
+// INVITATION - email invitations to join an organization
+// ============================================================
+model Invitation {
+  id        String    @id @default(cuid())
+  orgId     String
+  email     String
+  role      String    @default("member") // admin | member | viewer
+  token     String    @unique @default(cuid())
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([email])
+  @@index([orgId])
+}
+
+// ============================================================
+// AUDIT LOG - tracks who did what
+// ============================================================
+model AuditLog {
+  id         String   @id @default(cuid())
+  orgId      String
+  userId     String
+  action     String   // create | update | delete | export | import
+  entityType String
+  entityId   String   @default("")
+  changes    String   @default("{}") // JSON diff
+  createdAt  DateTime @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, createdAt])
+  @@index([userId])
+  @@index([entityType, entityId])
+}
+
+// ============================================================
 // CASE - top-level container for a procurement
 // ============================================================
 model Case {
   id               String   @id // e.g. "CASE-000001"
+  orgId            String?  // FK to Organization (nullable for migration compat)
   name             String
   domainProfile    String   @default("generisk_lou") // generisk_lou | avfall_nyanskaffning | socialtjanst_byte
   orgName          String   @default("")
@@ -29,6 +127,7 @@ model Case {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
+  org               Organization? @relation(fields: [orgId], references: [id])
   stakeholders      Stakeholder[]
   workshops         Workshop[]
   evidence          Evidence[]
@@ -44,6 +143,8 @@ model Case {
   traceLinks        TraceLink[]
   libraryItems      LibraryItem[] @relation("CaseLibraryItems")
   maturitySessions  MaturitySession[]
+
+  @@index([orgId])
 }
 
 // ============================================================
@@ -406,11 +507,12 @@ model User {
   firstName String   @default("")
   lastName  String   @default("")
   imageUrl  String   @default("")
-  isAdmin   Boolean  @default(false)
+  isAdmin   Boolean  @default(false) // platform-level admin (Critero staff)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  features UserFeature[]
+  features    UserFeature[]
+  memberships OrgMembership[]
 }
 
 // ============================================================
@@ -451,7 +553,8 @@ model AssessmentType {
 model AssessmentProject {
   id               String   @id @default(cuid())
   assessmentTypeId String
-  ownerId          String   // Clerk userId
+  ownerId          String   // Clerk userId (kept for backwards compat)
+  orgId            String?  // FK to Organization
   name             String
   description      String   @default("")
   organizationName String   @default("")
@@ -459,9 +562,11 @@ model AssessmentProject {
   updatedAt        DateTime @updatedAt
 
   assessmentType AssessmentType    @relation(fields: [assessmentTypeId], references: [id])
+  org            Organization?     @relation(fields: [orgId], references: [id])
   sessions       AssessmentSession[]
 
   @@index([ownerId])
+  @@index([orgId])
   @@index([assessmentTypeId])
 }
 

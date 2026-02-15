@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma as db } from "@/lib/db";
 import { randomBytes } from "crypto";
+import { requireAuth, requireCaseAccess, requireWriteAccess, logAudit, ApiError } from "@/lib/auth-guard";
 
 // GET /api/cases/[caseId]/maturity - List all sessions for a case
 export async function GET(
   req: NextRequest,
   props: { params: Promise<{ caseId: string }> }
 ) {
-  const params = await props.params;
-  const { caseId } = params;
-
   try {
+    const ctx = await requireAuth();
+    const params = await props.params;
+    const { caseId } = params;
+    await requireCaseAccess(caseId, ctx);
+
     const sessions = await db.maturitySession.findMany({
       where: { caseId },
       include: {
@@ -32,12 +35,9 @@ export async function GET(
     });
 
     return NextResponse.json(sessionsWithStats);
-  } catch (error) {
-    console.error("Error fetching maturity sessions:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch sessions" },
-      { status: 500 }
-    );
+  } catch (e) {
+    if (e instanceof ApiError) return e.toResponse();
+    throw e;
   }
 }
 
@@ -46,10 +46,13 @@ export async function POST(
   req: NextRequest,
   props: { params: Promise<{ caseId: string }> }
 ) {
-  const params = await props.params;
-  const { caseId } = params;
-
   try {
+    const ctx = await requireAuth();
+    requireWriteAccess(ctx);
+    const params = await props.params;
+    const { caseId } = params;
+    await requireCaseAccess(caseId, ctx);
+
     const body = await req.json();
     const { sessionType = "general", name = "Anonym respondent" } = body;
 
@@ -67,11 +70,8 @@ export async function POST(
     });
 
     return NextResponse.json(session);
-  } catch (error) {
-    console.error("Error creating maturity session:", error);
-    return NextResponse.json(
-      { error: "Failed to create session" },
-      { status: 500 }
-    );
+  } catch (e) {
+    if (e instanceof ApiError) return e.toResponse();
+    throw e;
   }
 }
